@@ -10,7 +10,10 @@ Database: MySQL (Sequelize)
 
 ## Project Preparing
 
-Manually create database with name is Gw_project
+```
+Manually create database with name is in your environment file
+
+```
 
 Create .env file in root directory below format:
 
