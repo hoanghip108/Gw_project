@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const config = require(".");
+const config = require("./");
 
 const options = {
   logging: false,
