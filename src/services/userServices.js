@@ -35,7 +35,7 @@ const login = async (payload) => {
         const token = jwt.sign(dataForAccessToken, process.env.JWT_SECRET, {
           expiresIn: process.env.TOKEN_EXPIRATION,
         });
-        return token;
+        return { user, token };
       }
     }
     return null;
