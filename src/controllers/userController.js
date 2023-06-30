@@ -1,4 +1,4 @@
-import { createUser, login } from "../services/userServices";
+import { createUser, login, verifyUser } from "../services/userServices";
 import { UserSchema, Loginschema } from "../validators/userValidate";
 const httpStatus = require("http-status");
 const {
@@ -20,7 +20,8 @@ const createUserController = async (req, res, next) => {
     if (error) {
       return res.status(httpStatus.BAD_REQUEST).json(error.details[0].message);
     }
-    const user = await createUser(value);
+    const host = req.headers.host;
+    const user = await createUser(host, value);
     if (!user) {
       return res.status(httpStatus.CONFLICT).json(new Conflict());
     }
@@ -45,4 +46,22 @@ const loginController = async (req, res, next) => {
     next(err);
   }
 };
-export { createUserController, loginController };
+const verifyUserController = async (req, res, next) => {
+  try {
+    const protocol = req.protocol;
+    const host = req.get("host");
+    const id = req.params.id;
+    const verify = await verifyUser(id);
+    if (verify) {
+      return res
+        .status(httpStatus.OK)
+        .json(new Success("your account has been verified"));
+    }
+    return res
+      .status(httpStatus.BadRequest)
+      .json(new BadRequest("email is not verified"));
+  } catch (err) {
+    next(err);
+  }
+};
+export { createUserController, loginController, verifyUserController };

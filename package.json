@@ -1,7 +1,7 @@
 {
   "name": "gw_project",
   "version": "1.0.0",
-  "description": "",
+  "description": "Language: Javascript\r Framework: ExpressJs\r Database: MySQL (Sequelize)",
   "main": "index.js",
   "scripts": {
     "start": "nodemon --exec babel-node ./src/server.js",
@@ -46,6 +46,7 @@
     "@babel/core": "^7.22.5",
     "@babel/node": "^7.22.5",
     "@babel/preset-env": "^7.22.5",
+    "nodemon": "^2.0.22",
     "sequelize-cli": "^6.6.1"
   }
 }

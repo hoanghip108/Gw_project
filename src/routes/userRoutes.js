@@ -1,6 +1,11 @@
 const express = require("express");
-import { createUserController, loginController } from "../controllers/userController";
+import {
+  createUserController,
+  loginController,
+  verifyUserController,
+} from "../controllers/userController";
 const userRouter = express.Router();
-userRouter.post("/users/login", loginController);
-userRouter.post("/users", createUserController);
+userRouter.post("/users/auth/login", loginController);
+userRouter.post("/users/auth/register", createUserController);
+userRouter.get("/users/auth/register/verify/:id", verifyUserController);
 export default userRouter;
