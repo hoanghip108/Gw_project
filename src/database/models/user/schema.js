@@ -15,16 +15,8 @@ module.exports = {
     type: Sequelize.STRING(250),
     allowNull: false,
   },
-  firstName: {
+  fullName: {
     type: Sequelize.STRING(250),
-    allowNull: true,
-  },
-  lastName: {
-    type: Sequelize.STRING(250),
-    allowNull: true,
-  },
-  managerId: {
-    type: Sequelize.STRING(36),
     allowNull: true,
   },
   email: {
@@ -32,21 +24,17 @@ module.exports = {
     allowNull: true,
     unique: false,
   },
-  phone: {
+  phoneNumber: {
     type: Sequelize.STRING(100),
-    allowNull: true,
+    allowNull: false,
   },
   avatar: {
     type: Sequelize.STRING(255),
     allowNull: true,
   },
 
-  address: {
+  bio: {
     type: Sequelize.STRING(500),
     allowNull: true,
-  },
-  isActive: {
-    type: Sequelize.INTEGER(1),
-    defaultValue: 1,
   },
 };
