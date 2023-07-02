@@ -1,4 +1,4 @@
-const Sequelize = require("sequelize");
+const { Sequelize, DataTypes } = require('sequelize');
 module.exports = {
   id: {
     type: Sequelize.STRING(36),
@@ -26,13 +26,17 @@ module.exports = {
   },
   phoneNumber: {
     type: Sequelize.STRING(100),
-    allowNull: false,
+    allowNull: true,
   },
   avatar: {
     type: Sequelize.STRING(255),
     allowNull: true,
   },
-
+  isActive: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   bio: {
     type: Sequelize.STRING(500),
     allowNull: true,

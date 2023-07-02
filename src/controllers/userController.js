@@ -1,5 +1,6 @@
 import { createUser, login, verifyUser } from '../services/userServices';
 import { UserSchema, Loginschema } from '../validators/userValidate';
+const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
 const {
   Common,
@@ -25,6 +26,38 @@ const createUserController = async (req, res, next) => {
     if (!user) {
       return res.status(httpStatus.CONFLICT).json(new Conflict());
     }
+    var transporter = nodemailer.createTransport({
+      service: 'Gmail',
+      auth: {
+        user: process.env.MAIL,
+        pass: process.env.MAIL_PASSWORD,
+      },
+    });
+    var mailOptions, link;
+    link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
+    mailOptions = {
+      from: 'hoanghip108@gmail.com',
+      to: user.email,
+      subject: 'Account Verification Link',
+      html:
+        'Hello,<br> Please Click on the link to verify your email.<br><a href=' +
+        link +
+        '>Click here to verify</a>',
+    };
+    transporter.sendMail(mailOptions, function (err) {
+      if (err) {
+        return res.status(500).send({
+          msg: 'Technical Issue!, Please click on resend for verify your Email.',
+        });
+      }
+      return res
+        .status(200)
+        .send(
+          'A verification email has been sent to ' +
+            user.email +
+            '. It will be expire after one day. If you not get verification Email click on resend token.',
+        );
+    });
     res.status(httpStatus.OK);
     res.json(new Success('Data updated successfully.', user));
   } catch (err) {
@@ -48,8 +81,6 @@ const loginController = async (req, res, next) => {
 };
 const verifyUserController = async (req, res, next) => {
   try {
-    const protocol = req.protocol;
-    const host = req.get('host');
     const id = req.params.id;
     const verify = await verifyUser(id);
     if (verify) {
