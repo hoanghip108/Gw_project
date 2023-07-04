@@ -1,4 +1,10 @@
-import { createUser, login, verifyUser } from '../services/userServices';
+import {
+  createUser,
+  login,
+  verifyUser,
+  disableUser,
+  resetPassword,
+} from '../services/userServices';
 import { UserSchema, Loginschema } from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
@@ -15,6 +21,13 @@ const {
   ValidateFailed,
   WrongUsernameOrpassWord,
 } = require('../helper/apiResponse');
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.MAIL,
+    pass: process.env.MAIL_PASSWORD,
+  },
+});
 const createUserController = async (req, res, next) => {
   try {
     const { error, value } = UserSchema.validate(req.body);
@@ -26,13 +39,7 @@ const createUserController = async (req, res, next) => {
     if (!user) {
       return res.status(httpStatus.CONFLICT).json(new Conflict());
     }
-    var transporter = nodemailer.createTransport({
-      service: 'Gmail',
-      auth: {
-        user: process.env.MAIL,
-        pass: process.env.MAIL_PASSWORD,
-      },
-    });
+
     var mailOptions, link;
     link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
     mailOptions = {
@@ -72,9 +79,9 @@ const loginController = async (req, res, next) => {
     }
     const token = await login(value);
     if (token == null) {
-      res.status(httpStatus.UNAUTHORIZED).json(new WrongUsernameOrpassWord());
+      return res.status(httpStatus.UNAUTHORIZED).json(new WrongUsernameOrpassWord());
     }
-    res.status(httpStatus.OK).json(new Success('', token));
+    return res.status(httpStatus.OK).json(new Success('', token));
   } catch (err) {
     next(err);
   }
@@ -91,4 +98,44 @@ const verifyUserController = async (req, res, next) => {
     next(err);
   }
 };
-export { createUserController, loginController, verifyUserController };
+const disableUserController = async (req, res, next) => {
+  try {
+    const uId = req.params.id;
+    console.log(uId);
+    const user = await disableUser(uId);
+    if (user) {
+      return res.status(httpStatus.OK).json(new Success('Account has been disabled'));
+    }
+    return res.status(400).json(new BadRequest('Account not found'));
+  } catch (err) {
+    next(err);
+  }
+};
+const resetPasswordController = async (req, res, next) => {
+  try {
+    const email = req.body.email;
+    const username = req.body.username;
+    const newPassword = await resetPassword(email, username);
+    if (newPassword) {
+      const mailOptions = {
+        from: 'hoanghip108@gmail.com',
+        to: email,
+        subject: 'New Password Reset',
+        text: newPassword,
+      };
+      transporter.sendMail(mailOptions, function (err) {
+        return res.status(httpStatus.OK).json(new Success('Check Your email for new password'));
+      });
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Account not found'));
+  } catch (err) {
+    next(err);
+  }
+};
+export {
+  createUserController,
+  loginController,
+  verifyUserController,
+  disableUserController,
+  resetPasswordController,
+};

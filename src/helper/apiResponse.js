@@ -1,4 +1,4 @@
-const httpStatus = require("http-status");
+const httpStatus = require('http-status');
 
 class ExtendableResponse {
   constructor(message, code, data) {
@@ -12,42 +12,42 @@ class ExtendableResponse {
 
 class Common extends ExtendableResponse {
   constructor(message, code, data) {
-    super(message || "", code || httpStatus.OK, data);
+    super(message || '', code || httpStatus.OK, data);
   }
 }
 
 class Success extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Success.", httpStatus.OK, data);
+    super(message || 'Success.', httpStatus.OK, data);
   }
 }
 
 class CreatedSuccess extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Data saved successfully.", httpStatus.CREATED, data);
+    super(message || 'Data saved successfully.', httpStatus.CREATED, data);
   }
 }
 
 class DeletedSuccess extends ExtendableResponse {
   constructor(message) {
-    super(message || "Data deleted successfully.", httpStatus.OK);
+    super(message || 'Data deleted successfully.', httpStatus.OK);
   }
 }
 
 class BadRequest extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Bad request.", httpStatus.BAD_REQUEST, data);
+    super(message || 'Bad request.', httpStatus.BAD_REQUEST, data);
   }
 }
 
 class Unauthorized extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Unauthorized.", httpStatus.UNAUTHORIZED, data);
+    super(message || 'Unauthorized.', httpStatus.UNAUTHORIZED, data);
   }
 }
 class WrongUsernameOrpassWord extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "wrong username or password.", httpStatus.UNAUTHORIZED, data);
+    super(message || 'wrong username or password.', httpStatus.UNAUTHORIZED, data);
   }
 }
 
@@ -59,19 +59,19 @@ class Forbidden extends ExtendableResponse {
 
 class NotFound extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Data not found.", httpStatus.NOT_FOUND, data);
+    super(message || 'Data not found.', httpStatus.NOT_FOUND, data);
   }
 }
 
 class Conflict extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Data conflict.", httpStatus.CONFLICT, data);
+    super(message || 'Data conflict.', httpStatus.CONFLICT, data);
   }
 }
 
 class ValidateFailed extends ExtendableResponse {
   constructor(message, data) {
-    super(message || "Data validate failed.", httpStatus.UNPROCESSABLE_ENTITY);
+    super(message || 'Data validate failed.', httpStatus.UNPROCESSABLE_ENTITY);
     this.errors = data;
   }
 }

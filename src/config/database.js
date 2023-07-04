@@ -1,8 +1,8 @@
-const Sequelize = require("sequelize");
-const config = require("./");
+const Sequelize = require('sequelize');
+const config = require('./');
 
 const options = {
-  logging: false,
+  logging: true,
   username: config.db_username,
   password: config.db_password,
   database: config.db_database,
