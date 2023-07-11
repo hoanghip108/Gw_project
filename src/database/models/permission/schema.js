@@ -6,7 +6,11 @@ module.exports = {
     primaryKey: true,
     defaultValue: Sequelize.UUIDV1,
   },
-  canCread: {
+  api: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  canCreate: {
     type: DataTypes.BOOLEAN,
     defaultValue: 0,
   },
@@ -19,6 +23,10 @@ module.exports = {
     defaultValue: 0,
   },
   canDelete: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: 0,
+  },
+  canPatch: {
     type: DataTypes.BOOLEAN,
     defaultValue: 0,
   },

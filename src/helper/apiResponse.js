@@ -75,7 +75,15 @@ class ValidateFailed extends ExtendableResponse {
     this.errors = data;
   }
 }
-
+class ApiPaginatedResponse {
+  constructor(pageIndex, pageSize, totalCount, totalPages, data) {
+    this.pageIndex = pageIndex;
+    this.pageSize = pageSize;
+    this.totalCount = totalCount;
+    this.totalPages = totalPages;
+    this.data = data;
+  }
+}
 module.exports = {
   Common,
   Success,
@@ -88,4 +96,5 @@ module.exports = {
   Conflict,
   ValidateFailed,
   WrongUsernameOrpassWord,
+  ApiPaginatedResponse,
 };

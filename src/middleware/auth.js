@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
-const permissions = require('../database/models/permission');
 import httpStatus from 'http-status';
 import { USER_STATUS } from '../data/constant';
+const Permission = require('../database/models/permission');
+const Role = require('../database/models/role');
 const apiResponse = require('../helper/apiResponse');
 const APIError = require('../helper/apiError');
 const getToken = (req) => {
@@ -14,16 +15,24 @@ const verifyToken = (req, res, next) => {
   const token = getToken(req);
   if (!token) {
     const apiError = new APIError({
+      message: USER_STATUS.AUTHENTICATION_FAIL,
+      errors: USER_STATUS.AUTHENTICATION_FAIL,
       status: httpStatus.UNAUTHORIZED,
-      message: 'unauthenticated',
     });
-    return res.status(httpStatus.UNAUTHORIZED).json(apiError);
+    return res.status(httpStatus.UNAUTHORIZED).json(
+      new APIError({
+        message: USER_STATUS.AUTHENTICATION_FAIL,
+        errors: USER_STATUS.AUTHENTICATION_FAIL,
+        status: httpStatus.UNAUTHORIZED,
+      }),
+    );
   }
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     if (err) {
       const apiError = new APIError({
-        status: httpStatus.FORBIDDEN,
         message: USER_STATUS.AUTHENTICATION_FAIL,
+        errors: USER_STATUS.AUTHENTICATION_FAIL,
+        status: httpStatus.FORBIDDEN,
       });
       return res.status(httpStatus.FORBIDDEN).json(apiError);
     }
@@ -45,26 +54,31 @@ const authorize = async (req, res, next) => {
   }
   console.log('this is api: ' + api);
   const { method } = req;
+  console.log('this is Method: ' + method);
   let isPass = false;
   let Role = user.userRole;
-  const permission = await permissions.findOne({ where: { api, Role } });
+  console.log('this is Role: ' + Role);
+  const permission = await Permission.findOne({
+    where: { api, RoleRoleId: Role },
+  });
   if (permission) {
     switch (method) {
       case 'GET':
-        if (permission.read) isPass = true;
+        if (permission.canRead) isPass = true;
         console.log(permission.read);
         break;
       case 'POST':
-        if (permission.write) isPass = true;
+        if (permission.canCreate) isPass = true;
         break;
       case 'PUT':
-        if (permission.updatee) isPass = true;
+        if (permission.canUpdate) isPass = true;
         break;
       case 'DELETE':
-        if (permission.delete) isPass = true;
+        if (permission.canDelete) isPass = true;
+        console.log(permission.canDelete);
         break;
       case 'PATCH':
-        if (permission.approve) isPass = true;
+        if (permission.canPatch) isPass = true;
         break;
     }
     if (isPass) return next();

@@ -1,11 +1,15 @@
+import { USER_STATUS } from '../data/constant';
 import {
   createUser,
   login,
   verifyUser,
   disableUser,
   resetPassword,
+  changePassword,
+  getListUser,
 } from '../services/userServices';
-import { UserSchema, Loginschema } from '../validators/userValidate';
+const config = require('../config');
+import { UserSchema, Loginschema, changePasswordSchema } from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
 const {
@@ -20,6 +24,7 @@ const {
   Conflict,
   ValidateFailed,
   WrongUsernameOrpassWord,
+  ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 const transporter = nodemailer.createTransport({
   service: 'Gmail',
@@ -66,7 +71,7 @@ const createUserController = async (req, res, next) => {
         );
     });
     res.status(httpStatus.OK);
-    res.json(new Success('Data updated successfully.', user));
+    res.json(new Success(USER_STATUS.USER_CREATED, user));
   } catch (err) {
     next(err);
   }
@@ -132,10 +137,53 @@ const resetPasswordController = async (req, res, next) => {
     next(err);
   }
 };
+const changePasswordController = async (req, res, next) => {
+  try {
+    const { error, value } = changePasswordSchema.validate(req.body);
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
+    }
+    const currentUserId = req.user.userId;
+    const password = await changePassword(currentUserId, value);
+    // console.log(password);
+    if (password == true) {
+      return res.status(httpStatus.OK).json(new Success('Password changed'));
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Password does not match'));
+  } catch (err) {
+    next(err);
+  }
+};
+const getListUserController = async (req, res, next) => {
+  try {
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
+    const result = await getListUser(pageIndex, pageSize);
+    return res
+      .status(httpStatus.OK)
+      .json(
+        new ApiPaginatedResponse(
+          result.pageIndex,
+          result.pageSize,
+          result.totalCount,
+          result.totalPages,
+          result.users.slice(result.startIndex, result.endIndex),
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 export {
   createUserController,
   loginController,
   verifyUserController,
   disableUserController,
   resetPasswordController,
+  changePasswordController,
+  getListUserController,
 };

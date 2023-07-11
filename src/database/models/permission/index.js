@@ -1,10 +1,16 @@
 const BaseModel = require('../base');
-const RolePermission = require('../rolePermission');
+const Role = require('../role');
 module.exports = class Permission extends BaseModel {
-  static modelName = 'Permission';
-  static tableName = 'Permission';
+  static modelName = 'permission';
+  static tableName = 'permission';
   static schema = require('./schema');
+  static include = [
+    {
+      model: Role,
+      as: 'role',
+    },
+  ];
   static associate(models) {
-    this.hasMany(models.RolePermission);
+    this.belongsTo(models.Role);
   }
 };
