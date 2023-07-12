@@ -27,5 +27,6 @@ const COMMON_CONSTANTS = {
 const EMAIL_CONSTANTS = {
   EMAIL_CONFIRMATION:
     'A verification email has been sent to your registered email address. It will be expire after one day. If you not get verification Email click on resend token.',
+  EMAIL_ERROR: 'Technical Issue!, Please click on resend for verify your Email.',
 };
 export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS };

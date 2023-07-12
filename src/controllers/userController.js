@@ -1,4 +1,4 @@
-import { EMAIL_CONSTANTS } from '../data/constant';
+import { USER_STATUS, EMAIL_CONSTANTS } from '../data/constant';
 import {
   createUser,
   login,
@@ -12,7 +12,7 @@ const config = require('../config');
 import { UserSchema, Loginschema, changePasswordSchema } from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
-import mailOptions from '../helper/mailer';
+import { verrifyEmailOption, resetPasswordOption } from '../helper/mailer';
 const {
   Common,
   Success,
@@ -47,21 +47,11 @@ const createUserController = async (req, res, next) => {
     }
 
     const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
-    const { ...option } = new mailOptions(user.email, link);
-    const x = {
-      from: 'hoanghip108@gmail.com',
-      to: user.email,
-      subject: 'Account Verification Link',
-      html:
-        'Hello,<br> Please Click on the link to verify your email.<br><a href=' +
-        link +
-        '>Click here to verify</a>',
-    };
+    const { ...option } = new verrifyEmailOption(user.email, 'verify link', link);
+    console.log(option);
     transporter.sendMail(option, function (err) {
       if (err) {
-        return res
-          .status(httpStatus.BAD_REQUEST)
-          .json(new BadRequest('Technical Issue!, Please click on resend for verify your Email.'));
+        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(EMAIL_CONSTANTS.EMAIL_ERROR));
       }
       return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
     });
@@ -102,9 +92,9 @@ const disableUserController = async (req, res, next) => {
     console.log(uId);
     const user = await disableUser(uId);
     if (user) {
-      return res.status(httpStatus.OK).json(new Success('Account has been disabled'));
+      return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_DELETE));
     }
-    return res.status(400).json(new BadRequest('Account not found'));
+    return res.status(400).json(new BadRequest(USER_STATUS.USER_DELETE_FAILED));
   } catch (err) {
     next(err);
   }
@@ -115,17 +105,18 @@ const resetPasswordController = async (req, res, next) => {
     const username = req.body.username;
     const newPassword = await resetPassword(email, username);
     if (newPassword) {
-      const mailOptions = {
-        from: 'hoanghip108@gmail.com',
-        to: email,
-        subject: 'New Password Reset',
-        text: newPassword,
-      };
-      transporter.sendMail(mailOptions, function (err) {
+      const { ...option } = new resetPasswordOption(email, 'new password', newPassword);
+      transporter.sendMail(option, function (err) {
+        if (err) {
+          return res
+            .status(httpStatus.BAD_REQUEST)
+            .json(new BadRequest(EMAIL_CONSTANTS.EMAIL_ERROR));
+        }
         return res.status(httpStatus.OK).json(new Success('Check Your email for new password'));
       });
+    } else {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Account not found'));
     }
-    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Account not found'));
   } catch (err) {
     next(err);
   }
@@ -138,7 +129,6 @@ const changePasswordController = async (req, res, next) => {
     }
     const currentUserId = req.user.userId;
     const password = await changePassword(currentUserId, value);
-    // console.log(password);
     if (password == true) {
       return res.status(httpStatus.OK).json(new Success('Password changed'));
     }

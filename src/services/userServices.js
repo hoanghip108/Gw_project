@@ -116,7 +116,7 @@ const disableUser = async (id) => {
 const resetPassword = async (email, username) => {
   let t;
   try {
-    t = await sequelize.transacion();
+    t = await sequelize.transaction();
     const user = await User.findOne({
       where: { [Op.and]: [{ email: email }, { username: username }] },
     });
@@ -125,11 +125,14 @@ const resetPassword = async (email, username) => {
       const salt = bcrypt.genSaltSync(Number(process.env.SALTROUNDS));
       const hash = bcrypt.hashSync(rand, salt);
       await user.update({ password: hash }, { transacion: t });
+      await t.commit();
       return rand;
     }
     return null;
   } catch (err) {
-    await t.rollback();
+    if (t) {
+      await t.rollback();
+    }
   }
 };
 const changePassword = async (currentUserId, payload) => {
