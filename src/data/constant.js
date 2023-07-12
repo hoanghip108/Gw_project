@@ -24,4 +24,8 @@ const COMMON_CONSTANTS = {
   START_EMP_ID: 'ID000000',
   URL_NOT_FOUND: 'URL not found !',
 };
-export { USER_STATUS, ROLE, COMMON_CONSTANTS };
+const EMAIL_CONSTANTS = {
+  EMAIL_CONFIRMATION:
+    'A verification email has been sent to your registered email address. It will be expire after one day. If you not get verification Email click on resend token.',
+};
+export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS };

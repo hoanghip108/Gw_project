@@ -1,4 +1,4 @@
-import { USER_STATUS } from '../data/constant';
+import { EMAIL_CONSTANTS } from '../data/constant';
 import {
   createUser,
   login,
@@ -12,6 +12,7 @@ const config = require('../config');
 import { UserSchema, Loginschema, changePasswordSchema } from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
+import mailOptions from '../helper/mailer';
 const {
   Common,
   Success,
@@ -37,7 +38,7 @@ const createUserController = async (req, res, next) => {
   try {
     const { error, value } = UserSchema.validate(req.body);
     if (error) {
-      return res.status(httpStatus.BAD_REQUEST).json(error.details[0].message);
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
     const host = req.headers.host;
     const user = await createUser(host, value);
@@ -45,9 +46,9 @@ const createUserController = async (req, res, next) => {
       return res.status(httpStatus.CONFLICT).json(new Conflict());
     }
 
-    var mailOptions, link;
-    link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
-    mailOptions = {
+    const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
+    const { ...option } = new mailOptions(user.email, link);
+    const x = {
       from: 'hoanghip108@gmail.com',
       to: user.email,
       subject: 'Account Verification Link',
@@ -56,22 +57,14 @@ const createUserController = async (req, res, next) => {
         link +
         '>Click here to verify</a>',
     };
-    transporter.sendMail(mailOptions, function (err) {
+    transporter.sendMail(option, function (err) {
       if (err) {
-        return res.status(500).send({
-          msg: 'Technical Issue!, Please click on resend for verify your Email.',
-        });
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json(new BadRequest('Technical Issue!, Please click on resend for verify your Email.'));
       }
-      return res
-        .status(200)
-        .send(
-          'A verification email has been sent to ' +
-            user.email +
-            '. It will be expire after one day. If you not get verification Email click on resend token.',
-        );
+      return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
     });
-    res.status(httpStatus.OK);
-    res.json(new Success(USER_STATUS.USER_CREATED, user));
   } catch (err) {
     next(err);
   }
