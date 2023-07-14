@@ -19,6 +19,6 @@ module.exports = class Role extends BaseModel {
     this.hasMany(models.User, {
       foreignKey: 'RoleId',
     });
-    this.hasMany(models.Permission);
+    this.hasMany(models.Permission, { foreignKey: 'roleId' });
   }
 };

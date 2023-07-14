@@ -29,4 +29,10 @@ const EMAIL_CONSTANTS = {
     'A verification email has been sent to your registered email address. It will be expire after one day. If you not get verification Email click on resend token.',
   EMAIL_ERROR: 'Technical Issue!, Please click on resend for verify your Email.',
 };
-export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS };
+const COURSE_CONSTANTS = {
+  COURSE_EXIST: 'Course already exists',
+  COURSE_UPDATE_FAILED: 'Course update failed',
+  COURSE_DELETE_FAILED: 'Course delete failed',
+  COURSE_NOTFOUND: 'Course not found',
+};
+export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS, COURSE_CONSTANTS };

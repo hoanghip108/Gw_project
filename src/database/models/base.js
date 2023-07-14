@@ -1,8 +1,8 @@
-const { Sequelize, Op } = require("sequelize");
+const { Sequelize, Op, DataTypes } = require('sequelize');
 
 module.exports = class BaseModel extends Sequelize.Model {
-  static tableName = "";
-  static modelName = "";
+  static tableName = '';
+  static modelName = '';
   static schema = {};
   static timestamps = true;
   static include = null;
@@ -15,11 +15,16 @@ module.exports = class BaseModel extends Sequelize.Model {
 
   static init(sequelize) {
     if (!this.tableName || !this.modelName || !Object.keys(this.schema).length) {
-      throw new Error("model name or table name and schema can not be empty");
+      throw new Error('model name or table name and schema can not be empty');
     }
     return super.init(
       {
         ...this.schema,
+        isDeleted: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false,
+        },
         createdBy: {
           type: Sequelize.STRING,
           allowNull: false,
@@ -42,7 +47,7 @@ module.exports = class BaseModel extends Sequelize.Model {
         modelName: this.modelName,
         sequelize,
         timestamps: this.timestamps,
-      }
+      },
     );
   }
 };

@@ -36,6 +36,24 @@ CREATE TABLE IF NOT EXISTS `bankaccount` (
 
 -- Dumping data for table gw_project.bankaccount: ~0 rows (approximately)
 
+-- Dumping structure for table gw_project.category
+CREATE TABLE IF NOT EXISTS `category` (
+  `cateId` varchar(255) NOT NULL,
+  `cateName` varchar(255) NOT NULL,
+  `createdBy` varchar(255) NOT NULL,
+  `createdAt` datetime DEFAULT NULL,
+  `updatedBy` varchar(255) DEFAULT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  PRIMARY KEY (`cateId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table gw_project.category: ~4 rows (approximately)
+INSERT INTO `category` (`cateId`, `cateName`, `createdBy`, `createdAt`, `updatedBy`, `updatedAt`) VALUES
+	('1', 'Instruments', 'ADMIN', '2023-07-13 13:55:18', NULL, NULL),
+	('2', 'Music productions', 'ADMIN', '2023-07-13 13:55:45', NULL, NULL),
+	('3', 'Music fundamentals', 'ADMIN', '2023-07-13 13:56:18', NULL, NULL),
+	('4', 'Vocal', 'ADMIN', '2023-07-13 13:56:31', NULL, NULL);
+
 -- Dumping structure for table gw_project.course
 CREATE TABLE IF NOT EXISTS `course` (
   `courseId` varchar(255) NOT NULL,
@@ -43,14 +61,21 @@ CREATE TABLE IF NOT EXISTS `course` (
   `description` varchar(255) DEFAULT NULL,
   `price` float NOT NULL,
   `isFree` tinyint(1) NOT NULL,
+  `like` int DEFAULT NULL,
+  `dislike` int DEFAULT NULL,
   `createdBy` varchar(255) NOT NULL,
   `createdAt` datetime DEFAULT NULL,
   `updatedBy` varchar(255) DEFAULT NULL,
   `updatedAt` datetime DEFAULT NULL,
-  PRIMARY KEY (`courseId`)
+  `subCateId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`courseId`),
+  KEY `subCateId` (`subCateId`),
+  CONSTRAINT `course_ibfk_1` FOREIGN KEY (`subCateId`) REFERENCES `subcategory` (`subCateId`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table gw_project.course: ~0 rows (approximately)
+-- Dumping data for table gw_project.course: ~1 rows (approximately)
+INSERT INTO `course` (`courseId`, `courseName`, `description`, `price`, `isFree`, `like`, `dislike`, `createdBy`, `createdAt`, `updatedBy`, `updatedAt`, `subCateId`) VALUES
+	('66c69e50-215a-11ee-ba41-6183df52c826', 'Complecteee Guitar Lessons System - Beginner to Advanced', 'All-in-onee Guitar Course, Fingerstyle Guitar, Blues Guitar, Acoustic Guitar, Electric Guitar & Fingerpicking Guitarra', 0, 0, 0, 0, 'hoanghip', '2023-07-13 08:51:05', NULL, '2023-07-14 10:06:44', '1');
 
 -- Dumping structure for table gw_project.enrolledcourse
 CREATE TABLE IF NOT EXISTS `enrolledcourse` (
@@ -59,12 +84,12 @@ CREATE TABLE IF NOT EXISTS `enrolledcourse` (
   `createdAt` datetime DEFAULT NULL,
   `updatedBy` varchar(255) DEFAULT NULL,
   `updatedAt` datetime DEFAULT NULL,
-  `CourseCourseId` varchar(255) DEFAULT NULL,
+  `courseId` varchar(255) DEFAULT NULL,
   `userId` varchar(36) DEFAULT NULL,
   PRIMARY KEY (`enrolledCourseId`),
-  KEY `CourseCourseId` (`CourseCourseId`),
+  KEY `courseId` (`courseId`),
   KEY `userId` (`userId`),
-  CONSTRAINT `enrolledcourse_ibfk_1` FOREIGN KEY (`CourseCourseId`) REFERENCES `course` (`courseId`) ON DELETE SET NULL ON UPDATE CASCADE,
+  CONSTRAINT `enrolledcourse_ibfk_1` FOREIGN KEY (`courseId`) REFERENCES `course` (`courseId`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `enrolledcourse_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -79,10 +104,10 @@ CREATE TABLE IF NOT EXISTS `lesson` (
   `createdAt` datetime DEFAULT NULL,
   `updatedBy` varchar(255) DEFAULT NULL,
   `updatedAt` datetime DEFAULT NULL,
-  `CourseCourseId` varchar(255) DEFAULT NULL,
+  `courseId` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`lessonId`),
-  KEY `CourseCourseId` (`CourseCourseId`),
-  CONSTRAINT `lesson_ibfk_1` FOREIGN KEY (`CourseCourseId`) REFERENCES `course` (`courseId`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `courseId` (`courseId`),
+  CONSTRAINT `lesson_ibfk_1` FOREIGN KEY (`courseId`) REFERENCES `course` (`courseId`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table gw_project.lesson: ~0 rows (approximately)
@@ -97,10 +122,10 @@ CREATE TABLE IF NOT EXISTS `lessonvideo` (
   `createdAt` datetime DEFAULT NULL,
   `updatedBy` varchar(255) DEFAULT NULL,
   `updatedAt` datetime DEFAULT NULL,
-  `LessonLessonId` varchar(255) DEFAULT NULL,
+  `lessonId` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `LessonLessonId` (`LessonLessonId`),
-  CONSTRAINT `lessonvideo_ibfk_1` FOREIGN KEY (`LessonLessonId`) REFERENCES `lesson` (`lessonId`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `lessonId` (`lessonId`),
+  CONSTRAINT `lessonvideo_ibfk_1` FOREIGN KEY (`lessonId`) REFERENCES `lesson` (`lessonId`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table gw_project.lessonvideo: ~0 rows (approximately)
@@ -118,14 +143,14 @@ CREATE TABLE IF NOT EXISTS `permission` (
   `createdAt` datetime DEFAULT NULL,
   `updatedBy` varchar(255) DEFAULT NULL,
   `updatedAt` datetime DEFAULT NULL,
-  `RoleRoleId` varchar(255) DEFAULT NULL,
+  `roleId` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`permissionId`),
-  KEY `RoleRoleId` (`RoleRoleId`),
-  CONSTRAINT `permission_ibfk_1` FOREIGN KEY (`RoleRoleId`) REFERENCES `role` (`roleId`) ON DELETE SET NULL ON UPDATE CASCADE
+  KEY `roleId` (`roleId`),
+  CONSTRAINT `permission_ibfk_1` FOREIGN KEY (`roleId`) REFERENCES `role` (`roleId`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Dumping data for table gw_project.permission: ~2 rows (approximately)
-INSERT INTO `permission` (`permissionId`, `api`, `canCreate`, `canRead`, `canUpdate`, `canDelete`, `canPatch`, `createdBy`, `createdAt`, `updatedBy`, `updatedAt`, `RoleRoleId`) VALUES
+INSERT INTO `permission` (`permissionId`, `api`, `canCreate`, `canRead`, `canUpdate`, `canDelete`, `canPatch`, `createdBy`, `createdAt`, `updatedBy`, `updatedAt`, `roleId`) VALUES
 	('1', '/users/disable', 1, 1, 1, 1, 1, 'a', '2023-07-09 23:51:32', NULL, NULL, '1'),
 	('2', '/users', 0, 1, 0, 0, 0, 'a', NULL, NULL, NULL, '1');
 
@@ -161,6 +186,24 @@ INSERT INTO `role` (`roleId`, `roleName`, `createdBy`, `createdAt`, `updatedBy`,
 	('1', 'admin', '1', '2023-07-09 23:49:28', NULL, NULL),
 	('2', 'user', '1', '2023-07-09 23:50:30', NULL, NULL);
 
+-- Dumping structure for table gw_project.subcategory
+CREATE TABLE IF NOT EXISTS `subcategory` (
+  `subCateId` varchar(255) NOT NULL,
+  `subCateName` varchar(255) NOT NULL,
+  `createdBy` varchar(255) NOT NULL,
+  `createdAt` datetime DEFAULT NULL,
+  `updatedBy` varchar(255) DEFAULT NULL,
+  `updatedAt` datetime DEFAULT NULL,
+  `cateId` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`subCateId`),
+  KEY `cateId` (`cateId`),
+  CONSTRAINT `subcategory_ibfk_1` FOREIGN KEY (`cateId`) REFERENCES `category` (`cateId`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Dumping data for table gw_project.subcategory: ~1 rows (approximately)
+INSERT INTO `subcategory` (`subCateId`, `subCateName`, `createdBy`, `createdAt`, `updatedBy`, `updatedAt`, `cateId`) VALUES
+	('1', 'Guitar', 'ADMIN', '2023-07-13 13:56:53', NULL, NULL, '1');
+
 -- Dumping structure for table gw_project.user
 CREATE TABLE IF NOT EXISTS `user` (
   `id` varchar(36) NOT NULL,
@@ -183,12 +226,10 @@ CREATE TABLE IF NOT EXISTS `user` (
   CONSTRAINT `user_ibfk_1` FOREIGN KEY (`RoleId`) REFERENCES `role` (`roleId`) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Dumping data for table gw_project.user: ~4 rows (approximately)
+-- Dumping data for table gw_project.user: ~2 rows (approximately)
 INSERT INTO `user` (`id`, `username`, `password`, `fullName`, `email`, `phoneNumber`, `avatar`, `isActive`, `bio`, `createdBy`, `createdAt`, `updatedBy`, `updatedAt`, `RoleId`) VALUES
-	('7a11d870-1f62-11ee-acd8-f967c69966ac', 'hoanghehe', '$2b$10$EMOKI0cQlMkUmSMAwLVzHOrOkc8KmloN6LylEpt4NCws33IYuNL1a', NULL, 'hoad108@gmail.com', NULL, NULL, 0, NULL, 'hoanghehe', '2023-07-10 20:43:51', NULL, '2023-07-10 20:43:51', '2'),
-	('87df4810-1e78-11ee-92ea-6d31f345d20b', 'admin', '$2b$10$3igGSEz0CnfIEbF/WvN6WOnZLdhvC3DbooIIO0fGtYFAc57dchl0G', NULL, 'hehe1@gmail.com', NULL, NULL, 1, NULL, 'admin', '2023-07-09 16:49:11', NULL, '2023-07-09 16:49:11', '1'),
-	('d492f180-1f62-11ee-a451-a94ccffedfc3', 'hoanaghehe', '$2b$10$zR200c.hLC16CLvjxpIozOrPFjEDV9MmdaewCAgXzuqyWPA7xUx.y', NULL, 'hoad1a08@gmail.com', NULL, NULL, 0, NULL, 'hoanaghehe', '2023-07-10 20:46:22', NULL, '2023-07-10 20:46:22', '2'),
-	('fdd14ec0-1f58-11ee-bdf7-192f7294a6bf', 'hoang54hip', '$2b$10$HKfTJdD6OKdiHFS5/mHH4OaElVJ4uCT5baKuPNj7abmV6gTIAAMa.', NULL, 'hoan4511ghip108@gmail.com', NULL, NULL, 0, NULL, 'hoang54hip', '2023-07-10 19:35:57', NULL, '2023-07-10 19:35:57', '2');
+	('0b1de010-2158-11ee-b9c3-45edda49f164', 'hoanghip', '$2b$10$LTJFCFK4bNsDs95oPC5qVe3qudpIlaSts03o3bm3mulW4jwNSEWci', NULL, 'hoaip108@gmail.com', NULL, NULL, 1, NULL, 'hoanghip', '2023-07-13 08:34:12', NULL, '2023-07-13 08:34:12', '1'),
+	('87df4810-1e78-11ee-92ea-6d31f345d20b', 'admin', '$2b$10$3igGSEz0CnfIEbF/WvN6WOnZLdhvC3DbooIIO0fGtYFAc57dchl0G', NULL, 'hehe1@gmail.com', NULL, NULL, 1, NULL, 'admin', '2023-07-09 16:49:11', NULL, '2023-07-09 16:49:11', '1');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;

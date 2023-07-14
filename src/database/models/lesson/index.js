@@ -5,8 +5,18 @@ module.exports = class Lesson extends BaseModel {
   static tableName = 'Lesson';
   static modelName = 'Lesson';
   static schema = require('./schema');
+  static include = [
+    {
+      model: Course,
+      as: 'course',
+    },
+    {
+      model: LessonVideo,
+      as: 'lessonVideo',
+    },
+  ];
   static associate(models) {
-    this.belongsTo(models.Course);
-    this.hasOne(models.LessonVideo);
+    this.belongsTo(models.Course, { foreignKey: 'courseId' });
+    this.hasOne(models.LessonVideo, { foreignKey: 'lessonId' });
   }
 };

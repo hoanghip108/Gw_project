@@ -4,20 +4,6 @@ import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import randomString from '../data/randomString';
-import getKeyByValue from '../helper/getKey';
-const {
-  Common,
-  Success,
-  CreatedSuccess,
-  DeletedSuccess,
-  BadRequest,
-  Unauthorized,
-  Forbidden,
-  NotFound,
-  Conflict,
-  ValidateFailed,
-  WrongUsernameOrpassWord,
-} = require('../helper/apiResponse');
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 import { ROLE, COMMON_CONSTANTS } from '../data/constant';
@@ -28,7 +14,6 @@ import {
   FORM_MESSAGE,
   USER_STATUS,
 } from '../data/constant';
-import { transform } from 'lodash';
 const login = async (payload) => {
   try {
     const user = await User.findOne({

@@ -13,7 +13,7 @@ module.exports = class User extends BaseModel {
       foreignKey: 'RoleId',
     });
     this.hasMany(models.BankAccount);
-    this.hasMany(models.EnrolledCourse);
+    this.hasMany(models.EnrolledCourse, { foreignKey: 'courseId' });
     this.hasMany(models.Post);
   }
 };

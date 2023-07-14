@@ -22,4 +22,12 @@ module.exports = {
     type: DataTypes.BOOLEAN,
     allowNull: false,
   },
+  like: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
+  dislike: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
 };
