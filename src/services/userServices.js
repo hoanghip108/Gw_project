@@ -1,5 +1,7 @@
 const User = require('../database/models/user');
 const Role = require('../database/models/role');
+const APIError = require('../helper/apiError');
+
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
@@ -72,6 +74,10 @@ const createUser = async (host, payload) => {
   } catch (err) {
     console.log(err);
     await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
   }
 };
 const verifyUser = async (id) => {
@@ -95,6 +101,10 @@ const disableUser = async (id) => {
     return null;
   } catch (err) {
     await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
     console.log(err);
   }
 };
@@ -115,9 +125,11 @@ const resetPassword = async (email, username) => {
     }
     return null;
   } catch (err) {
-    if (t) {
-      await t.rollback();
-    }
+    await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
   }
 };
 const changePassword = async (currentUserId, payload) => {

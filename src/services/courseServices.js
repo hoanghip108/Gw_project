@@ -1,5 +1,5 @@
 import { COURSE_CONSTANTS } from '../data/constant';
-
+const APIError = require('../helper/apiError');
 const Course = require('../database/models/course');
 const SubCategory = require('../database/models/subCategory');
 const { Op } = require('sequelize');
@@ -21,6 +21,10 @@ const createCourse = async (payload, currentUser) => {
     return null;
   } catch (err) {
     await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
   }
 };
 const updateCourse = async (payload, courseId) => {
@@ -35,6 +39,10 @@ const updateCourse = async (payload, courseId) => {
     return null;
   } catch (err) {
     await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
   }
 };
 const getCourse = async (courseId) => {
@@ -70,7 +78,6 @@ const getListCourse = async (pageIndex, pageSize) => {
     courses,
     startIndex,
     endIndex,
-    //users.slice(startIndex, endIndex),
   };
 };
 const deleteCourse = async (courseId) => {
@@ -86,6 +93,10 @@ const deleteCourse = async (courseId) => {
     return null;
   } catch (err) {
     await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
   }
 };
 export { createCourse, updateCourse, deleteCourse, getCourse, getListCourse };

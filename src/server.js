@@ -4,7 +4,7 @@ import express from 'express';
 import config from './config/index.js';
 import db from './database/index.js';
 const cors = require('cors');
-const yaml = require('yamljs');
+const logger = require('./utils/logger');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

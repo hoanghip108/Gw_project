@@ -1,9 +1,11 @@
 import userRouter from './userRoutes';
 import videoRouter from './videoRoutes';
 import courseRouter from './courseRoutes';
+import lessonRouter from './lessonRoutes';
 const express = require('express');
 const routers = express.Router();
 routers.use(userRouter);
 routers.use(videoRouter);
 routers.use(courseRouter);
+routers.use(lessonRouter);
 export default routers;

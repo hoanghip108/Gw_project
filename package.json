@@ -39,9 +39,10 @@
     "sequelize": "^6.32.1",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^4.6.3",
-    "umzug": "^3.2.1",
+    "umzug": "^2.2.0",
     "uuid": "^9.0.0",
     "winston": "^3.9.0",
+    "winston-daily-rotate-file": "^4.7.1",
     "xoauth2": "^1.2.0",
     "yamljs": "^0.3.0"
   },

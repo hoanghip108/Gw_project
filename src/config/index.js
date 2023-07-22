@@ -16,10 +16,10 @@ const configs = {
     db_username: process.env.DB_USERNAME || 'root',
     db_password: process.env.DB_PASSWORD || '',
     db_database: process.env.DB_DATABASE || 'Gw_project',
+    db_run_migration: process.env.DB_RUN_MIGRATION != 'false', // True as default
     // db_recreate: process.env.DB_RECREATE == 'true',
     db_recreate: true,
-    db_run_migration: process.env.DB_RUN_MIGRATION != 'false',
-    db_run_migration: '',
+  
     //paginate
     defaultIndexPagination: process.env.DEFAULT_INDEX_PAGINATION || 1,
     defaultSizePagination: process.env.DEFAULT_SIZE_PAGINATION || 10,

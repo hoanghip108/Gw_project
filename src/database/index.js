@@ -3,8 +3,7 @@ const path = require("path");
 const _ = require("lodash");
 const config = require("../config");
 const { sequelize } = require("../config/database");
-//const { migrate } = require("../utils/migration");
-const User = require("./models/user");
+const { migrate } = require("../utils/migration");
 class Db {
   constructor() {
     const models = {};

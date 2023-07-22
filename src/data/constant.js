@@ -35,4 +35,11 @@ const COURSE_CONSTANTS = {
   COURSE_DELETE_FAILED: 'Course delete failed',
   COURSE_NOTFOUND: 'Course not found',
 };
-export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS, COURSE_CONSTANTS };
+const LESSON_CONSTANT = {
+  LESSON_EXIST: 'Lesson already exists',
+  LESSON_NOTFOUND: 'Lesson not found',
+  DELETE_SUCCESS: 'Lesson deleted successfully',
+  UPDATE_SUCCESS: 'Lesson updated successfully',
+  UPDATE_FAILED: 'Lesson update failed',
+};
+export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS, COURSE_CONSTANTS, LESSON_CONSTANT };
