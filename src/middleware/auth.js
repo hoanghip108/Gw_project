@@ -59,7 +59,7 @@ const authorize = async (req, res, next) => {
   let Role = user.userRole;
   console.log('this is Role: ' + Role);
   const permission = await Permission.findOne({
-    where: { api, RoleRoleId: Role },
+    where: { api, RoleId: Role },
   });
   if (permission) {
     switch (method) {
