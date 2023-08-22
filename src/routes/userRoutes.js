@@ -7,10 +7,12 @@ import {
   resetPasswordController,
   changePasswordController,
   getListUserController,
+  getCurrentUserController,
 } from '../controllers/userController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const userRouter = express.Router();
 userRouter.get('/users/auth/register/verify/:id', verifyUserController);
+userRouter.get('/users/profile', verifyToken, authorize, getCurrentUserController);
 userRouter.get('/users', verifyToken, authorize, getListUserController);
 userRouter.post('/users/forgotpassword', resetPasswordController);
 userRouter.post('/users/auth/login', loginController);

@@ -1,13 +1,14 @@
 const { Sequelize, DataTypes } = require('sequelize');
 module.exports = {
-  conversationId: {
+  sectionId: {
     type: DataTypes.STRING,
     allowNull: false,
-    defaultValue: DataTypes.UUIDV1,
     primaryKey: true,
+    defaultValue: Sequelize.UUIDV1,
   },
-  title: {
+  sectionName: {
     type: DataTypes.STRING,
-    allowNull: true,
+    allowNull: false,
+    unique: true,
   },
 };

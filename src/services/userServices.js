@@ -1,7 +1,6 @@
 const User = require('../database/models/user');
 const Role = require('../database/models/role');
 const APIError = require('../helper/apiError');
-
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
@@ -9,6 +8,7 @@ import randomString from '../data/randomString';
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 import { ROLE, COMMON_CONSTANTS } from '../data/constant';
+import { USER } from '../helper/messageResponse';
 import {
   FORM_CATEGORY,
   FORM_STATUS,
@@ -90,13 +90,23 @@ const verifyUser = async (id) => {
     return null;
   }
 };
+const getCurrentUser = async (id) => {
+  const user = await User.findOne({ where: { id: id } });
+  if (user) {
+    return user;
+  }
+  return null;
+};
 const disableUser = async (id) => {
   let t;
   try {
     const user = await User.findOne({ where: { [Op.and]: [{ id: id }, { isActive: true }] } });
     if (user) {
-      await user.update({ isActive: false }, { transaction: t });
-      return user;
+      if (user.id != id) {
+        await user.update({ isActive: false }, { transaction: t });
+        return user;
+      }
+      return USER.Delete_yourself;
     }
     return null;
   } catch (err) {
@@ -105,7 +115,6 @@ const disableUser = async (id) => {
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
       status: httpStatus.NOT_FOUND,
     });
-    console.log(err);
   }
 };
 const resetPassword = async (email, username) => {
@@ -144,8 +153,20 @@ const changePassword = async (currentUserId, payload) => {
 };
 const getListUser = async (pageIndex, pageSize) => {
   const users = await User.findAll({
-    attributes: { exclude: ['password'] },
-    include: [Role],
+    attributes: {
+      exclude: [
+        'password',
+        'avatar',
+        'isActive',
+        'bio',
+        'isDelete',
+        'createdBy',
+        'updatedBy',
+        'updatedAt',
+        'RoleId',
+      ],
+    },
+    include: [{ model: Role, attributes: ['Rolename'] }],
   });
 
   const totalCount = users.length;
@@ -175,4 +196,13 @@ const getListUser = async (pageIndex, pageSize) => {
     //users.slice(startIndex, endIndex),
   };
 };
-export { createUser, login, verifyUser, disableUser, resetPassword, changePassword, getListUser };
+export {
+  getCurrentUser,
+  createUser,
+  login,
+  verifyUser,
+  disableUser,
+  resetPassword,
+  changePassword,
+  getListUser,
+};

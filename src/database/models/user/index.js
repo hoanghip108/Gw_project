@@ -26,7 +26,7 @@ module.exports = class User extends BaseModel {
     this.hasMany(models.BankAccount);
     this.hasMany(models.EnrolledCourse, { foreignKey: 'courseId' });
     this.hasMany(models.Post);
-    this.hasMany(models.Conversation, { foreignKey: 'conversationId' });
+    this.hasMany(models.Conversation, { foreignKey: 'creatorId' });
     this.hasMany(models.Message, { foreignKey: 'userId' });
     this.hasMany(models.DeletedConversation, { foreignKey: 'userId' });
     this.hasOne(models.Participant, { foreignKey: 'userId' });

@@ -2,6 +2,7 @@ const BaseModel = require('../base');
 const EnrolledCourse = require('../enrolledCourse');
 const Lesson = require('../lesson');
 const SubCategory = require('../subCategory');
+const Section = require('../section');
 module.exports = class Course extends BaseModel {
   static tableName = 'Course';
   static modelName = 'Course';
@@ -18,5 +19,6 @@ module.exports = class Course extends BaseModel {
     this.belongsTo(models.SubCategory, { foreignKey: 'subCateId' });
     this.hasMany(models.EnrolledCourse, { foreignKey: 'courseId' });
     this.hasMany(models.Lesson, { foreignKey: 'courseId' });
+    this.hasMany(models.Section, { foreignKey: 'courseId' });
   }
 };

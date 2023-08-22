@@ -1,4 +1,4 @@
-import { COURSE_CONSTANTS,COMMON_CONSTANTS } from '../data/constant';
+import { COURSE_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
 const APIError = require('../helper/apiError');
 const Course = require('../database/models/course');
 const SubCategory = require('../database/models/subCategory');

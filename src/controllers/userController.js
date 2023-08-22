@@ -1,4 +1,5 @@
 import { USER_STATUS, EMAIL_CONSTANTS } from '../data/constant';
+import { USER } from '../helper/messageResponse';
 import {
   createUser,
   login,
@@ -7,6 +8,7 @@ import {
   resetPassword,
   changePassword,
   getListUser,
+  getCurrentUser,
 } from '../services/userServices';
 const config = require('../config');
 import { UserSchema, Loginschema, changePasswordSchema } from '../validators/userValidate';
@@ -89,12 +91,14 @@ const verifyUserController = async (req, res, next) => {
 const disableUserController = async (req, res, next) => {
   try {
     const uId = req.params.id;
-    console.log(uId);
     const user = await disableUser(uId);
-    if (user) {
-      return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_DELETE));
+    if (user == USER.Delete_yourself) {
+      console.log(user);
+      return res.status(400).json(new BadRequest(USER.Delete_yourself));
+    } else if (user == null) {
+      return res.status(400).json(new BadRequest(USER_STATUS.USER_DELETE_FAILED));
     }
-    return res.status(400).json(new BadRequest(USER_STATUS.USER_DELETE_FAILED));
+    return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_DELETE));
   } catch (err) {
     next(err);
   }
@@ -161,6 +165,18 @@ const getListUserController = async (req, res, next) => {
     next(error);
   }
 };
+const getCurrentUserController = async (req, res, next) => {
+  try {
+    const id = req.user.userId;
+    const user = await getCurrentUser(id);
+    if (user) {
+      return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_FOUND, user));
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+  } catch (err) {
+    next(err);
+  }
+};
 export {
   createUserController,
   loginController,
@@ -169,4 +185,5 @@ export {
   resetPasswordController,
   changePasswordController,
   getListUserController,
+  getCurrentUserController,
 };
