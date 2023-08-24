@@ -4,7 +4,7 @@
   "description": "Language: Javascript\r Framework: ExpressJs\r Database: MySQL (Sequelize)",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon  --exec babel-node ./src/server.js",
+    "dev": "nodemon",
     "test": "echo \"Error: no test specified\" && exit 1",
     "db:seed": "sequelize db:seed:all",
     "db:create:migration": "sequelize migration:create --name default"
