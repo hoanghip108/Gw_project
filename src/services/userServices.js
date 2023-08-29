@@ -111,17 +111,17 @@ const disableUser = async (uId, currentUserId) => {
     const user = await User.findOne({
       where: { [Op.and]: [{ id: uId }, { isActive: true }] },
     });
-    if (user) {
-      if (user.id != currentUserId) {
-        console.log(user.id != uId);
-        await user.update({ isActive: false }, { transaction: t });
-        return user;
-      }
-
-      return USER.Delete_yourself;
+    console.log();
+    if (!user) {
+      return null;
+    }
+    if (user.id != currentUserId) {
+      console.log(user.id != uId);
+      await user.update({ isActive: false }, { transaction: t });
+      return user;
     }
     await t.commit();
-    return null;
+    return USER.Delete_yourself;
   } catch (err) {
     throw new APIError({
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
