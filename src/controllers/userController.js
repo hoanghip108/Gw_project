@@ -9,6 +9,7 @@ import {
   changePassword,
   getListUser,
   getCurrentUser,
+  uploadAvatar,
 } from '../services/userServices';
 const config = require('../config');
 import { UserSchema, Loginschema, changePasswordSchema } from '../validators/userValidate';
@@ -36,6 +37,19 @@ const transporter = nodemailer.createTransport({
     pass: process.env.MAIL_PASSWORD,
   },
 });
+const uploadFileController = async (req, res, next) => {
+  try {
+    const filePath = req.file.path;
+    const userId = req.user.userId;
+    const result = uploadAvatar(filePath, userId);
+    if (result != null) {
+      return res.status(httpStatus.OK).json(new Success());
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+  } catch (err) {
+    next(err);
+  }
+};
 const createUserController = async (req, res, next) => {
   try {
     const { error, value } = UserSchema.validate(req.body);
@@ -51,12 +65,8 @@ const createUserController = async (req, res, next) => {
     const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
     const { ...option } = new verrifyEmailOption(user.email, 'verify link', link);
     console.log(option);
-    transporter.sendMail(option, function (err) {
-      if (err) {
-        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(EMAIL_CONSTANTS.EMAIL_ERROR));
-      }
-      return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
-    });
+    transporter.sendMail(option);
+    return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
   } catch (err) {
     next(err);
   }
@@ -91,7 +101,8 @@ const verifyUserController = async (req, res, next) => {
 const disableUserController = async (req, res, next) => {
   try {
     const uId = req.params.id;
-    const user = await disableUser(uId);
+    const currentUser = req.user.userId;
+    const user = await disableUser(uId, currentUser);
     if (user == USER.Delete_yourself) {
       console.log(user);
       return res.status(400).json(new BadRequest(USER.Delete_yourself));
@@ -186,4 +197,5 @@ export {
   changePasswordController,
   getListUserController,
   getCurrentUserController,
+  uploadFileController,
 };

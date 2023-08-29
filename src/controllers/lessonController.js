@@ -5,6 +5,7 @@ import {
   deleteLesson,
   updateLesson,
   getLesson,
+  addLessonVideo,
 } from '../services/lessonServices';
 import { lessonSchema } from '../validators/lessonValidate';
 const config = require('../config');
@@ -24,12 +25,18 @@ const {
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 const createLessonController = async (req, res, next) => {
-  const { error, value } = lessonSchema.validate(req.body);
+  const { error, value } = lessonSchema.validate({
+    lessonName: req.body.lessonName,
+    grade: req.body.grade,
+    courseId: req.body.courseId,
+    file: req.file,
+  });
   if (error) {
     return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
   }
   const currentUser = req.user.username;
-  const newLesson = await createLesson(value, currentUser);
+  const videoPath = req.file.path || null;
+  const newLesson = await createLesson(value, videoPath, currentUser);
   if (newLesson == 0) {
     return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
   } else if (newLesson == null) {
@@ -101,10 +108,25 @@ const deleteLessonController = async (req, res, next) => {
     next(err);
   }
 };
+const uploadVideoController = async (req, res, next) => {
+  try {
+    const filePath = req.file.path;
+    const lessonId = req.params.id;
+    const result = addLessonVideo(filePath, lessonId);
+    if (result != null) {
+      return res.status(httpStatus.OK).json(new Success());
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+  } catch (err) {
+    next(err);
+  }
+};
+
 export {
   createLessonController,
   getListLessonController,
   getLessonController,
   deleteLessonController,
   updateLessonController,
+  uploadVideoController,
 };

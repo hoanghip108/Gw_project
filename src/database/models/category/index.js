@@ -2,8 +2,8 @@ const BaseModel = require('../base');
 const SubCategory = require('../subCategory');
 
 module.exports = class Category extends BaseModel {
-  static modelName = 'Category';
-  static tableName = 'Category';
+  static modelName = 'category';
+  static tableName = 'category';
   static schema = require('./schema');
   static include = [
     {

@@ -1,6 +1,6 @@
 const config = require('../config');
 const httpStatus = require('http-status');
-import { createConversation } from '../services/conversationService';
+import { getConversation, getAllConversations } from '../services/conversationServices';
 const {
   Common,
   Success,
@@ -16,12 +16,12 @@ const {
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 import { COURSE_CONSTANTS } from '../data/constant';
-const createConversationController = async (req, res, next) => {
+const conversationController = async (req, res, next) => {
   try {
-    const currentUser = req.user.username;
-    const receiverId = req.body.receiverId;
-    console.log(currentUser);
-    const conversation = await createConversation(currentUser, receiverId);
+    debugger;
+    const senderId = req.user.userId;
+    const receiverId = req.params.receiverId;
+    const conversation = await getConversation(senderId, receiverId);
     if (!conversation) {
       return res.status(httpStatus.CONFLICT).json();
     }
@@ -30,4 +30,16 @@ const createConversationController = async (req, res, next) => {
     next(err);
   }
 };
-export { createConversationController };
+const getAllConversationsController = async (req, res, next) => {
+  try {
+    const userId = req.user.userId;
+    const conversations = await getAllConversations(userId);
+    if (!conversations) {
+      return res.status(httpStatus.CONFLICT).json();
+    }
+    return res.status(httpStatus.OK).json(conversations);
+  } catch (err) {
+    next(err);
+  }
+};
+export { conversationController, getAllConversationsController };

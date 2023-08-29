@@ -16,5 +16,6 @@ module.exports = class Participant extends BaseModel {
   static associate(models) {
     this.belongsTo(models.User, { foreignKey: 'userId' });
     this.belongsTo(models.Conversation, { foreignKey: 'conversationId' });
+    this.belongsTo(models.Participant, { as: 'receiverId', foreignKey: 'userId' });
   }
 };

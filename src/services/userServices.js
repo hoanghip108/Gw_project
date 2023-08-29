@@ -16,6 +16,7 @@ import {
   FORM_MESSAGE,
   USER_STATUS,
 } from '../data/constant';
+import path from 'path';
 const login = async (payload) => {
   try {
     const user = await User.findOne({
@@ -39,6 +40,13 @@ const login = async (payload) => {
         const token = jwt.sign(dataForAccessToken, process.env.JWT_SECRET, {
           expiresIn: process.env.TOKEN_EXPIRATION,
         });
+        user.password = undefined;
+        user.setDataValue('isActive', undefined);
+        user.setDataValue('isDeleted', undefined);
+        user.setDataValue('createdBy', undefined);
+        user.setDataValue('createdAt', undefined);
+        user.setDataValue('updatedBy', undefined);
+        user.setDataValue('updatedAt', undefined);
         return { user, token };
       }
     }
@@ -97,20 +105,24 @@ const getCurrentUser = async (id) => {
   }
   return null;
 };
-const disableUser = async (id) => {
+const disableUser = async (uId, currentUserId) => {
   let t;
   try {
-    const user = await User.findOne({ where: { [Op.and]: [{ id: id }, { isActive: true }] } });
+    const user = await User.findOne({
+      where: { [Op.and]: [{ id: uId }, { isActive: true }] },
+    });
     if (user) {
-      if (user.id != id) {
+      if (user.id != currentUserId) {
+        console.log(user.id != uId);
         await user.update({ isActive: false }, { transaction: t });
         return user;
       }
+
       return USER.Delete_yourself;
     }
+    await t.commit();
     return null;
   } catch (err) {
-    await t.rollback();
     throw new APIError({
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
       status: httpStatus.NOT_FOUND,
@@ -196,6 +208,13 @@ const getListUser = async (pageIndex, pageSize) => {
     //users.slice(startIndex, endIndex),
   };
 };
+const uploadAvatar = async (filePath, userId) => {
+  const user = User.update({ avatar: filePath }, { where: { id: userId } });
+  if (user) {
+    return user;
+  }
+  return null;
+};
 export {
   getCurrentUser,
   createUser,
@@ -205,4 +224,5 @@ export {
   resetPassword,
   changePassword,
   getListUser,
+  uploadAvatar,
 };

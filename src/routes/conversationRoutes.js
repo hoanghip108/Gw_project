@@ -1,7 +1,11 @@
-import { createConversationController } from '../controllers/conversationController';
+import {
+  conversationController,
+  getAllConversationsController,
+} from '../controllers/conversationController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const express = require('express');
 const conversationRouter = express.Router();
-conversationRouter.post('/conversation', verifyToken, createConversationController);
+conversationRouter.get('/conversations', verifyToken, getAllConversationsController);
+conversationRouter.get('/conversations/:receiverId', verifyToken, conversationController);
 
 export default conversationRouter;

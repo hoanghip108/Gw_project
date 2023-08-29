@@ -1,13 +1,9 @@
 const fs = require('fs');
 import { getLesson } from '../services/lessonServices.js';
-const videoFileMap = {
-  'generate-pass':
-    'C:\\Users\\hoang\\Documents\\GitHub\\Gw_project\\src\\videos\\Jujutsu-Kaisen-2nd-Season.mp4',
-};
-
 const videoPlayer = async (req, res, next) => {
   const lessonId = req.params.id;
   const video = await getLesson(lessonId);
+  console.log(video.videoPath);
   if (video) {
     const filePath = video.videoPath;
     if (!filePath) {

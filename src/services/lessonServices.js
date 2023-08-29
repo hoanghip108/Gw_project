@@ -3,8 +3,9 @@ const Course = require('../database/models/course');
 const APIError = require('../helper/apiError');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
+const httpStatus = require('http-status');
 import { COMMON_CONSTANTS, LESSON_CONSTANT } from '../data/constant';
-const createLesson = async (payload, currentUser) => {
+const createLesson = async (payload, videoPath, currentUser) => {
   let t;
   try {
     t = await sequelize.transaction();
@@ -12,7 +13,7 @@ const createLesson = async (payload, currentUser) => {
     if (course) {
       const [newLesson, created] = await Lesson.findOrCreate({
         where: { lessonName: payload.lessonName },
-        defaults: { ...payload, createdBy: currentUser },
+        defaults: { ...payload, videoPath: videoPath, createdBy: currentUser },
         transaction: t,
         include: [{ model: Course }],
       });
@@ -103,4 +104,21 @@ const deleteLesson = async (lessonId) => {
     });
   }
 };
-export { createLesson, updateLesson, getLesson, getListLesson, deleteLesson };
+const addLessonVideo = async (filePath, lessonId) => {
+  let t;
+  try {
+    t = await sequelize.transaction();
+    const result = await Lesson.update({ videoPath: filePath }, { where: { lessonId: lessonId } });
+    if (result > 0) {
+      return result;
+    }
+    return null;
+  } catch (err) {
+    t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
+  }
+};
+export { createLesson, updateLesson, getLesson, getListLesson, deleteLesson, addLessonVideo };

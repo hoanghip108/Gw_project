@@ -2,8 +2,8 @@ const BaseModel = require('../base');
 const User = require('../user');
 const Permission = require('../permission');
 module.exports = class Role extends BaseModel {
-  static tableName = 'Role';
-  static modelName = 'Role';
+  static tableName = 'role';
+  static modelName = 'role';
   static schema = require('./schema');
   static include = [
     {
