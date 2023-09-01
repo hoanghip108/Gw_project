@@ -10,24 +10,4 @@ module.exports = {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  canCreate: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: 0,
-  },
-  canRead: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: 0,
-  },
-  canUpdate: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: 0,
-  },
-  canDelete: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: 0,
-  },
-  canPatch: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: 0,
-  },
 };

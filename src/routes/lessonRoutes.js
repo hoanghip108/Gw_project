@@ -2,6 +2,7 @@ const express = require('express');
 import {
   createLessonController,
   getListLessonController,
+  getLessonController,
   deleteLessonController,
   updateLessonController,
   uploadVideoController,
@@ -27,7 +28,8 @@ lessonRouter.post(
   createLessonController,
 );
 lessonRouter.get('/lessons', verifyToken, getListLessonController);
-lessonRouter.delete('/lessons/:id', verifyToken, deleteLessonController);
+lessonRouter.get('/lessons/:id', verifyToken, getLessonController);
+lessonRouter.delete('/lessons/:id', verifyToken, authorize, deleteLessonController);
 lessonRouter.put(
   '/lessons/:id',
   verifyToken,
@@ -35,5 +37,6 @@ lessonRouter.put(
   upload.single('file'),
   updateLessonController,
 );
+
 lessonRouter.patch('/lessons/:id', upload.single('file'), uploadVideoController);
-export default lessonRouter;
+module.exports = lessonRouter;

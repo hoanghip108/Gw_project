@@ -12,7 +12,7 @@ const USER_STATUS = {
   AUTHENTICATION: 'Login success',
   UNAUTHENTICATED: 'unauthenticated',
 };
-const ROLE = {
+const ROLE_DEFINE = {
   ADMIN: 1,
   USER: 2,
   LECTURER: 3,
@@ -42,4 +42,11 @@ const LESSON_CONSTANT = {
   UPDATE_SUCCESS: 'Lesson updated successfully',
   UPDATE_FAILED: 'Lesson update failed',
 };
-export { USER_STATUS, ROLE, COMMON_CONSTANTS, EMAIL_CONSTANTS, COURSE_CONSTANTS, LESSON_CONSTANT };
+export {
+  USER_STATUS,
+  ROLE_DEFINE,
+  COMMON_CONSTANTS,
+  EMAIL_CONSTANTS,
+  COURSE_CONSTANTS,
+  LESSON_CONSTANT,
+};

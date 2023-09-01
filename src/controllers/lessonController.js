@@ -70,7 +70,7 @@ const getListLessonController = async (req, res, next) => {
 };
 const getLessonController = async (req, res, next) => {
   try {
-    const lessonId = req.params.lessonId;
+    const lessonId = req.params.id;
     const lesson = await getLesson(lessonId);
     if (lesson == null) {
       return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.LESSON_NOTFOUND));
@@ -82,23 +82,30 @@ const getLessonController = async (req, res, next) => {
 };
 const updateLessonController = async (req, res, next) => {
   try {
-    const { error, value } = lessonSchema.validate(req.body);
+    const { error, value } = lessonSchema.validate({
+      lessonName: req.body.lessonName,
+      grade: req.body.grade,
+      courseId: req.body.courseId,
+      file: req.file,
+    });
     if (error) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
+    const videoPath = req.file.path || null;
     const currentUser = req.user.username;
-    const updated = await updateLesson(value, currentUser);
+    const lessonId = req.params.id;
+    const updated = await updateLesson(value, currentUser, lessonId, videoPath);
     if (updated) {
       return res.status(httpStatus.OK).json(new Success(LESSON_CONSTANT.UPDATE_SUCCESS));
     }
-    return res.status(httpStatus.BAD_REQUEST).json(new NotFound(LESSON_CONSTANT.UPDATE_FAILED));
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(LESSON_CONSTANT.UPDATE_FAILED));
   } catch (err) {
     next(err);
   }
 };
 const deleteLessonController = async (req, res, next) => {
   try {
-    const lessonId = req.params.lessonId;
+    const lessonId = req.params.id;
     const lesson = await deleteLesson(lessonId);
     if (lesson == null) {
       return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.LESSON_NOTFOUND));

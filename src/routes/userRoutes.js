@@ -31,4 +31,4 @@ userRouter.post('/users/auth/register', createUserController);
 userRouter.put('/users/changepassword', verifyToken, changePasswordController);
 userRouter.delete('/users/disable/:id', verifyToken, authorize, disableUserController);
 userRouter.patch('/users/uploadAvatar', verifyToken, upload.single('file'), uploadFileController);
-export default userRouter;
+module.exports = userRouter;

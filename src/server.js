@@ -11,10 +11,10 @@ const logger = require('./utils/logger');
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-import routes from './routes';
+import { routers, getRoutePaths } from './routes';
 const initService = () => {
   console.log('Init - Register services.');
-  app.use('/api', routes);
+  app.use('/api', routers);
   console.log(`Init - Register services successfully.`);
   return;
 };
@@ -33,11 +33,10 @@ const initSequelize = () => {
 };
 const startServer = async () => {
   const path = sequelizeConfig['migrations-path'];
-  console.log(path);
+
   const server = app.listen(config.port, '0.0.0.0');
   app.use(cors());
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
   initSequelize();
   initService();
   const io = require('socket.io')(server, {

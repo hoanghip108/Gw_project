@@ -31,8 +31,8 @@ const UserSchema = Joi.object({
       'string.pattern.base': 'username must not have special characters',
     }),
   password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  firstName: Joi.string().min(3).max(30),
-  lastName: Joi.string().min(3).max(30),
+  firstName: Joi.string().min(3).max(30).required(),
+  lastName: Joi.string().min(3).max(30).required(),
   email: Joi.string().min(10).max(30).regex(EMAIL_REGEX).required().messages({
     'string.min': 'Email must have at least 10 characters',
     'string.max': 'Email must have maximum 30 characters',

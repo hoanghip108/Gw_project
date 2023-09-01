@@ -20,8 +20,10 @@ module.exports = class User extends BaseModel {
     { model: DeletedConversation, as: 'dConversation' },
   ];
   static associate(models) {
-    this.belongsTo(models.Role, {
-      foreignKey: 'RoleId',
+    this.belongsToMany(models.Role, {
+      through: 'user_role',
+      foreignKey: 'userId',
+      primaryKey: true,
     });
     this.hasMany(models.BankAccount);
     this.hasMany(models.EnrolledCourse, { foreignKey: 'courseId' });

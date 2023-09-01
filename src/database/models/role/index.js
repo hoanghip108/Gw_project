@@ -1,6 +1,7 @@
 const BaseModel = require('../base');
 const User = require('../user');
 const Permission = require('../permission');
+const Role_permission = require('../role_permission');
 module.exports = class Role extends BaseModel {
   static tableName = 'role';
   static modelName = 'role';
@@ -14,11 +15,21 @@ module.exports = class Role extends BaseModel {
       model: User,
       as: 'user',
     },
+    {
+      Role_permission,
+      as: 'role_permission',
+    },
   ];
   static associate(models) {
-    this.hasMany(models.User, {
-      foreignKey: 'RoleId',
+    this.belongsToMany(models.User, {
+      through: 'user_role',
+      foreignKey: 'roleId',
+      primaryKey: true,
     });
-    this.hasMany(models.Permission, { foreignKey: 'roleId' });
+    this.belongsToMany(models.Permission, {
+      through: 'role_permission',
+      foreignKey: 'roleId',
+    });
+    //this.hasMany(models.Permission, { foreignKey: 'roleId' });
   }
 };

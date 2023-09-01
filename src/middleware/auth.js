@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { USER_STATUS } from '../data/constant';
+const { sequelize } = require('../config/database');
 const Permission = require('../database/models/permission');
 const Role = require('../database/models/role');
 const apiResponse = require('../helper/apiResponse');
@@ -14,11 +15,6 @@ const getToken = (req) => {
 const verifyToken = (req, res, next) => {
   const token = getToken(req);
   if (!token) {
-    const apiError = new APIError({
-      message: USER_STATUS.AUTHENTICATION_FAIL,
-      errors: USER_STATUS.AUTHENTICATION_FAIL,
-      status: httpStatus.UNAUTHORIZED,
-    });
     return res.status(httpStatus.UNAUTHORIZED).json(
       new APIError({
         message: USER_STATUS.AUTHENTICATION_FAIL,
@@ -52,38 +48,36 @@ const authorize = async (req, res, next) => {
   } else {
     api = path.substring(0, path.lastIndexOf('?'));
   }
-  console.log('this is api: ' + api);
-  const { method } = req;
-  console.log('this is Method: ' + method);
+  console.log(req.originUrl);
+  const permission = await sequelize.query(
+    `
+    SELECT rp.method 
+    FROM user_role AS ur
+    JOIN role_permission AS rp ON ur.roleId = rp.roleId 
+    JOIN user ON ur.userId = user.id
+    JOIN permission AS perm ON rp.permissionId = perm.permissionId
+    WHERE user.id = '${req.user.userId}'
+    AND perm.api = '${api}';
+    `,
+  );
   let isPass = false;
-  let Role = user.userRole;
-  console.log('this is Role: ' + Role);
-  const permission = await Permission.findOne({
-    where: { api, RoleId: Role },
-  });
-  if (permission) {
-    switch (method) {
-      case 'GET':
-        if (permission.canRead) isPass = true;
-        console.log(permission.read);
-        break;
-      case 'POST':
-        if (permission.canCreate) isPass = true;
-        break;
-      case 'PUT':
-        if (permission.canUpdate) isPass = true;
-        break;
-      case 'DELETE':
-        if (permission.canDelete) isPass = true;
-        console.log(permission.canDelete);
-        break;
-      case 'PATCH':
-        if (permission.canPatch) isPass = true;
-        break;
-    }
-    if (isPass) return next();
+  if (permission[0].length != 0) {
+    const permissionArray = permission[0][0].method.split(',');
+    permissionArray.forEach((method) => {
+      if (req.method == method) {
+        console.log(req.method == method);
+        isPass = true;
+        return isPass;
+      }
+    });
   }
-  const apiError = new APIError({ message: USER_STATUS.PERMISSION,errors: USER_STATUS.PERMISSION, status: httpStatus.FORBIDDEN })
+  // console.log('this is api: ', api);
+  if (isPass) return next();
+  const apiError = new APIError({
+    message: USER_STATUS.PERMISSION,
+    errors: USER_STATUS.PERMISSION,
+    status: httpStatus.FORBIDDEN,
+  });
   return res.status(httpStatus.FORBIDDEN).json(apiError);
 };
 export { verifyToken, authorize };

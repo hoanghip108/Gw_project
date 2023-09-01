@@ -4,4 +4,4 @@ const express = require('express');
 const messageRouter = express.Router();
 messageRouter.post('/message/:conversationId', verifyToken, sendMessageController);
 
-export default messageRouter;
+module.exports = messageRouter;

@@ -8,4 +8,4 @@ const conversationRouter = express.Router();
 conversationRouter.get('/conversations', verifyToken, getAllConversationsController);
 conversationRouter.get('/conversations/:receiverId', verifyToken, conversationController);
 
-export default conversationRouter;
+module.exports = conversationRouter;

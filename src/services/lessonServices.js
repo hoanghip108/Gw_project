@@ -3,6 +3,7 @@ const Course = require('../database/models/course');
 const APIError = require('../helper/apiError');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
+import ExcludedData from '../helper/excludeData';
 const httpStatus = require('http-status');
 import { COMMON_CONSTANTS, LESSON_CONSTANT } from '../data/constant';
 const createLesson = async (payload, videoPath, currentUser) => {
@@ -32,11 +33,14 @@ const createLesson = async (payload, videoPath, currentUser) => {
     });
   }
 };
-const updateLesson = async (payload, lessonId) => {
+const updateLesson = async (payload, currentUser, lessonId, path) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const lesson = await Lesson.update({ ...payload }, { where: { lessonId: lessonId } });
+    const lesson = await Lesson.update(
+      { ...payload, updatedBy: currentUser, videoPath: path },
+      { where: { lessonId: lessonId } },
+    );
     await t.commit();
     if (lesson > 0) {
       return lesson;
@@ -50,9 +54,11 @@ const updateLesson = async (payload, lessonId) => {
     });
   }
 };
+const dataToExclude = ['videoPath', ...Object.values(ExcludedData)];
 const getLesson = async (lessonId) => {
   const lesson = await Lesson.findOne({
     where: { [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }] },
+    attributes: { exclude: dataToExclude },
   });
   if (lesson) {
     return lesson;
@@ -91,7 +97,10 @@ const deleteLesson = async (lessonId) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const lesson = await Lesson.update({ isDeleted: true }, { where: { lessonId: lessonId } });
+    const lesson = await Lesson.update(
+      { isDeleted: true },
+      { where: { [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }] } },
+    );
     if (lesson > 0) {
       return lesson;
     }

@@ -14,6 +14,7 @@ module.exports = class Course extends BaseModel {
     },
     { model: Lesson, as: 'lesson' },
     { model: SubCategory, as: 'subCategory' },
+    { model: Section, as: 'section' },
   ];
   static associate(models) {
     this.belongsTo(models.SubCategory, { foreignKey: 'subCateId' });

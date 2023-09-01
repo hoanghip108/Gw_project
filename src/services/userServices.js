@@ -1,5 +1,6 @@
 const User = require('../database/models/user');
 const Role = require('../database/models/role');
+const User_role = require('../database/models/user_role');
 const APIError = require('../helper/apiError');
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
@@ -7,7 +8,7 @@ import jwt from 'jsonwebtoken';
 import randomString from '../data/randomString';
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
-import { ROLE, COMMON_CONSTANTS } from '../data/constant';
+import { ROLE_DEFINE, COMMON_CONSTANTS } from '../data/constant';
 import { USER } from '../helper/messageResponse';
 import {
   FORM_CATEGORY,
@@ -16,7 +17,6 @@ import {
   FORM_MESSAGE,
   USER_STATUS,
 } from '../data/constant';
-import path from 'path';
 const login = async (payload) => {
   try {
     const user = await User.findOne({
@@ -68,14 +68,21 @@ const createUser = async (host, payload) => {
         password: hash,
         createdBy: payload.username,
         isActive: false,
-        RoleId: ROLE['USER'],
       },
       transaction: t,
     });
+    await t.commit();
     newUser.setDataValue('password', undefined);
     newUser.setDataValue('RoleId', undefined);
-    await t.commit();
     if (created) {
+      User_role.bulkCreate([
+        {
+          userId: newUser.id,
+          roleId: ROLE_DEFINE.USER,
+          createdBy: payload.username,
+        },
+      ]);
+
       return newUser;
     }
     return null;

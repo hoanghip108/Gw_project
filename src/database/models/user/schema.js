@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize');
 module.exports = {
   id: {
-    type: Sequelize.STRING(36),
+    type: Sequelize.STRING(255),
     allowNull: false,
     primaryKey: true,
     defaultValue: Sequelize.UUIDV1,
@@ -15,7 +15,11 @@ module.exports = {
     type: Sequelize.STRING(250),
     allowNull: false,
   },
-  fullName: {
+  firstName: {
+    type: Sequelize.STRING(250),
+    allowNull: true,
+  },
+  lastName: {
     type: Sequelize.STRING(250),
     allowNull: true,
   },
