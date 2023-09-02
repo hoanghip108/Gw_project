@@ -48,7 +48,6 @@ const authorize = async (req, res, next) => {
   } else {
     api = path.substring(0, path.lastIndexOf('?'));
   }
-  console.log(req.originUrl);
   const permission = await sequelize.query(
     `
     SELECT rp.method 
@@ -65,13 +64,11 @@ const authorize = async (req, res, next) => {
     const permissionArray = permission[0][0].method.split(',');
     permissionArray.forEach((method) => {
       if (req.method == method) {
-        console.log(req.method == method);
         isPass = true;
         return isPass;
       }
     });
   }
-  // console.log('this is api: ', api);
   if (isPass) return next();
   const apiError = new APIError({
     message: USER_STATUS.PERMISSION,

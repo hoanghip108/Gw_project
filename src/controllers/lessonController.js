@@ -1,4 +1,4 @@
-import { LESSON_CONSTANT } from '../data/constant';
+import { COURSE_CONSTANTS, LESSON_CONSTANT } from '../data/constant';
 import {
   createLesson,
   getListLesson,
@@ -95,10 +95,14 @@ const updateLessonController = async (req, res, next) => {
     const currentUser = req.user.username;
     const lessonId = req.params.id;
     const updated = await updateLesson(value, currentUser, lessonId, videoPath);
-    if (updated) {
-      return res.status(httpStatus.OK).json(new Success(LESSON_CONSTANT.UPDATE_SUCCESS));
+    if (updated == null) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(LESSON_CONSTANT.UPDATE_FAILED));
+    } else if (updated == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
     }
-    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(LESSON_CONSTANT.UPDATE_FAILED));
+    return res.status(httpStatus.OK).json(new Success(LESSON_CONSTANT.UPDATE_SUCCESS));
   } catch (err) {
     next(err);
   }

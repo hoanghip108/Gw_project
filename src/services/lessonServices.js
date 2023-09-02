@@ -5,7 +5,7 @@ const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 import ExcludedData from '../helper/excludeData';
 const httpStatus = require('http-status');
-import { COMMON_CONSTANTS, LESSON_CONSTANT } from '../data/constant';
+import { COMMON_CONSTANTS, LESSON_CONSTANT, COURSE_CONSTANTS } from '../data/constant';
 const createLesson = async (payload, videoPath, currentUser) => {
   let t;
   try {
@@ -37,6 +37,10 @@ const updateLesson = async (payload, currentUser, lessonId, path) => {
   let t;
   try {
     t = await sequelize.transaction();
+    const course = await Course.findOne({ where: { courseId: payload.courseId } });
+    if (!course) {
+      return COURSE_CONSTANTS.COURSE_NOTFOUND;
+    }
     const lesson = await Lesson.update(
       { ...payload, updatedBy: currentUser, videoPath: path },
       { where: { lessonId: lessonId } },
