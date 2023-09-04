@@ -1,6 +1,11 @@
 const moment = require('moment');
 const { sortObject } = require('../helper/sortObject.js');
-const { createTransaction, vnpay_return_service } = require('../services/paymentServices.js');
+const {
+  createTransaction,
+  vnpay_return_service,
+  getOderService,
+  updateEcoin,
+} = require('../services/paymentServices.js');
 const create_payment = async (req, res, next) => {
   process.env.TZ = 'Asia/Ho_Chi_Minh';
   let date = new Date();
@@ -104,16 +109,16 @@ const vnpay_ipn = async (req, res, next) => {
   let crypto = require('crypto');
   let hmac = crypto.createHmac('sha512', secretKey);
   let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
-
+  let userId = req.user.userId;
   let paymentStatus = '0'; // Giả sử '0' là trạng thái khởi tạo giao dịch, chưa có IPN. Trạng thái này được lưu khi yêu cầu thanh toán chuyển hướng sang Cổng thanh toán VNPAY tại đầu khởi tạo đơn hàng.
   //let paymentStatus = '1'; // Giả sử '1' là trạng thái thành công bạn cập nhật sau IPN được gọi và trả kết quả về nó
   //let paymentStatus = '2'; // Giả sử '2' là trạng thái thất bại bạn cập nhật sau IPN được gọi và trả kết quả về nó
 
-  let checkOrderId = true; // Mã đơn hàng "giá trị của vnp_TxnRef" VNPAY phản hồi tồn tại trong CSDL của bạn
-  let checkAmount = true; // Kiểm tra số tiền "giá trị của vnp_Amout/100" trùng khớp với số tiền của đơn hàng trong CSDL của bạn
+  const order = await getOderService(orderId, userId); // Mã đơn hàng "giá trị của vnp_TxnRef" VNPAY phản hồi tồn tại trong CSDL của bạn
+  let checkAmount = order.amount == vnp_Params['vnp_Amount'] / 100; // Kiểm tra số tiền "giá trị của vnp_Amout/100" trùng khớp với số tiền của đơn hàng trong CSDL của bạn
   if (secureHash === signed) {
     //kiểm tra checksum
-    if (checkOrderId) {
+    if (order) {
       if (checkAmount) {
         if (paymentStatus == '0') {
           //kiểm tra tình trạng giao dịch trước khi cập nhật tình trạng thanh toán
@@ -121,10 +126,16 @@ const vnpay_ipn = async (req, res, next) => {
             //thanh cong
             //paymentStatus = '1'
             // Ở đây cập nhật trạng thái giao dịch thanh toán thành công vào CSDL của bạn
+            await order.update({ status: '1' });
+            await order.save();
+            const a = await updateEcoin(userId, order.amount);
+            console.log(a);
             res.status(200).json({ RspCode: '00', Message: 'Success' });
           } else {
             //that bai
             //paymentStatus = '2'
+            await order.update({ status: '2' });
+            await order.save();
             // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
             res.status(200).json({ RspCode: '00', Message: 'Success' });
           }
