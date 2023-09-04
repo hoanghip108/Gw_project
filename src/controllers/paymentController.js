@@ -92,6 +92,7 @@ const vnpay_return = async (req, res, next) => {
   }
 };
 const vnpay_ipn = async (req, res, next) => {
+  console.log('connected to vnpay_IPN');
   let vnp_Params = req.query;
   let secureHash = vnp_Params['vnp_SecureHash'];
 
@@ -128,6 +129,7 @@ const vnpay_ipn = async (req, res, next) => {
             // Ở đây cập nhật trạng thái giao dịch thanh toán thành công vào CSDL của bạn
             await order.update({ status: '1' });
             await order.save();
+            console.log('Order updated to success');
             const a = await updateEcoin(userId, order.amount);
             console.log(a);
             res.status(200).json({ RspCode: '00', Message: 'Success' });
@@ -136,6 +138,7 @@ const vnpay_ipn = async (req, res, next) => {
             //paymentStatus = '2'
             await order.update({ status: '2' });
             await order.save();
+            console.log('Order updated to fail');
             // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
             res.status(200).json({ RspCode: '00', Message: 'Success' });
           }
