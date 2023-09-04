@@ -42,6 +42,10 @@ const LESSON_CONSTANT = {
   UPDATE_SUCCESS: 'Lesson updated successfully',
   UPDATE_FAILED: 'Lesson update failed',
 };
+const SECTION_CONSTANT = {
+  NOT_FOUND: 'Section not found',
+  EXIST: 'Section Exist',
+};
 export {
   USER_STATUS,
   ROLE_DEFINE,
@@ -49,4 +53,5 @@ export {
   EMAIL_CONSTANTS,
   COURSE_CONSTANTS,
   LESSON_CONSTANT,
+  SECTION_CONSTANT,
 };

@@ -1,11 +1,8 @@
 const express = require('express');
 const paymentRouter = express.Router();
-import {
-  createPaymentController,
-  getPaymentResultController,
-  getPaymentInforController,
-} from '../controllers/paymentController';
-paymentRouter.post('/createPayment', createPaymentController);
-paymentRouter.get('/vnpay_ipn', getPaymentResultController);
-paymentRouter.get('/vnpay_return', getPaymentInforController);
+const { create_payment, vnpay_return, vnpay_ipn } = require('../controllers/paymentController.js');
+import { verifyToken, authorize } from '../middleware/auth.js';
+paymentRouter.post('/createPayment', verifyToken, create_payment);
+paymentRouter.get('/vnpay_ipn', vnpay_ipn);
+paymentRouter.get('/vnpay_return', vnpay_return);
 module.exports = paymentRouter;

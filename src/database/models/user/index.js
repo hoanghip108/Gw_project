@@ -7,6 +7,7 @@ const Conversation = require('../conversation/index');
 const DMessage = require('../deletedMessage/index');
 const DeletedConversation = require('../deletedConversation');
 const Participant = require('../participant');
+const TransactionHistory = require('../transactionHistory');
 module.exports = class User extends BaseModel {
   static tableName = 'user';
   static modelName = 'user';
@@ -18,6 +19,7 @@ module.exports = class User extends BaseModel {
     { model: Conversation, as: 'conversation' },
     { model: DMessage, as: 'dMessage' },
     { model: DeletedConversation, as: 'dConversation' },
+    { model: TransactionHistory, as: 'transactionHistory' },
   ];
   static associate(models) {
     this.belongsToMany(models.Role, {
@@ -32,5 +34,6 @@ module.exports = class User extends BaseModel {
     this.hasMany(models.Message, { foreignKey: 'userId' });
     this.hasMany(models.DeletedConversation, { foreignKey: 'userId' });
     this.hasMany(models.Participant, { foreignKey: 'userId' });
+    this.hasMany(models.TransactionHistory, { foreignKey: 'userId' });
   }
 };

@@ -45,4 +45,9 @@ module.exports = {
     type: Sequelize.STRING(500),
     allowNull: true,
   },
+  eCoin: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
 };

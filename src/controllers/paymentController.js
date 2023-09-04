@@ -1,31 +1,8 @@
-const httpStatus = require('http-status');
-import { COURSE_CONSTANTS, LESSON_CONSTANT } from '../data/constant';
-const sortObject = require('../helper/sortObject');
-const dotenv = require('dotenv');
-dotenv.config();
-const env = process.env.NODE_ENV;
-// import sortObject from 'sortobject';
-const querystring = require('qs');
-const crypto = require('crypto');
-const {
-  Common,
-  Success,
-  CreatedSuccess,
-  DeletedSuccess,
-  BadRequest,
-  Unauthorized,
-  Forbidden,
-  NotFound,
-  Conflict,
-  ValidateFailed,
-  WrongUsernameOrpassWord,
-  ApiPaginatedResponse,
-} = require('../helper/apiResponse');
 const moment = require('moment');
-const now = moment();
-const createPaymentController = async (req, res, next) => {
+const { sortObject } = require('../helper/sortObject.js');
+const { createTransaction, vnpay_return_service } = require('../services/paymentServices.js');
+const create_payment = async (req, res, next) => {
   process.env.TZ = 'Asia/Ho_Chi_Minh';
-
   let date = new Date();
   let createDate = moment(date).format('YYYYMMDDHHmmss');
 
@@ -36,8 +13,8 @@ const createPaymentController = async (req, res, next) => {
     req.connection.socket.remoteAddress;
   let tmnCode = process.env.VNP_TMNCODE;
   let secretKey = process.env.VNP_HASHSECRET;
-  let vnpUrl = process.env.PAYMENT_URL;
-  let returnUrl = process.env.VNP_RETURN_URL;
+  let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
+  let returnUrl = 'http://localhost:3000/api/vnpay_ipn';
   let orderId = moment(date).format('DDHHmmss');
   let amount = req.body.amount;
   let bankCode = req.body.bankCode;
@@ -48,13 +25,15 @@ const createPaymentController = async (req, res, next) => {
   }
   let currCode = 'VND';
   let vnp_Params = {};
+  let username = req.user.username;
+  let userId = req.user.userId;
   vnp_Params['vnp_Version'] = '2.1.0';
   vnp_Params['vnp_Command'] = 'pay';
   vnp_Params['vnp_TmnCode'] = tmnCode;
   vnp_Params['vnp_Locale'] = locale;
   vnp_Params['vnp_CurrCode'] = currCode;
   vnp_Params['vnp_TxnRef'] = orderId;
-  vnp_Params['vnp_OrderInfo'] = 'Thanh toan cho ma GD:' + orderId;
+  vnp_Params['vnp_OrderInfo'] = 'Thanh toan cho tai khoan:' + username;
   vnp_Params['vnp_OrderType'] = 'other';
   vnp_Params['vnp_Amount'] = amount * 100;
   vnp_Params['vnp_ReturnUrl'] = returnUrl;
@@ -63,8 +42,9 @@ const createPaymentController = async (req, res, next) => {
   if (bankCode !== null && bankCode !== '') {
     vnp_Params['vnp_BankCode'] = bankCode;
   }
-
+  createTransaction(orderId, userId, username, amount);
   vnp_Params = sortObject(vnp_Params);
+  console.log(vnp_Params);
 
   let querystring = require('qs');
   let signData = querystring.stringify(vnp_Params, { encode: false });
@@ -73,11 +53,40 @@ const createPaymentController = async (req, res, next) => {
   let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
   vnp_Params['vnp_SecureHash'] = signed;
   vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
-  console.log('this is vnp params object: ', vnp_Params);
   console.log(vnpUrl);
-  return res.redirect(vnpUrl);
+  res.redirect(vnpUrl);
 };
-const getPaymentResultController = async (req, res, next) => {
+const vnpay_return = async (req, res, next) => {
+  let vnp_Params = req.query;
+
+  let secureHash = vnp_Params['vnp_SecureHash'];
+
+  delete vnp_Params['vnp_SecureHash'];
+  delete vnp_Params['vnp_SecureHashType'];
+
+  vnp_Params = sortObject(vnp_Params);
+  console.log(vnp_Params);
+  let config = require('config');
+  let tmnCode = config.get('vnp_TmnCode');
+  let secretKey = config.get('vnp_HashSecret');
+
+  let querystring = require('qs');
+  let signData = querystring.stringify(vnp_Params, { encode: false });
+  let crypto = require('crypto');
+  let hmac = crypto.createHmac('sha512', secretKey);
+  let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+
+  if (secureHash === signed) {
+    const result = vnpay_return_service(vnp_Params['vnp_TxnRef']);
+    if (result) {
+      console.log(result);
+      return res.render('success', { code: '00' });
+    } else return res.render('success', { code: '97' });
+  } else {
+    res.render('success', { code: '97' });
+  }
+};
+const vnpay_ipn = async (req, res, next) => {
   let vnp_Params = req.query;
   let secureHash = vnp_Params['vnp_SecureHash'];
 
@@ -88,6 +97,7 @@ const getPaymentResultController = async (req, res, next) => {
   delete vnp_Params['vnp_SecureHashType'];
 
   vnp_Params = sortObject(vnp_Params);
+  let config = require('config');
   let secretKey = process.env.VNP_HASHSECRET;
   let querystring = require('qs');
   let signData = querystring.stringify(vnp_Params, { encode: false });
@@ -119,9 +129,10 @@ const getPaymentResultController = async (req, res, next) => {
             res.status(200).json({ RspCode: '00', Message: 'Success' });
           }
         } else {
-          res
-            .status(200)
-            .json({ RspCode: '02', Message: 'This order has been updated to the payment status' });
+          res.status(200).json({
+            RspCode: '02',
+            Message: 'This order has been updated to the payment status',
+          });
         }
       } else {
         res.status(200).json({ RspCode: '04', Message: 'Amount invalid' });
@@ -133,30 +144,5 @@ const getPaymentResultController = async (req, res, next) => {
     res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
   }
 };
-const getPaymentInforController = async (req, res, next) => {
-  let vnp_Params = req.query;
 
-  let secureHash = vnp_Params['vnp_SecureHash'];
-
-  delete vnp_Params['vnp_SecureHash'];
-  delete vnp_Params['vnp_SecureHashType'];
-
-  vnp_Params = sortObject(vnp_Params);
-  let tmnCode = process.env.TMN_CODE;
-  let secretKey = process.env.VNP_HASHSECRET;
-
-  let querystring = require('qs');
-  let signData = querystring.stringify(vnp_Params, { encode: false });
-  let crypto = require('crypto');
-  let hmac = crypto.createHmac('sha512', secretKey);
-  let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
-
-  if (secureHash === signed) {
-    //Kiem tra xem du lieu trong db co hop le hay khong va thong bao ket qua
-
-    return res.send(200, { code: vnp_Params['vnp_ResponseCode'] });
-  } else {
-    return res.send(200, { code: '97' });
-  }
-};
-export { createPaymentController, getPaymentResultController, getPaymentInforController };
+module.exports = { create_payment, vnpay_return, vnpay_ipn };

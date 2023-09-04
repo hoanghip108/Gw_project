@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { permissionId } from '../database/models/permission/schema';
 import { create } from 'lodash';
 import { v1 as uuidv1 } from 'uuid';
+import hashPassword from '../helper/hashPassword';
 const salt = bcrypt.genSaltSync(Number(process.env.SALTROUNDS));
 const hash = bcrypt.hashSync('123123', salt);
 const routes = require('../routes');
@@ -73,6 +74,18 @@ module.exports = {
             updatedBy: 'ADMIN',
             createdAt: new Date(),
             updatedAt: new Date(),
+          },
+        ]),
+        queryInterface.bulkInsert('user', [
+          {
+            id: '1',
+            username: 'admin001',
+            password: hashPassword('123123'),
+            firstName: 'admin',
+            lastName: 'admin',
+            isActive: 1,
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
           },
         ]),
         permission.forEach((route) => {

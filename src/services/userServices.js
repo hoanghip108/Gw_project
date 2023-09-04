@@ -17,6 +17,7 @@ import {
   FORM_MESSAGE,
   USER_STATUS,
 } from '../data/constant';
+import hashPassword from '../helper/hashPassword';
 const login = async (payload) => {
   try {
     const user = await User.findOne({
@@ -59,8 +60,7 @@ const createUser = async (host, payload) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const salt = bcrypt.genSaltSync(Number(process.env.SALTROUNDS));
-    const hash = bcrypt.hashSync(payload.password, salt);
+    const hash = hashPassword(payload.password);
     const [newUser, created] = await User.findOrCreate({
       where: { [Op.or]: [{ username: payload.username }, { email: payload.email }] },
       defaults: {
@@ -106,7 +106,7 @@ const verifyUser = async (id) => {
   }
 };
 const getCurrentUser = async (id) => {
-  const user = await User.findOne({ where: { id: id } });
+  const user = await User.findOne({ where: { [Op.or]: [{ id: id }, { username: id }] } });
   if (user) {
     return user;
   }
