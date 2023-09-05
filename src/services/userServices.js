@@ -216,7 +216,7 @@ const getListUser = async (pageIndex, pageSize) => {
   };
 };
 const uploadAvatar = async (filePath, userId) => {
-  const user = User.update({ avatar: filePath }, { where: { id: userId } });
+  const user = await User.update({ avatar: filePath }, { where: { id: userId } });
   if (user) {
     return user;
   }

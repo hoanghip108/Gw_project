@@ -11,6 +11,7 @@ const USER_STATUS = {
   AUTHENTICATION_FAIL: 'Wrong username or password',
   AUTHENTICATION: 'Login success',
   UNAUTHENTICATED: 'unauthenticated',
+  SELF_DELETE: 'You can not delete yourself',
 };
 const ROLE_DEFINE = {
   ADMIN: 1,
@@ -43,6 +44,9 @@ const LESSON_CONSTANT = {
   UPDATE_FAILED: 'Lesson update failed',
 };
 const SECTION_CONSTANT = {
+  CREATED: 'Section created successfully',
+  UPDATED: 'Section updated successfully',
+  FOUND: 'Section found',
   NOT_FOUND: 'Section not found',
   EXIST: 'Section Exist',
 };

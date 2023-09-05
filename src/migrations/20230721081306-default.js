@@ -98,6 +98,39 @@ module.exports = {
             },
           ]);
         }),
+        queryInterface.bulkInsert('subCategory', [
+          {
+            subCateId: '1',
+            subCateName: 'Guitar',
+            isDeleted: 0,
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
+            cateId: '1',
+          },
+          {
+            subCateId: '2',
+            subCateName: 'Launchpad',
+            isDeleted: 0,
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
+            cateId: '1',
+          },
+        ]),
+        queryInterface.bulkInsert('course', [
+          {
+            courseId: '1',
+            courseName: 'Guitar for beginners',
+            description: 'Guitar for beginners',
+            price: 100000,
+            isFree: 0,
+            like: 0,
+            dislike: 0,
+            isDeleted: 0,
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
+            subCateId: '1',
+          },
+        ]),
       ]);
     } catch (err) {
       console.log(err);

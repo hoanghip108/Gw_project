@@ -6,6 +6,7 @@ const messageRouter = require('./messageRoutes');
 const paymentRouter = require('./paymentRoutes');
 const { lastIndexOf } = require('lodash');
 const lessonRouter = require('./lessonRoutes');
+const sectionRouter = require('./sectionRoutes');
 const express = require('express');
 const routers = express.Router();
 routers.use(userRouter);
@@ -15,6 +16,7 @@ routers.use(lessonRouter);
 routers.use(conversationRouter);
 routers.use(messageRouter);
 routers.use(paymentRouter);
+routers.use('/sections', sectionRouter);
 const fs = require('fs');
 const path = require('path');
 

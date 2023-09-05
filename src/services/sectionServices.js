@@ -1,13 +1,18 @@
 const Section = require('../database/models/section');
 const Course = require('../database/models/course');
 const { sequelize } = require('../config/database');
-import { SECTION_CONSTANT, COMMON_CONSTANTS } from '../data/constant';
+import { SECTION_CONSTANT, COMMON_CONSTANTS, COURSE_CONSTANTS } from '../data/constant';
 import { courseId } from '../database/models/course/schema';
 import APIError from '../helper/apiError';
-
 import httpStatus from 'http-status';
+const { Op } = require('sequelize');
+import ExcludedData from '../helper/excludeData';
+const dataToExclude = ['videoPath', ...Object.values(ExcludedData)];
 const getSection = async (id) => {
-  const result = await Section.findOne({ [Op.and]: [{ sectionId: id }, { isDeleted: false }] });
+  const result = await Section.findOne({
+    where: { [Op.and]: [{ sectionId: id }, { isDeleted: false }] },
+    attributes: { exclude: dataToExclude },
+  });
   if (!result) {
     return SECTION_CONSTANT.NOT_FOUND;
   }
@@ -38,23 +43,26 @@ const getListSection = async (pageIndex, pageSize) => {
     endIndex,
   };
 };
-const createSection = async (payload, sectionId) => {
+const createSection = async (payload, sectionId, currentUser) => {
   let t;
   try {
-    const section = await Section.findone({
-      where: { [Op.and]: [{ sectionId: sectionId }, { isDeleted: false }] },
+    t = await sequelize.transaction();
+    const courseId = payload.courseId;
+    const course = await Course.findOne({ where: { courseId: courseId } });
+    if (!course) {
+      return COURSE_CONSTANTS.COURSE_NOTFOUND;
+    }
+    const [section, created] = await Section.findOrCreate({
+      where: { sectionName: payload.sectionName },
+      defaults: { createdBy: currentUser, sectionName: payload.sectionName, courseId: courseId },
     });
-    if (section) {
+    await t.commit();
+    if (!created) {
       return SECTION_CONSTANT.EXIST;
     }
-    t = sequelize.Transaction();
-    const course = Course.findOne({ where: { courseId: courseId } });
-    const created = await Section.create(payload, { transaction: t });
-    await t.commit();
-    if (created) {
-      return created;
-    }
+    return section;
   } catch (err) {
+    console.log(err.message);
     await t.rollback();
     throw new APIError({
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
@@ -62,3 +70,35 @@ const createSection = async (payload, sectionId) => {
     });
   }
 };
+const updateSection = async (payload, sectionId, currentUser) => {
+  let t;
+  try {
+    const courseId = payload.courseId;
+    t = await sequelize.transaction();
+    const course = await Course.findOne({ where: { courseId: courseId } });
+    if (!course) {
+      return COURSE_CONSTANTS.COURSE_NOTFOUND;
+    }
+    const section = await Section.findOne({ where: { sectionId: sectionId } });
+    if (!section) {
+      return SECTION_CONSTANT.NOT_FOUND;
+    }
+    const result = await Section.update(
+      { ...payload, updatedBy: currentUser },
+      { where: { sectionId: sectionId } },
+    );
+    await t.commit();
+    if (result > 0) {
+      return result;
+    }
+    return null;
+  } catch (err) {
+    console.log(err.message);
+    t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
+  }
+};
+export { getSection, getListSection, createSection, updateSection };
