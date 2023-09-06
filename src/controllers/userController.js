@@ -1,4 +1,12 @@
 import { USER_STATUS, EMAIL_CONSTANTS } from '../data/constant';
+import { USER } from '../helper/messageResponse';
+import { uploadImage } from '../helper/uploadFile';
+const cloudinary = require('cloudinary').v2;
+cloudinary.config({
+  cloud_name: 'dj6sdj5yq',
+  api_key: '371489392313257',
+  api_secret: 'fQRiqtcdpqtpED26cMR3eOdxi8c',
+});
 import {
   createUser,
   login,
@@ -15,12 +23,6 @@ import { UserSchema, Loginschema, changePasswordSchema } from '../validators/use
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
 import { verrifyEmailOption, resetPasswordOption } from '../helper/mailer';
-const cloudinary = require('cloudinary').v2;
-cloudinary.config({
-  cloud_name: 'dj6sdj5yq',
-  api_key: '371489392313257',
-  api_secret: 'fQRiqtcdpqtpED26cMR3eOdxi8c',
-});
 const {
   Common,
   Success,
@@ -43,20 +45,31 @@ const transporter = nodemailer.createTransport({
   },
 });
 const uploadFileController = async (req, res, next) => {
+  debugger;
   try {
     const filePath = req.file.path;
+    const file = req.file;
+    console.log(file.buffer);
     const userId = req.user.userId;
-
-    cloudinary.uploader.upload(filePath, { public_id: 'olympic_flag' }, function (error, success) {
-      if (error) {
-        console.error('Error uploading file:', error);
-      }
-      const result = uploadAvatar(success.url, userId);
-      if (result != null) {
+    // cloudinary.uploader.upload(filePath, { public_id: 'olympic_flag' }, function (error, success) {
+    //   if (error) {
+    //     console.error('Error uploading file:', error);
+    //   }
+    //   const result = uploadAvatar(success.url, userId);
+    //   if (result != null) {
+    //     return res.status(httpStatus.OK).json(new Success());
+    //   }
+    //   return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+    // });
+    uploadImage(file)
+      .then((imageUrl) => {
+        console.log('Image uploaded successfully:', imageUrl);
         return res.status(httpStatus.OK).json(new Success());
-      }
-      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
-    });
+      })
+      .catch((error) => {
+        console.error('Error uploading image:', error.message);
+        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+      });
   } catch (err) {
     next(err);
   }
@@ -114,9 +127,9 @@ const disableUserController = async (req, res, next) => {
     const uId = req.params.id;
     const currentUser = req.user.userId;
     const user = await disableUser(uId, currentUser);
-    if (user == USER_STATUS.SELF_DELETE) {
+    if (user == USER.Delete_yourself) {
       console.log(user);
-      return res.status(400).json(new BadRequest(USER_STATUS.SELF_DELETE));
+      return res.status(400).json(new BadRequest(USER.Delete_yourself));
     } else if (user == null) {
       return res.status(400).json(new BadRequest(USER_STATUS.USER_DELETE_FAILED));
     }
