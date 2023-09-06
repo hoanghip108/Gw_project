@@ -18,4 +18,9 @@ module.exports = {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  isTranfer: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
 };

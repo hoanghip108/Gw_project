@@ -19,7 +19,7 @@ const create_payment = async (req, res, next) => {
   let tmnCode = process.env.VNP_TMNCODE;
   let secretKey = process.env.VNP_HASHSECRET;
   let vnpUrl = 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
-  let returnUrl = 'http://localhost:3000/api/vnpay_ipn';
+  let returnUrl = process.env.VNP_RETURN_URL;
   let orderId = moment(date).format('DDHHmmss');
   let amount = req.body.amount;
   let bankCode = req.body.bankCode;
@@ -44,6 +44,7 @@ const create_payment = async (req, res, next) => {
   vnp_Params['vnp_ReturnUrl'] = returnUrl;
   vnp_Params['vnp_IpAddr'] = ipAddr;
   vnp_Params['vnp_CreateDate'] = createDate;
+  // vnp_Params['vnp_userId'] = userId;
   if (bankCode !== null && bankCode !== '') {
     vnp_Params['vnp_BankCode'] = bankCode;
   }
@@ -71,9 +72,8 @@ const vnpay_return = async (req, res, next) => {
 
   vnp_Params = sortObject(vnp_Params);
   console.log(vnp_Params);
-  let config = require('config');
-  let tmnCode = config.get('vnp_TmnCode');
-  let secretKey = config.get('vnp_HashSecret');
+  let tmnCode = process.env.VNP_TMNCODE;
+  let secretKey = process.env.VNP_HASHSECRET;
 
   let querystring = require('qs');
   let signData = querystring.stringify(vnp_Params, { encode: false });
@@ -103,19 +103,18 @@ const vnpay_ipn = async (req, res, next) => {
   delete vnp_Params['vnp_SecureHashType'];
 
   vnp_Params = sortObject(vnp_Params);
-  let config = require('config');
   let secretKey = process.env.VNP_HASHSECRET;
   let querystring = require('qs');
   let signData = querystring.stringify(vnp_Params, { encode: false });
   let crypto = require('crypto');
   let hmac = crypto.createHmac('sha512', secretKey);
   let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
-  let userId = req.user.userId;
+  // let userId = req.user.userId;
   let paymentStatus = '0'; // Giả sử '0' là trạng thái khởi tạo giao dịch, chưa có IPN. Trạng thái này được lưu khi yêu cầu thanh toán chuyển hướng sang Cổng thanh toán VNPAY tại đầu khởi tạo đơn hàng.
   //let paymentStatus = '1'; // Giả sử '1' là trạng thái thành công bạn cập nhật sau IPN được gọi và trả kết quả về nó
   //let paymentStatus = '2'; // Giả sử '2' là trạng thái thất bại bạn cập nhật sau IPN được gọi và trả kết quả về nó
 
-  const order = await getOderService(orderId, userId); // Mã đơn hàng "giá trị của vnp_TxnRef" VNPAY phản hồi tồn tại trong CSDL của bạn
+  const order = await getOderService(orderId); // Mã đơn hàng "giá trị của vnp_TxnRef" VNPAY phản hồi tồn tại trong CSDL của bạn
   let checkAmount = order.amount == vnp_Params['vnp_Amount'] / 100; // Kiểm tra số tiền "giá trị của vnp_Amout/100" trùng khớp với số tiền của đơn hàng trong CSDL của bạn
   if (secureHash === signed) {
     //kiểm tra checksum
@@ -130,8 +129,6 @@ const vnpay_ipn = async (req, res, next) => {
             await order.update({ status: '1' });
             await order.save();
             console.log('Order updated to success');
-            const a = await updateEcoin(userId, order.amount);
-            console.log(a);
             res.status(200).json({ RspCode: '00', Message: 'Success' });
           } else {
             //that bai
@@ -140,7 +137,7 @@ const vnpay_ipn = async (req, res, next) => {
             await order.save();
             console.log('Order updated to fail');
             // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
-            res.status(200).json({ RspCode: '00', Message: 'Success' });
+            res.redirect(`/updateEcoin?userId=${order.userId}&orderId=${order.id}`);
           }
         } else {
           res.status(200).json({
@@ -158,5 +155,15 @@ const vnpay_ipn = async (req, res, next) => {
     res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
   }
 };
+const updateEcoinController = async (req, res, next) => {
+  const userId = req.user.userId;
+  const orderId = req.params.orderId;
 
-module.exports = { create_payment, vnpay_return, vnpay_ipn };
+  const result = await updateEcoin(userId, orderId);
+  if (result) {
+    res.status(200).json({ message: 'Update ecoin successfully' });
+  } else {
+    res.status(400).json({ message: 'Update ecoin failed' });
+  }
+};
+module.exports = { create_payment, vnpay_return, vnpay_ipn, updateEcoinController };

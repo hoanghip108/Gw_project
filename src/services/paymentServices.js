@@ -29,20 +29,34 @@ const vnpay_return_service = async (vnp_TxnRef) => {
     // res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
   });
 };
-const getOderService = async (orderId, userId) => {
+const getOderService = async (orderId) => {
   const order = await Transactionhistory.findOne({
-    where: { [Op.and]: [{ transactionCode: orderId }, { userId: userId }] },
+    where: { transactionCode: orderId },
   });
   if (order) return order;
   return null;
 };
-const updateEcoin = async (userId, amount) => {
-  const user = await User.findOne({ where: { id: userId } });
-  if (user) {
-    user.eCoin = user.eCoin + amount;
-    await user.save();
-    return user;
+const updateEcoin = async (userId, orderId) => {
+  let t;
+  try {
+    const bill = await Transactionhistory.findOne({
+      where: { [Op.and]: [{ userId: userId }, { transactionCode: orderId }, { isTranfer: false }] },
+    });
+    if (bill) {
+      t = await sequelize.transaction();
+      console.log(bill.amount);
+      const user = await User.update(
+        { eCoin: sequelize.literal(`ecoin + ${bill.amount}`) },
+        { where: { id: userId } },
+      );
+      bill.update({ isTranfer: true });
+      await t.commit();
+      return user;
+    }
+    return null;
+  } catch (err) {
+    await t.rollback();
+    console.log(err.message);
   }
-  return null;
 };
 module.exports = { createTransaction, vnpay_return_service, getOderService, updateEcoin };
