@@ -34,7 +34,7 @@ const initSequelize = () => {
 const startServer = async () => {
   const path = sequelizeConfig['migrations-path'];
 
-  const server = app.listen(config.port, '0.0.0.0');
+  const server = app.listen(config.port, config.host);
   app.use(cors());
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   initSequelize();
@@ -43,6 +43,7 @@ const startServer = async () => {
     pingTimeout: 60000,
     cors: {
       origin: 'http://localhost:3000',
+      // origin: 'http://www.eschoolhub.click',
       // credentials: true,
     },
   });

@@ -19,7 +19,7 @@ const configs = {
     db_run_migration: process.env.DB_RUN_MIGRATION != 'false', // True as default
     // db_recreate: process.env.DB_RECREATE == 'true',
     db_recreate: true,
-  
+
     //paginate
     defaultIndexPagination: process.env.DEFAULT_INDEX_PAGINATION || 1,
     defaultSizePagination: process.env.DEFAULT_SIZE_PAGINATION || 10,
