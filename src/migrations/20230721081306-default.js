@@ -88,6 +88,14 @@ module.exports = {
             createdAt: new Date(),
           },
         ]),
+        queryInterface.bulkInsert('user_role', [
+          {
+            userId: '1',
+            roleId: '1',
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
+          },
+        ]),
         permission.forEach((route) => {
           queryInterface.bulkInsert('permission', [
             {
@@ -98,6 +106,7 @@ module.exports = {
             },
           ]);
         }),
+
         queryInterface.bulkInsert('subCategory', [
           {
             subCateId: '1',

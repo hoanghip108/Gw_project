@@ -64,6 +64,7 @@ const uploadFileController = async (req, res, next) => {
     uploadImage(file)
       .then((imageUrl) => {
         console.log('Image uploaded successfully:', imageUrl);
+        uploadAvatar(imageUrl, userId);
         return res.status(httpStatus.OK).json(new Success());
       })
       .catch((error) => {
