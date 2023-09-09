@@ -18,13 +18,14 @@ const formidable = require('formidable');
 const fs = require('fs');
 import { uploadImage } from '../helper/uploadFile';
 import { courseSchema } from '../validators/courseValidate';
-import { COURSE_CONSTANTS } from '../data/constant';
+import { COURSE_CONSTANTS, SUBCATEGORY_CONSTANTS } from '../data/constant';
 import {
   createCourse,
   updateCourse,
   deleteCourse,
   getCourse,
   getListCourse,
+  saveImage,
 } from '../services/courseServices';
 const createCourseController = async (req, res, next) => {
   try {
@@ -32,10 +33,10 @@ const createCourseController = async (req, res, next) => {
       courseName: req.body.courseName,
       description: req.body.description,
       price: req.body.price,
-      isFree: req.body.isFree === '0',
+      isFree: req.body.isFree,
       subCateId: req.body.subCateId,
-      like: req.body.like || null,
-      dislike: req.body.dislike || null,
+      like: req.body.like,
+      dislike: req.body.dislike,
       file: req.file,
     };
     const { error, value } = courseSchema.validate(body);
@@ -44,11 +45,20 @@ const createCourseController = async (req, res, next) => {
     }
     const file = value.file;
     const currentUser = req.user.userId;
+    const result = await createCourse(value, currentUser);
+    if (result === SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND));
+    } else if (result === COURSE_CONSTANTS.COURSE_EXIST) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COURSE_CONSTANTS.COURSE_EXIST));
+    }
+
     uploadImage(file)
       .then((imageUrl) => {
         console.log('Image uploaded successfully:', imageUrl);
-        createCourse(value, currentUser, imageUrl);
-        return res.status(httpStatus.OK).json(new Success());
+        saveImage(imageUrl, result.courseId);
+        return res.status(httpStatus.OK).json(new Success(COURSE_CONSTANTS.CREATED, result));
       })
       .catch((error) => {
         console.error('Error uploading image:', error.message);

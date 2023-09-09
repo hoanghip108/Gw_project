@@ -5,19 +5,45 @@ const SubCategory = require('../database/models/subCategory');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 import httpStatus from 'http-status';
-const createCourse = async (payload, currentUser, imageUrl) => {
+const createCourse = async (payload, currentUser) => {
+  let t;
+  try {
+    console.log(payload);
+    t = await sequelize.transaction();
+    const subcate = await SubCategory.findOne({ where: { subCateId: payload.subCateId } });
+    if (!subcate) {
+      return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
+    }
+    const result = await Course.findOne({
+      where: { courseName: payload.courseName },
+      include: [{ model: SubCategory }],
+    });
+    if (result) {
+      return COURSE_CONSTANTS.COURSE_EXIST;
+    }
+    const course = await Course.create({ ...payload, createdBy: currentUser }, { transaction: t });
+    await t.commit();
+    if (course) {
+      return course;
+    }
+    return null;
+  } catch (err) {
+    console.log(err.message);
+    await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
+  }
+};
+const saveImage = async (Imgurl, courseId) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const [newCourse, created] = await Course.findOrCreate({
-      where: { courseName: payload.courseName },
-      defaults: { ...payload, createdBy: currentUser, courseImg: imageUrl },
-      transaction: t,
-      include: [{ model: SubCategory }],
-    });
+    const course = await Course.update({ courseImg: Imgurl }, { where: { courseId: courseId } });
     await t.commit();
-    if (created) {
-      return newCourse;
+    if (course > 0) {
+      return course;
     }
     return null;
   } catch (err) {
@@ -103,4 +129,4 @@ const deleteCourse = async (courseId) => {
     });
   }
 };
-export { createCourse, updateCourse, deleteCourse, getCourse, getListCourse };
+export { createCourse, updateCourse, deleteCourse, getCourse, getListCourse, saveImage };

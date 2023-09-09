@@ -12,7 +12,7 @@ import {
 const courseSchema = Joi.object({
   courseName: Joi.string().min(3).max(500).required(),
   description: Joi.string(),
-  price: Joi.number(),
+  price: Joi.number().required(),
   isFree: Joi.boolean().required(),
   subCateId: Joi.number().required(),
   like: Joi.number(),
