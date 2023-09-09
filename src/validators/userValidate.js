@@ -31,8 +31,8 @@ const UserSchema = Joi.object({
       'string.pattern.base': 'username must not have special characters',
     }),
   password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  firstName: Joi.string().min(3).max(30).required(),
-  lastName: Joi.string().min(3).max(30).required(),
+  firstName: Joi.string().min(2).max(30).required(),
+  lastName: Joi.string().min(2).max(30).required(),
   email: Joi.string().min(10).max(30).regex(EMAIL_REGEX).required().messages({
     'string.min': 'Email must have at least 10 characters',
     'string.max': 'Email must have maximum 30 characters',
@@ -54,4 +54,17 @@ const UserUpdateSchema = Joi.object({
   avatar: Joi.string(),
   address: Joi.string().max(100),
 });
-export { Loginschema, UserSchema, UserUpdateSchema, changePasswordSchema };
+const AvatarUpdateSchema = Joi.object({
+  file: Joi.object({
+    fieldname: Joi.string().required(),
+    originalname: Joi.string(),
+    encoding: Joi.string(),
+    destination: Joi.string(),
+    filename: Joi.string(),
+    path: Joi.string(),
+    buffer: Joi.binary(),
+    size: Joi.number(),
+    mimetype: Joi.string().valid('image/jpeg', 'image/png', 'video/mp4').required(), // Adjust valid mimetypes
+  }).required(),
+});
+export { Loginschema, UserSchema, UserUpdateSchema, changePasswordSchema, AvatarUpdateSchema };

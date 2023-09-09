@@ -30,4 +30,8 @@ module.exports = {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  courseImg: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 };

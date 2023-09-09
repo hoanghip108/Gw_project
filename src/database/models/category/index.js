@@ -12,6 +12,6 @@ module.exports = class Category extends BaseModel {
     },
   ];
   static associate(models) {
-    this.hasMany(models.SubCategory, { foreignKey: 'cateId' });
+    this.hasMany(models.SubCategory, { foreignKey: 'cateId', allowNull: false });
   }
 };

@@ -1,8 +1,10 @@
 const fs = require('fs');
+import c from 'config';
 import { getLesson } from '../services/lessonServices.js';
 const videoPlayer = async (req, res, next) => {
   const lessonId = req.params.id;
   const lesson = await getLesson(lessonId);
+  console.log(lesson.videoPath);
   const videoPath = lesson.videoPath;
 
   const stat = fs.statSync(videoPath);

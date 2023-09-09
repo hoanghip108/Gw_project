@@ -10,4 +10,8 @@ module.exports = {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  cateId: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 };

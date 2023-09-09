@@ -16,7 +16,7 @@ module.exports = class SubCategory extends BaseModel {
   ];
   static schema = require('./schema');
   static associate(models) {
-    this.belongsTo(models.Category, { foreignKey: 'cateId' });
+    this.belongsTo(models.Category, { foreignKey: 'cateId', allowNull: false });
     this.hasMany(models.Course, { foreignKey: 'subCateId' });
   }
 };

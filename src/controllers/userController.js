@@ -19,7 +19,12 @@ import {
   uploadAvatar,
 } from '../services/userServices';
 const config = require('../config');
-import { UserSchema, Loginschema, changePasswordSchema } from '../validators/userValidate';
+import {
+  UserSchema,
+  Loginschema,
+  changePasswordSchema,
+  AvatarUpdateSchema,
+} from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
 import { verrifyEmailOption, resetPasswordOption } from '../helper/mailer';
@@ -45,22 +50,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 const uploadFileController = async (req, res, next) => {
-  debugger;
   try {
-    const filePath = req.file.path;
-    const file = req.file;
-    console.log(file.buffer);
+    const { error, value } = AvatarUpdateSchema.validate({ file: req.file });
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
+    }
+    const file = value.file;
     const userId = req.user.userId;
-    // cloudinary.uploader.upload(filePath, { public_id: 'olympic_flag' }, function (error, success) {
-    //   if (error) {
-    //     console.error('Error uploading file:', error);
-    //   }
-    //   const result = uploadAvatar(success.url, userId);
-    //   if (result != null) {
-    //     return res.status(httpStatus.OK).json(new Success());
-    //   }
-    //   return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
-    // });
     uploadImage(file)
       .then((imageUrl) => {
         console.log('Image uploaded successfully:', imageUrl);

@@ -17,5 +17,17 @@ const courseSchema = Joi.object({
   subCateId: Joi.number().required(),
   like: Joi.number(),
   dislike: Joi.number(),
+  // file: Joi.binary().required(),
+  file: Joi.object({
+    fieldname: Joi.string().required(),
+    originalname: Joi.string(),
+    encoding: Joi.string(),
+    destination: Joi.string(),
+    filename: Joi.string(),
+    path: Joi.string(),
+    buffer: Joi.binary(),
+    size: Joi.number(),
+    mimetype: Joi.string().valid('image/jpeg', 'image/png', 'video/mp4').required(), // Adjust valid mimetypes
+  }).required(),
 });
 export { courseSchema };

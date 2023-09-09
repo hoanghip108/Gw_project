@@ -11,7 +11,7 @@ module.exports = {
     try {
       const permission = await routes.getRoutePaths();
       await Promise.all([
-        queryInterface.bulkInsert('role', [
+        await queryInterface.bulkInsert('role', [
           {
             roleId: '1',
             roleName: 'ADMIN',
@@ -38,7 +38,7 @@ module.exports = {
           },
         ]),
 
-        queryInterface.bulkInsert('category', [
+        await queryInterface.bulkInsert('category', [
           {
             cateId: '1',
             cateName: 'Instruments',
@@ -76,7 +76,7 @@ module.exports = {
             updatedAt: new Date(),
           },
         ]),
-        queryInterface.bulkInsert('user', [
+        await queryInterface.bulkInsert('user', [
           {
             id: '1',
             username: 'admin001',
@@ -88,7 +88,7 @@ module.exports = {
             createdAt: new Date(),
           },
         ]),
-        queryInterface.bulkInsert('user_role', [
+        await queryInterface.bulkInsert('user_role', [
           {
             userId: '1',
             roleId: '1',
@@ -96,7 +96,7 @@ module.exports = {
             createdAt: new Date(),
           },
         ]),
-        permission.forEach((route) => {
+        await permission.forEach((route) => {
           queryInterface.bulkInsert('permission', [
             {
               permissionId: route,
@@ -107,7 +107,7 @@ module.exports = {
           ]);
         }),
 
-        queryInterface.bulkInsert('subCategory', [
+        await queryInterface.bulkInsert('subCategory', [
           {
             subCateId: '1',
             subCateName: 'Guitar',
@@ -125,7 +125,7 @@ module.exports = {
             cateId: '1',
           },
         ]),
-        queryInterface.bulkInsert('course', [
+        await queryInterface.bulkInsert('course', [
           {
             courseId: '1',
             courseName: 'Guitar for beginners',

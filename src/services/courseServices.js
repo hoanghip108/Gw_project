@@ -5,13 +5,13 @@ const SubCategory = require('../database/models/subCategory');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 import httpStatus from 'http-status';
-const createCourse = async (payload, currentUser) => {
+const createCourse = async (payload, currentUser, imageUrl) => {
   let t;
   try {
     t = await sequelize.transaction();
     const [newCourse, created] = await Course.findOrCreate({
       where: { courseName: payload.courseName },
-      defaults: { ...payload, createdBy: currentUser },
+      defaults: { ...payload, createdBy: currentUser, courseImg: imageUrl },
       transaction: t,
       include: [{ model: SubCategory }],
     });
@@ -28,11 +28,14 @@ const createCourse = async (payload, currentUser) => {
     });
   }
 };
-const updateCourse = async (payload, courseId) => {
+const updateCourse = async (payload, courseId, imageUrl) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const course = await Course.update({ ...payload }, { where: { courseId: courseId } });
+    const course = await Course.update(
+      { ...payload, courseImg: imageUrl },
+      { where: { courseId: courseId } },
+    );
     await t.commit();
     if (course > 0) {
       return course;

@@ -7,8 +7,8 @@ import {
 } from '../controllers/sectionController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 
-sectionRouter.get('/:id', getSectionController);
-sectionRouter.put('/:id', verifyToken, updateSectionController);
-sectionRouter.post('/', verifyToken, createSectionController);
+sectionRouter.get('/sections/:id', getSectionController);
+sectionRouter.put('/sections/:id', verifyToken, updateSectionController);
+sectionRouter.post('/sections/', verifyToken, createSectionController);
 
 module.exports = sectionRouter;

@@ -14,6 +14,9 @@ const {
   WrongUsernameOrpassWord,
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
+const formidable = require('formidable');
+const fs = require('fs');
+import { uploadImage } from '../helper/uploadFile';
 import { courseSchema } from '../validators/courseValidate';
 import { COURSE_CONSTANTS } from '../data/constant';
 import {
@@ -25,17 +28,32 @@ import {
 } from '../services/courseServices';
 const createCourseController = async (req, res, next) => {
   try {
-    const { error, value } = courseSchema.validate(req.body);
+    const body = {
+      courseName: req.body.courseName,
+      description: req.body.description,
+      price: req.body.price,
+      isFree: req.body.isFree === '0',
+      subCateId: req.body.subCateId,
+      like: req.body.like || null,
+      dislike: req.body.dislike || null,
+      file: req.file,
+    };
+    const { error, value } = courseSchema.validate(body);
     if (error) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
-    const currentUser = req.user.username;
-    console.log(currentUser);
-    const course = await createCourse(value, currentUser);
-    if (!course) {
-      return res.status(httpStatus.CONFLICT).json(new Conflict(COURSE_CONSTANTS.COURSE_EXIST));
-    }
-    return res.status(httpStatus.OK).json(course);
+    const file = value.file;
+    const currentUser = req.user.userId;
+    uploadImage(file)
+      .then((imageUrl) => {
+        console.log('Image uploaded successfully:', imageUrl);
+        createCourse(value, currentUser, imageUrl);
+        return res.status(httpStatus.OK).json(new Success());
+      })
+      .catch((error) => {
+        console.error('Error uploading image:', error.message);
+        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+      });
   } catch (err) {
     next(err);
   }
@@ -43,18 +61,35 @@ const createCourseController = async (req, res, next) => {
 const updateCourseController = async (req, res, next) => {
   try {
     const courseId = req.params.id;
-    const { error, value } = courseSchema.validate(req.body);
+    const body = {
+      courseName: req.body.courseName,
+      description: req.body.description,
+      price: req.body.price,
+      isFree: req.body.isFree === '0',
+      subCateId: req.body.subCateId,
+      like: req.body.like || null,
+      dislike: req.body.dislike || null,
+      file: req.file,
+    };
+    const { error, value } = courseSchema.validate(body);
     if (error) {
-      return res.status(httpStatus.BadRequest).json(new BadRequest(error.details[0].message));
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
-    const updatedCourse = await updateCourse(value, courseId);
-    console.log(updatedCourse);
-    if (updatedCourse) {
-      return res.status(httpStatus.OK).json(new Success('', updatedCourse));
-    }
-    return res
-      .status(httpStatus.BAD_REQUEST)
-      .json(new BadRequest(COURSE_CONSTANTS.COURSE_UPDATE_FAILED));
+    uploadImage(body.file)
+      .then((imageUrl) => {
+        console.log('Image uploaded successfully:', imageUrl);
+        const updatedCourse = updateCourse(value, courseId, imageUrl);
+        if (updatedCourse) {
+          return res.status(httpStatus.OK).json(new Success('', updatedCourse));
+        }
+        return res
+          .status(httpStatus.BAD_REQUEST)
+          .json(new BadRequest(COURSE_CONSTANTS.COURSE_UPDATE_FAILED));
+      })
+      .catch((error) => {
+        console.error('Error uploading image:', error.message);
+        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+      });
   } catch (err) {
     next(err);
   }

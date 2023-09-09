@@ -24,6 +24,7 @@ const {
   WrongUsernameOrpassWord,
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
+import { uploadVideo } from '../helper/uploadFile';
 const createLessonController = async (req, res, next) => {
   const { error, value } = lessonSchema.validate({
     lessonName: req.body.lessonName,
@@ -94,15 +95,27 @@ const updateLessonController = async (req, res, next) => {
     const videoPath = req.file.path || null;
     const currentUser = req.user.username;
     const lessonId = req.params.id;
-    const updated = await updateLesson(value, currentUser, lessonId, videoPath);
-    if (updated == null) {
-      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(LESSON_CONSTANT.UPDATE_FAILED));
-    } else if (updated == COURSE_CONSTANTS.COURSE_NOTFOUND) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
-    }
-    return res.status(httpStatus.OK).json(new Success(LESSON_CONSTANT.UPDATE_SUCCESS));
+
+    debugger;
+    uploadVideo(value.file)
+      .then((videoUrl) => {
+        console.log('Image uploaded successfully:', videoUrl);
+        updateLesson(value, currentUser, lessonId, videoUrl);
+        return res.status(httpStatus.OK).json(new Success());
+      })
+      .catch((error) => {
+        console.error('Error uploading image:', error.message);
+        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest());
+      });
+    // const updated = await updateLesson(value, currentUser, lessonId, result.secure_url);
+    // if (updated == null) {
+    //   return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(LESSON_CONSTANT.UPDATE_FAILED));
+    // } else if (updated == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+    //   return res
+    //     .status(httpStatus.BAD_REQUEST)
+    //     .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+    // }
+    // return res.status(httpStatus.OK).json(new Success(LESSON_CONSTANT.UPDATE_SUCCESS));
   } catch (err) {
     next(err);
   }
@@ -123,7 +136,8 @@ const uploadVideoController = async (req, res, next) => {
   try {
     const filePath = req.file.path;
     const lessonId = req.params.id;
-    const result = addLessonVideo(filePath, lessonId);
+    const payload = req.body;
+    const result = addLessonVideo(filePath, lessonId, payload);
     if (result != null) {
       return res.status(httpStatus.OK).json(new Success());
     }

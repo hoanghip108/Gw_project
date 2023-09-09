@@ -46,7 +46,7 @@ const updateLesson = async (payload, currentUser, lessonId, path) => {
       { where: { lessonId: lessonId } },
     );
     await t.commit();
-    if (lesson > 0) {
+    if (lesson) {
       return lesson;
     }
     return null;
@@ -58,7 +58,7 @@ const updateLesson = async (payload, currentUser, lessonId, path) => {
     });
   }
 };
-const dataToExclude = ['videoPath', ...Object.values(ExcludedData)];
+const dataToExclude = [...Object.values(ExcludedData)];
 const getLesson = async (lessonId) => {
   const lesson = await Lesson.findOne({
     where: { [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }] },
@@ -117,15 +117,21 @@ const deleteLesson = async (lessonId) => {
     });
   }
 };
-const addLessonVideo = async (filePath, lessonId) => {
+const addLessonVideo = async (filePath, lessonId, payload) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const result = await Lesson.update({ videoPath: filePath }, { where: { lessonId: lessonId } });
-    if (result > 0) {
-      return result;
+    const course = await Course.findOne({ where: { courseId: payload.courseId } });
+    if (!course) {
+      return COURSE_CONSTANTS.COURSE_NOTFOUND;
     }
-    return null;
+    const lesson = await Lesson.findOne({ where: { lessonId: lessonId } });
+    if (!lesson) {
+      return LESSON_CONSTANT.LESSON_NOTFOUND;
+    }
+    await lesson.update({ videoPath: filePath });
+    await t.commit();
+    return lesson;
   } catch (err) {
     t.rollback();
     throw new APIError({

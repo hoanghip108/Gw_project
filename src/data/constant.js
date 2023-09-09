@@ -50,6 +50,20 @@ const SECTION_CONSTANT = {
   NOT_FOUND: 'Section not found',
   EXIST: 'Section Exist',
 };
+const CATEGORY_CONSTANTS = {
+  CREATED: 'Category created successfully',
+  CATEGORY_EXIST: 'Category already exists',
+  CATEGORY_NOTFOUND: 'Category not found',
+  UPDATED: 'Category updated successfully',
+  DELETED: 'Category deleted successfully',
+};
+const SUBCATEGORY_CONSTANTS = {
+  CREATED: 'sub-Category created successfully',
+  SUBCATEGORY_EXIST: 'sub-Category already exists',
+  SUBCATEGORY_NOTFOUND: 'sub-Category not found',
+  UPDATED: 'sub-Category updated successfully',
+  DELETED: 'sub-Category deleted successfully',
+};
 export {
   USER_STATUS,
   ROLE_DEFINE,
@@ -58,4 +72,6 @@ export {
   COURSE_CONSTANTS,
   LESSON_CONSTANT,
   SECTION_CONSTANT,
+  CATEGORY_CONSTANTS,
+  SUBCATEGORY_CONSTANTS,
 };

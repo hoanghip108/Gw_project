@@ -30,5 +30,22 @@ const uploadImage = (file) => {
     streamifier.createReadStream(file.buffer).pipe(img_stream);
   });
 };
-
-export { uploadImage };
+const uploadVideo = (file) => {
+  return new Promise((resolve, reject) => {
+    const video_stream = cloudinary.v2.uploader.upload_large(
+      {
+        folder: 'video',
+        public_id: `${Date.now()}`,
+      },
+      function (err, result) {
+        if (err) {
+          reject(new APIError({ message: 'Upload video failed', errors: err }));
+        } else {
+          resolve(result.url);
+        }
+      },
+    );
+    streamifier.createReadStream(file.buffer).pipe(video_stream);
+  });
+};
+export { uploadImage, uploadVideo };
