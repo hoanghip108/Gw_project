@@ -8,7 +8,6 @@ import httpStatus from 'http-status';
 const createCourse = async (payload, currentUser) => {
   let t;
   try {
-    console.log(payload);
     t = await sequelize.transaction();
     const subcate = await SubCategory.findOne({ where: { subCateId: payload.subCateId } });
     if (!subcate) {
@@ -36,7 +35,7 @@ const createCourse = async (payload, currentUser) => {
     });
   }
 };
-const saveImage = async (Imgurl, courseId) => {
+const updateImg = async (Imgurl, courseId) => {
   let t;
   try {
     t = await sequelize.transaction();
@@ -54,22 +53,32 @@ const saveImage = async (Imgurl, courseId) => {
     });
   }
 };
-const updateCourse = async (payload, courseId, imageUrl) => {
+const updateCourse = async (payload, courseId, currentUser) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const course = await Course.update(
-      { ...payload, courseImg: imageUrl },
-      { where: { courseId: courseId } },
-    );
+    const existCourse = await Course.findOne({
+      offset: 1,
+      where: { courseName: payload.courseName },
+    });
+    if (existCourse) {
+      return COURSE_CONSTANTS.COURSE_EXIST;
+    }
+    const course = await Course.findOne({ where: { courseId: courseId } });
+    if (!course) {
+      return COURSE_CONSTANTS.COURSE_NOTFOUND;
+    }
+    await course.update({ ...payload, updatedBy: currentUser }, { where: { courseId: courseId } });
     await t.commit();
-    if (course > 0) {
+    if (course) {
       return course;
     }
     return null;
   } catch (err) {
     await t.rollback();
+    console.log(err.message);
     throw new APIError({
+      errors: err.message,
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
       status: httpStatus.NOT_FOUND,
     });
@@ -129,4 +138,4 @@ const deleteCourse = async (courseId) => {
     });
   }
 };
-export { createCourse, updateCourse, deleteCourse, getCourse, getListCourse, saveImage };
+export { createCourse, updateCourse, deleteCourse, getCourse, getListCourse, updateImg };

@@ -12,6 +12,7 @@ import {
   getListUserController,
   getCurrentUserController,
   uploadFileController,
+  getAccesTokenByRefreshTokenController,
 } from '../controllers/userController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const userRouter = express.Router();

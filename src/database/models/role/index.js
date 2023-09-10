@@ -1,5 +1,6 @@
 const BaseModel = require('../base');
 const User = require('../user');
+const User_role = require('../user_role');
 const Permission = require('../permission');
 const Role_permission = require('../role_permission');
 module.exports = class Role extends BaseModel {

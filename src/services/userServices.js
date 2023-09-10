@@ -2,6 +2,7 @@ const User = require('../database/models/user');
 const Role = require('../database/models/role');
 const User_role = require('../database/models/user_role');
 const APIError = require('../helper/apiError');
+import ExcludedData from '../helper/excludeData';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
@@ -10,6 +11,7 @@ const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 import { ROLE_DEFINE, COMMON_CONSTANTS } from '../data/constant';
 import { USER } from '../helper/messageResponse';
+import { genAccessToken, genRefreshToken } from '../helper/Auth';
 import {
   FORM_CATEGORY,
   FORM_STATUS,
@@ -19,7 +21,9 @@ import {
 } from '../data/constant';
 import hashPassword from '../helper/hashPassword';
 const login = async (payload) => {
+  debugger;
   try {
+    const dataToExclude = [...Object.values(ExcludedData)];
     const user = await User.findOne({
       where: {
         [Op.and]: [{ username: payload.username }, { isActive: true }],
@@ -27,28 +31,21 @@ const login = async (payload) => {
       include: [
         {
           model: Role,
-          attributes: ['Rolename'],
+          attributes: { exclude: dataToExclude },
         },
       ],
+      attributes: { exclude: dataToExclude },
     });
     if (user) {
       if (bcrypt.compareSync(payload.password, user.password)) {
-        const dataForAccessToken = {
+        const data = {
           userId: user.id,
           username: user.username,
-          userRole: user.RoleId,
         };
-        const token = jwt.sign(dataForAccessToken, process.env.JWT_SECRET, {
-          expiresIn: process.env.TOKEN_EXPIRATION,
-        });
+        const accessToken = genAccessToken(data);
+        const refreshToken = genRefreshToken(data);
         user.password = undefined;
-        user.setDataValue('isActive', undefined);
-        user.setDataValue('isDeleted', undefined);
-        user.setDataValue('createdBy', undefined);
-        user.setDataValue('createdAt', undefined);
-        user.setDataValue('updatedBy', undefined);
-        user.setDataValue('updatedAt', undefined);
-        return { user, token };
+        return { user, accessToken, refreshToken };
       }
     }
     return null;
@@ -56,6 +53,7 @@ const login = async (payload) => {
     throw new Error(err);
   }
 };
+
 const createUser = async (host, payload) => {
   let t;
   try {

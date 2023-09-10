@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
-import { USER_STATUS } from '../data/constant';
+import { USER_STATUS, AUTH_CONSTANT } from '../data/constant';
 const { sequelize } = require('../config/database');
 const Permission = require('../database/models/permission');
 const Role = require('../database/models/role');
@@ -17,19 +17,22 @@ const verifyToken = (req, res, next) => {
   if (!token) {
     return res.status(httpStatus.UNAUTHORIZED).json(
       new APIError({
-        message: USER_STATUS.AUTHENTICATION_FAIL,
-        errors: USER_STATUS.AUTHENTICATION_FAIL,
+        message: AUTH_CONSTANT.AUTHENTICATION_FAIL,
+        errors: AUTH_CONSTANT.AUTHENTICATION_FAIL,
         status: httpStatus.UNAUTHORIZED,
       }),
     );
   }
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    let apiError;
     if (err) {
-      const apiError = new APIError({
-        message: USER_STATUS.AUTHENTICATION_FAIL,
-        errors: USER_STATUS.AUTHENTICATION_FAIL,
-        status: httpStatus.FORBIDDEN,
-      });
+      if (err.name === 'TokenExpiredError') {
+        apiError = new APIError({
+          message: AUTH_CONSTANT.TOKEN_EXPIRED,
+          errors: AUTH_CONSTANT.TOKEN_EXPIRED,
+          status: httpStatus.FORBIDDEN,
+        });
+      }
       return res.status(httpStatus.FORBIDDEN).json(apiError);
     }
     req.user = user;
@@ -48,6 +51,7 @@ const authorize = async (req, res, next) => {
   } else {
     api = path.substring(0, path.lastIndexOf('?'));
   }
+  console.log('this is api', api);
   const permission = await sequelize.query(
     `
     SELECT rp.method 
@@ -60,7 +64,6 @@ const authorize = async (req, res, next) => {
     `,
   );
   let isPass = false;
-  console.log(permission);
   if (permission[0].length != 0) {
     const permissionArray = permission[0][0].method.split(',');
     permissionArray.forEach((method) => {

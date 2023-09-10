@@ -30,4 +30,24 @@ const courseSchema = Joi.object({
     mimetype: Joi.string().valid('image/jpeg', 'image/png', 'video/mp4').required(), // Adjust valid mimetypes
   }).required(),
 });
-export { courseSchema };
+const courseUpdateSchema = Joi.object({
+  courseName: Joi.string().min(3).max(500).required(),
+  description: Joi.string(),
+  price: Joi.number().required(),
+  isFree: Joi.boolean().required(),
+  subCateId: Joi.number().required(),
+  like: Joi.number(),
+  dislike: Joi.number(),
+});
+const ImageUploadSchema = Joi.object({
+  fieldname: Joi.string().required(),
+  originalname: Joi.string().required(),
+  encoding: Joi.string().required(),
+  destination: Joi.string(),
+  filename: Joi.string(),
+  path: Joi.string(),
+  buffer: Joi.binary().required(),
+  size: Joi.number().required(),
+  mimetype: Joi.string().valid('image/jpeg', 'image/png', 'video/mp4').required(), // Adjust valid mimetypes
+});
+export { courseSchema, courseUpdateSchema, ImageUploadSchema };

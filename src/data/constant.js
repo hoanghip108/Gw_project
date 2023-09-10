@@ -7,11 +7,14 @@ const USER_STATUS = {
   USER_DELETE: 'User disable successfully',
   USER_DELETE_FAILED: 'User disable failed',
   USER_CREATED: 'Register successfully, please check your email for confirmation',
+  SELF_DELETE: 'You can not delete yourself',
+};
+const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',
   AUTHENTICATION_FAIL: 'Wrong username or password',
   AUTHENTICATION: 'Login success',
   UNAUTHENTICATED: 'unauthenticated',
-  SELF_DELETE: 'You can not delete yourself',
+  TOKEN_EXPIRED: 'token expired',
 };
 const ROLE_DEFINE = {
   ADMIN: 1,
@@ -74,4 +77,5 @@ export {
   SECTION_CONSTANT,
   CATEGORY_CONSTANTS,
   SUBCATEGORY_CONSTANTS,
+  AUTH_CONSTANT,
 };

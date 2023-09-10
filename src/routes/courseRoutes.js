@@ -4,6 +4,7 @@ import {
   deleteCourseController,
   getCourseController,
   getListCourseController,
+  updateCourseImgController,
 } from '../controllers/courseController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const express = require('express');
@@ -21,12 +22,19 @@ courseRouter.post(
 );
 courseRouter.get('/courses/:id', getCourseController);
 courseRouter.get('/courses', getListCourseController);
-courseRouter.put(
+courseRouter.patch(
   '/courses/:id',
   verifyToken,
   authorize,
   upload.single('file'),
   updateCourseController,
+);
+courseRouter.patch(
+  '/courses/update-img/:id',
+  verifyToken,
+  authorize,
+  upload.single('file'),
+  updateCourseImgController,
 );
 courseRouter.delete('/courses/:id', verifyToken, authorize, deleteCourseController);
 module.exports = courseRouter;
