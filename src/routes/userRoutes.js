@@ -12,7 +12,7 @@ import {
   getListUserController,
   getCurrentUserController,
   uploadFileController,
-  getAccesTokenByRefreshTokenController,
+  getAccessTokenController,
 } from '../controllers/userController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const userRouter = express.Router();
@@ -21,6 +21,7 @@ userRouter.get('/users/profile', verifyToken, authorize, getCurrentUserControlle
 userRouter.get('/users', verifyToken, authorize, getListUserController);
 userRouter.post('/users/forgotpassword', resetPasswordController);
 userRouter.post('/users/auth/login', loginController);
+userRouter.post('/users/auth/refreshToken', getAccessTokenController);
 userRouter.post('/users/auth/register', createUserController);
 userRouter.put('/users/changepassword', verifyToken, changePasswordController);
 userRouter.delete('/users/disable/:id', verifyToken, authorize, disableUserController);

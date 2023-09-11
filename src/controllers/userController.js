@@ -17,7 +17,7 @@ import {
   getListUser,
   getCurrentUser,
   uploadAvatar,
-  getAccesTokenByRefreshToken,
+  getAccessToken,
 } from '../services/userServices';
 const config = require('../config');
 import {
@@ -210,6 +210,21 @@ const getCurrentUserController = async (req, res, next) => {
     next(err);
   }
 };
+
+const getAccessTokenController = async (req, res, next) => {
+  debugger;
+  try {
+    const refreshToken = req.body.refreshToken;
+    const accessToken = await getAccessToken(refreshToken);
+    if (!accessToken.hasOwnProperty('message')) {
+      console.log(accessToken);
+      return res.status(httpStatus.OK).json(new Success('', accessToken));
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(accessToken.name));
+  } catch (err) {
+    next(err);
+  }
+};
 export {
   createUserController,
   loginController,
@@ -220,4 +235,5 @@ export {
   getListUserController,
   getCurrentUserController,
   uploadFileController,
+  getAccessTokenController,
 };

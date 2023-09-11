@@ -11,7 +11,7 @@ const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 import { ROLE_DEFINE, COMMON_CONSTANTS } from '../data/constant';
 import { USER } from '../helper/messageResponse';
-import { genAccessToken, genRefreshToken } from '../helper/Auth';
+import { genAccessToken, genRefreshToken, verifyRefreshToken } from '../helper/Auth';
 import {
   FORM_CATEGORY,
   FORM_STATUS,
@@ -20,8 +20,8 @@ import {
   USER_STATUS,
 } from '../data/constant';
 import hashPassword from '../helper/hashPassword';
+import c from 'config';
 const login = async (payload) => {
-  debugger;
   try {
     const dataToExclude = [...Object.values(ExcludedData)];
     const user = await User.findOne({
@@ -220,6 +220,16 @@ const uploadAvatar = async (filePath, userId) => {
   }
   return null;
 };
+const getAccessToken = async (refreshToken) => {
+  try {
+    const { userId, username } = await verifyRefreshToken(refreshToken);
+    const accessToken = genAccessToken({ userId, username });
+    console.log(accessToken);
+    return accessToken;
+  } catch (err) {
+    return err;
+  }
+};
 export {
   getCurrentUser,
   createUser,
@@ -230,4 +240,5 @@ export {
   changePassword,
   getListUser,
   uploadAvatar,
+  getAccessToken,
 };

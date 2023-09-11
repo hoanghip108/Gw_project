@@ -16,5 +16,15 @@ const genRefreshToken = (data) => {
   });
   return refreshToken;
 };
-
-export { genAccessToken, genRefreshToken };
+const verifyRefreshToken = (token) => {
+  return new Promise((resolve, reject) => {
+    jwt.verify(token, process.env.JWT_REFRESH, (err, user) => {
+      if (err) {
+        reject(err); // Reject with the error
+      } else {
+        resolve(user); // Resolve with the user information
+      }
+    });
+  });
+};
+export { genAccessToken, genRefreshToken, verifyRefreshToken };
