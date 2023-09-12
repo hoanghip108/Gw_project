@@ -1,6 +1,5 @@
 const dotenv = require('dotenv');
 dotenv.config();
-import cofig from 'config';
 const env = process.env.NODE_ENV;
 
 const configs = {

@@ -42,7 +42,7 @@ const startServer = async () => {
   const io = require('socket.io')(server, {
     pingTimeout: 60000,
     cors: {
-      origin: 'http://localhost:3000',
+      origin: 'http://localhost:5000',
       // origin: 'http://www.eschoolhub.click',
       // credentials: true,
     },
@@ -50,16 +50,8 @@ const startServer = async () => {
   console.log(
     `Listening on host ${config.host} on port ${config.port} http://${config.host}:${config.port}`,
   );
-  app.get('/', (req, res) => {
-    res.sendFile(__dirname + '/index.html');
-  });
   io.on('connection', (socket) => {
     console.log('A user connected');
-
-    socket.on('chat message', (msg) => {
-      io.emit('chat message', msg); // Broadcast the message to all connected clients
-    });
-
     socket.on('disconnect', () => {
       console.log('A user disconnected');
     });
