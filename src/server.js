@@ -39,17 +39,17 @@ const startServer = async () => {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   initSequelize();
   initService();
+  console.log(
+    `Listening on host ${config.host} on port ${config.port} http://${config.host}:${config.port}`,
+  );
   const io = require('socket.io')(server, {
     pingTimeout: 60000,
     cors: {
-      origin: 'http://localhost:5000',
+      origin: 'http://localhost:3000',
       // origin: 'http://www.eschoolhub.click',
       // credentials: true,
     },
   });
-  console.log(
-    `Listening on host ${config.host} on port ${config.port} http://${config.host}:${config.port}`,
-  );
   io.on('connection', (socket) => {
     console.log('A user connected');
     socket.on('disconnect', () => {
@@ -57,5 +57,6 @@ const startServer = async () => {
     });
   });
 };
+
 startServer();
 export default app;
