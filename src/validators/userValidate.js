@@ -9,7 +9,14 @@ import {
 } from '../utils/regex';
 import Joi from 'joi';
 const Loginschema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).required().pattern(USERNAME_REGEX),
+  username: Joi.string().alphanum().min(3).max(30).required().pattern(USERNAME_REGEX).messages({
+    'string.base': 'username must be a string',
+    'string.empty': 'username is required',
+    'string.min': 'username must have at least 3 characters',
+    'string.max': 'username must have maximum 30 characters',
+    'any.required': 'username is required',
+    'string.pattern.base': 'username must not have special characters',
+  }),
 
   password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
 });

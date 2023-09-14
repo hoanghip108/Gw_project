@@ -9,7 +9,7 @@ services:
       - MYSQL_ROOT_PASSWORD=Hoanghandsome1
       - MYSQL_DATABASE=e_learning_dev
     ports:
-      - 3306:3306
+      - 3306:3308
     volumes:
       - db:/var/lib/mysql
   app:
@@ -19,7 +19,7 @@ services:
     restart: always
     env_file: ./.env
     ports:
-      - 80:3000
+      - 80:5000
 
 volumes:
   db:

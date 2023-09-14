@@ -97,7 +97,7 @@ const loginController = async (req, res, next) => {
   try {
     const { error, value } = Loginschema.validate(req.body);
     if (error) {
-      return res.status(httpStatus.Unauthorized).json(error.details[0].message);
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
     const token = await login(value);
     if (token == null) {

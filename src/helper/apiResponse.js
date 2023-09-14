@@ -1,9 +1,9 @@
 const httpStatus = require('http-status');
 
 class ExtendableResponse {
-  constructor(message, code, data) {
+  constructor(message, status, data) {
     this.message = message;
-    this.code = code;
+    this.status = status;
     if (data) {
       this.data = data;
     }
@@ -11,8 +11,8 @@ class ExtendableResponse {
 }
 
 class Common extends ExtendableResponse {
-  constructor(message, code, data) {
-    super(message || '', code || httpStatus.OK, data);
+  constructor(message, status, data) {
+    super(message || '', status || httpStatus.OK, data);
   }
 }
 

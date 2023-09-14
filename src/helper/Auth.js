@@ -6,7 +6,9 @@ const genAccessToken = (data) => {
   const acccessToken = jwt.sign(data, process.env.JWT_SECRET, {
     expiresIn: process.env.ACCESS_TOKEN_EXPIRATION,
   });
-
+  const refreshToken = jwt.sign(data, process.env.JWT_REFRESH, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRATION,
+  });
   return acccessToken;
 };
 

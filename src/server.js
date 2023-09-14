@@ -1,4 +1,5 @@
 // Import necessary modules
+import { createServer } from 'http';
 const sequelizeConfig = require('../.sequelizerc');
 import express from 'express';
 import config from './config/index.js';
@@ -32,8 +33,6 @@ const initSequelize = () => {
     });
 };
 const startServer = async () => {
-  const path = sequelizeConfig['migrations-path'];
-
   const server = app.listen(config.port, config.host);
   app.use(cors());
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
@@ -50,13 +49,15 @@ const startServer = async () => {
       // credentials: true,
     },
   });
+  global._io = io;
   io.on('connection', (socket) => {
-    console.log('A user connected');
+    console.log('A user connected', socket.id);
     socket.on('disconnect', () => {
-      console.log('A user disconnected');
+      console.log('A user disconnected:', socket.id);
     });
   });
 };
 
 startServer();
-export default app;
+// export default app;
+module.exports = app;
