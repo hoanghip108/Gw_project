@@ -84,14 +84,18 @@ const vnpay_return = async (req, res, next) => {
 
   if (secureHash === signed) {
     const result = vnpay_return_service(vnp_Params['vnp_TxnRef']);
-    if (result) {
-      console.log(result);
-      return res.render('success', { code: '00' });
-    } else return res.render('success', { code: '97' });
+    if (result != null) {
+      // return res.render('success', { code: '00' });
+      return res.status(200).json({ RspCode: '00', Message: 'Success' });
+    }
+    // else return res.render('success', { code: '97' });
+    else return res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
   } else {
     res.render('success', { code: '97' });
+    return res.status(200).json({ RspCode: '97', Message: 'Invalid sign' });
   }
 };
+
 const vnpay_ipn = async (req, res, next) => {
   console.log('connected to vnpay_IPN');
   let vnp_Params = req.query;

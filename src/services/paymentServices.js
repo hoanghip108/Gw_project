@@ -15,20 +15,16 @@ const createTransaction = async (orderId, userId, username, amount) => {
   return null;
 };
 const vnpay_return_service = async (vnp_TxnRef) => {
-  const query = `select * from transactionhistory where transactionCode = "${vnp_TxnRef}"`;
-  connection.query(query, (err, result) => {
-    if (err) {
-      console.error('Error connecting to MySQL:', err);
-      return err;
-      //   return res.render("success", { code: "97" });
-    }
-    if (result.length === 0) {
-      return result;
-      //   return res.render("success", { code: "00" });
-    }
-    // res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
-  });
+  const result = await Transactionhistory.findOne({ where: { transactionCode: vnp_TxnRef } });
+  if (result) {
+    console.log(result);
+    return result;
+    // return res.render("success", { code: "00" });
+  }
+  return null;
+  // res.render("success", { code: vnp_Params["vnp_ResponseCode"] });
 };
+
 const getOderService = async (orderId) => {
   const order = await Transactionhistory.findOne({
     where: { transactionCode: orderId },
