@@ -8,14 +8,15 @@ import {
   uploadVideoController,
 } from '../controllers/lessonController';
 const multer = require('multer');
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'src/');
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.originalname);
-  },
-});
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => {
+//     cb(null, file.originalname);
+//   },
+//   filename: (req, file, cb) => {
+//     cb(null, file.originalname);
+//   },
+// });
+const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import { verifyToken, authorize } from '../middleware/auth.js';
 const lessonRouter = express.Router();

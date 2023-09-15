@@ -25,7 +25,6 @@ const {
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 import { uploadVideo } from '../helper/uploadFile';
-import { get } from 'lodash';
 const createLessonController = async (req, res, next) => {
   const { error, value } = lessonSchema.validate({
     lessonName: req.body.lessonName,
@@ -33,15 +32,20 @@ const createLessonController = async (req, res, next) => {
     courseId: req.body.courseId,
     file: req.file,
   });
+
   if (error) {
     return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
   }
+
   const currentUser = req.user.username;
   const videoPath = req.file.path || null;
   console.log('this is video path', videoPath);
   const lesson = await getLesson(value.lessonName);
   if (!lesson) {
-    const urlVideo = await uploadVideo(videoPath).then((result) => {
+    const b64 = Buffer.from(req.file.buffer).toString('base64');
+    let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
+    // const cldRes = await uploadVideo(dataURI);
+    const urlVideo = await uploadVideo(dataURI).then((result) => {
       console.log('Image uploaded successfully:', result);
       return result.url;
     });
@@ -107,7 +111,7 @@ const updateLessonController = async (req, res, next) => {
     const lessonId = req.params.id;
 
     debugger;
-    uploadVideo(value.file)
+    uploadVideo(videoPath)
       .then((videoUrl) => {
         console.log('Image uploaded successfully:', videoUrl);
         updateLesson(value, currentUser, lessonId, videoUrl);

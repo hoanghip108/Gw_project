@@ -20,10 +20,9 @@ import {
   USER_STATUS,
 } from '../data/constant';
 import hashPassword from '../helper/hashPassword';
-import c from 'config';
+const dataToExclude = [...Object.values(ExcludedData)];
 const login = async (payload) => {
   try {
-    const dataToExclude = [...Object.values(ExcludedData)];
     const user = await User.findOne({
       where: {
         [Op.and]: [{ username: payload.username }, { isActive: true }],
@@ -106,7 +105,8 @@ const verifyUser = async (id) => {
 const getCurrentUser = async (id) => {
   const user = await User.findOne({
     where: { [Op.or]: [{ id: id }, { username: id }] },
-    include: [{ model: Role, attributes: ['Rolename'] }],
+    include: [{ model: Role, attributes: { exclude: dataToExclude } }],
+    attributes: { exclude: dataToExclude },
   });
   if (user) {
     return user;

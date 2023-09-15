@@ -55,4 +55,5 @@ const updateEcoin = async (userId, orderId) => {
     console.log(err.message);
   }
 };
+const byCourse = async (userId, courseId, payload) => {};
 module.exports = { createTransaction, vnpay_return_service, getOderService, updateEcoin };

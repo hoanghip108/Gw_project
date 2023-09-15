@@ -53,7 +53,7 @@ const uploadVideo = async (path) => {
     const video = cloudinary.v2.uploader.upload_large(
       path,
       //3MB chunk
-      { resource_type: 'video', chunk_size: 6000000 },
+      { resource_type: 'video', chunk_size: 3000000 },
       (err, result) => {
         if (err) {
           reject(new APIError({ message: 'Upload video failed', errors: err }));
@@ -63,4 +63,5 @@ const uploadVideo = async (path) => {
     );
   });
 };
+
 export { uploadImage, uploadVideo };
