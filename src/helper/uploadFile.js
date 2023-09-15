@@ -30,22 +30,37 @@ const uploadImage = (file) => {
     streamifier.createReadStream(file.buffer).pipe(img_stream);
   });
 };
-const uploadVideo = (file) => {
+// const uploadVideo = (file) => {
+//   return new Promise((resolve, reject) => {
+//     const video_stream = cloudinary.v2.uploader.upload_large(
+//       {
+//         folder: 'video',
+//         public_id: `${Date.now()}`,
+//       },
+//       function (err, result) {
+//         if (err) {
+//           reject(new APIError({ message: 'Upload video failed', errors: err }));
+//         } else {
+//           resolve(result.url);
+//         }
+//       },
+//     );
+//     streamifier.createReadStream(file.buffer).pipe(video_stream);
+//   });
+// };
+const uploadVideo = async (path) => {
   return new Promise((resolve, reject) => {
-    const video_stream = cloudinary.v2.uploader.upload_large(
-      {
-        folder: 'video',
-        public_id: `${Date.now()}`,
-      },
-      function (err, result) {
+    const video = cloudinary.v2.uploader.upload_large(
+      path,
+      //3MB chunk
+      { resource_type: 'video', chunk_size: 6000000 },
+      (err, result) => {
         if (err) {
           reject(new APIError({ message: 'Upload video failed', errors: err }));
-        } else {
-          resolve(result.url);
         }
+        resolve(result);
       },
     );
-    streamifier.createReadStream(file.buffer).pipe(video_stream);
   });
 };
 export { uploadImage, uploadVideo };

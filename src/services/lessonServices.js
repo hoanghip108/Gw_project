@@ -12,16 +12,16 @@ const createLesson = async (payload, videoPath, currentUser) => {
     t = await sequelize.transaction();
     const course = await Course.findOne({ where: { courseId: payload.courseId } });
     if (course) {
-      const [newLesson, created] = await Lesson.findOrCreate({
-        where: { lessonName: payload.lessonName },
-        defaults: { ...payload, videoPath: videoPath, createdBy: currentUser },
-        transaction: t,
-        include: [{ model: Course }],
-      });
+      const newLesson = await Lesson.create(
+        { ...payload, videoPath: videoPath, createdBy: currentUser },
+        { transaction: t },
+        { include: [{ model: Course }] },
+      );
       await t.commit();
-      if (!created) {
+      if (!newLesson) {
         return 0;
       }
+
       return newLesson;
     }
     return null;
@@ -61,7 +61,14 @@ const updateLesson = async (payload, currentUser, lessonId, path) => {
 const dataToExclude = [...Object.values(ExcludedData)];
 const getLesson = async (lessonId) => {
   const lesson = await Lesson.findOne({
-    where: { [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }] },
+    where: {
+      [Op.or]: [
+        {
+          [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }],
+        },
+        { lessonName: lessonId },
+      ],
+    },
     attributes: { exclude: dataToExclude },
   });
   if (lesson) {

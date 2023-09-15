@@ -25,6 +25,7 @@ const {
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 import { uploadVideo } from '../helper/uploadFile';
+import { get } from 'lodash';
 const createLessonController = async (req, res, next) => {
   const { error, value } = lessonSchema.validate({
     lessonName: req.body.lessonName,
@@ -37,13 +38,22 @@ const createLessonController = async (req, res, next) => {
   }
   const currentUser = req.user.username;
   const videoPath = req.file.path || null;
-  const newLesson = await createLesson(value, videoPath, currentUser);
-  if (newLesson == 0) {
-    return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
-  } else if (newLesson == null) {
-    return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.COURSE_NOTFOUND));
+  console.log('this is video path', videoPath);
+  const lesson = await getLesson(value.lessonName);
+  if (!lesson) {
+    const urlVideo = await uploadVideo(videoPath).then((result) => {
+      console.log('Image uploaded successfully:', result);
+      return result.url;
+    });
+    const newLesson = await createLesson(value, urlVideo, currentUser);
+    if (newLesson == 0) {
+      return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
+    } else if (newLesson == null) {
+      return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.COURSE_NOTFOUND));
+    }
+    return res.status(httpStatus.OK).json(new Success('', newLesson));
   }
-  return res.status(httpStatus.OK).json(new Success('', newLesson));
+  return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
 };
 const getListLessonController = async (req, res, next) => {
   try {

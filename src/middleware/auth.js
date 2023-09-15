@@ -26,7 +26,7 @@ const verifyToken = (req, res, next) => {
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
     let apiError;
     if (err) {
-      if (err.name === 'TokenExpiredError') {
+      if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
         apiError = new APIError({
           message: AUTH_CONSTANT.TOKEN_EXPIRED,
           errors: AUTH_CONSTANT.TOKEN_EXPIRED,
@@ -76,10 +76,11 @@ const authorize = async (req, res, next) => {
   }
   if (isPass) return next();
   const apiError = new APIError({
-    message: USER_STATUS.PERMISSION,
-    errors: USER_STATUS.PERMISSION,
+    message: AUTH_CONSTANT.PERMISSION,
+    errors: AUTH_CONSTANT.PERMISSION,
     status: httpStatus.FORBIDDEN,
   });
+  console.log('this is api error', apiError);
   return res.status(httpStatus.FORBIDDEN).json(apiError);
 };
 export { verifyToken, authorize };

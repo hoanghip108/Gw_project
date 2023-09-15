@@ -104,7 +104,10 @@ const verifyUser = async (id) => {
   }
 };
 const getCurrentUser = async (id) => {
-  const user = await User.findOne({ where: { [Op.or]: [{ id: id }, { username: id }] } });
+  const user = await User.findOne({
+    where: { [Op.or]: [{ id: id }, { username: id }] },
+    include: [{ model: Role, attributes: ['Rolename'] }],
+  });
   if (user) {
     return user;
   }
