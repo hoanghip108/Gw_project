@@ -1,4 +1,4 @@
-## VMO Project
+## E-learning Platform
 
 ## Introduction
 
