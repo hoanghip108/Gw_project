@@ -86,7 +86,6 @@ const createUserController = async (req, res, next) => {
 
     const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
     const { ...option } = new verrifyEmailOption(user.email, 'verify link', link);
-    console.log(option);
     transporter.sendMail(option);
     return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
   } catch (err) {

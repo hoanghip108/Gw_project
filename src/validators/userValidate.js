@@ -74,7 +74,7 @@ const AvatarUpdateSchema = Joi.object({
     path: Joi.string(),
     buffer: Joi.binary(),
     size: Joi.number(),
-    mimetype: Joi.string().valid('image/jpeg', 'image/png', 'video/mp4').required(), // Adjust valid mimetypes
+    mimetype: Joi.string().valid('image/jpeg', 'image/png').required(), // Adjust valid mimetypes
   }).required(),
 });
 export { Loginschema, UserSchema, UserUpdateSchema, changePasswordSchema, AvatarUpdateSchema };

@@ -8,6 +8,8 @@ const USER_STATUS = {
   USER_DELETE_FAILED: 'User disable failed',
   USER_CREATED: 'Register successfully, please check your email for confirmation',
   SELF_DELETE: 'You can not delete yourself',
+  NSF: 'Not sufficient funds',
+  BILL_PAID: 'Bill paid successfully',
 };
 const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',

@@ -30,7 +30,8 @@ const createCourse = async (payload, currentUser) => {
     console.log(err.message);
     await t.rollback();
     throw new APIError({
-      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      // message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      message: err.message,
       status: httpStatus.NOT_FOUND,
     });
   }

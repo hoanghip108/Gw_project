@@ -5,11 +5,12 @@ const {
   vnpay_return,
   vnpay_ipn,
   updateEcoinController,
+  byCourseController,
 } = require('../controllers/paymentController.js');
 import { verifyToken, authorize } from '../middleware/auth.js';
 paymentRouter.post('/createPayment', verifyToken, create_payment);
 paymentRouter.get('/vnpay_ipn', vnpay_ipn);
 paymentRouter.get('/vnpay_return', vnpay_return);
 paymentRouter.get('/updateEcoin/:orderId', verifyToken, updateEcoinController);
-
+paymentRouter.post('/buy-courses', verifyToken, byCourseController);
 module.exports = paymentRouter;

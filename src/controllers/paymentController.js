@@ -1,4 +1,20 @@
 // import open from 'open';
+const {
+  Common,
+  Success,
+  CreatedSuccess,
+  DeletedSuccess,
+  BadRequest,
+  Unauthorized,
+  Forbidden,
+  NotFound,
+  Conflict,
+  ValidateFailed,
+  WrongUsernameOrpassWord,
+  ApiPaginatedResponse,
+} = require('../helper/apiResponse');
+import { COURSE_CONSTANTS, USER_STATUS } from '../data/constant';
+const httpStatus = require('http-status');
 const moment = require('moment');
 const { sortObject } = require('../helper/sortObject.js');
 const {
@@ -6,7 +22,9 @@ const {
   vnpay_return_service,
   getOderService,
   updateEcoin,
+  byCourse,
 } = require('../services/paymentServices.js');
+
 const create_payment = async (req, res, next) => {
   process.env.TZ = 'Asia/Ho_Chi_Minh';
   let date = new Date();
@@ -171,4 +189,25 @@ const updateEcoinController = async (req, res, next) => {
     res.status(400).json({ message: 'Update ecoin failed' });
   }
 };
-module.exports = { create_payment, vnpay_return, vnpay_ipn, updateEcoinController };
+const byCourseController = async (req, res, next) => {
+  const userId = req.user.userId;
+  const payload = req.body;
+  const result = await byCourse(userId, payload);
+  if (result == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+    return res
+      .status(httpStatus.BAD_REQUEST)
+      .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+  } else if (result == USER_STATUS.USER_NOTFOUND) {
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+  } else if (result == USER_STATUS.NSF) {
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.NSF));
+  }
+  return res.status(httpStatus.OK).json(new Success(USER_STATUS.BILL_PAID));
+};
+module.exports = {
+  create_payment,
+  vnpay_return,
+  vnpay_ipn,
+  updateEcoinController,
+  byCourseController,
+};

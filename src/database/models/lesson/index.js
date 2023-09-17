@@ -7,12 +7,11 @@ module.exports = class Lesson extends BaseModel {
   static schema = require('./schema');
   static include = [
     {
-      model: Course,
-      as: 'course',
+      model: Section,
+      as: 'section',
     },
   ];
   static associate(models) {
-    this.belongsTo(models.Course, { foreignKey: 'courseId' });
     this.belongsTo(models.Section, { foreignKey: 'sectionId' });
   }
 };

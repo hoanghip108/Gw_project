@@ -1,6 +1,7 @@
 const User = require('../database/models/user');
 const Role = require('../database/models/role');
 const User_role = require('../database/models/user_role');
+const Cart = require('../database/models/cart');
 const APIError = require('../helper/apiError');
 import ExcludedData from '../helper/excludeData';
 import bcrypt from 'bcrypt';
@@ -79,7 +80,13 @@ const createUser = async (host, payload) => {
           createdBy: payload.username,
         },
       ]);
-
+      Cart.bulkCreate([
+        {
+          cartId: newUser.id,
+          createdBy: payload.username,
+          userId: newUser.id,
+        },
+      ]);
       return newUser;
     }
     return null;

@@ -10,10 +10,6 @@ module.exports = {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  grade: {
-    type: DataTypes.FLOAT,
-    allowNull: true,
-  },
   videoPath: {
     type: DataTypes.BLOB,
     allowNull: true,
