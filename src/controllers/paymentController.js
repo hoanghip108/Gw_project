@@ -79,7 +79,7 @@ const create_payment = async (req, res, next) => {
   vnp_Params['vnp_SecureHash'] = signed;
   vnpUrl += '?' + querystring.stringify(vnp_Params, { encode: false });
   console.log(vnpUrl);
-  res.redirect(vnpUrl);
+  return res.status(httpStatus.OK).json(vnpUrl);
 };
 const vnpay_return = async (req, res, next) => {
   let vnp_Params = req.query;

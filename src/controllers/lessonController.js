@@ -25,6 +25,7 @@ const {
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 import { uploadVideo } from '../helper/uploadFile';
+import APIError from '../helper/apiError';
 const createLessonController = async (req, res, next) => {
   const { error, value } = lessonSchema.validate({
     lessonName: req.body.lessonName,
@@ -38,17 +39,12 @@ const createLessonController = async (req, res, next) => {
   }
 
   const currentUser = req.user.username;
-  const videoPath = req.file.path || null;
-  console.log('this is video path', videoPath);
+  const folder = value.courseId;
   const lesson = await getLesson(value.lessonName);
+
   if (!lesson) {
-    const b64 = Buffer.from(req.file.buffer).toString('base64');
-    let dataURI = 'data:' + req.file.mimetype + ';base64,' + b64;
-    // const cldRes = await uploadVideo(dataURI);
-    const urlVideo = await uploadVideo(dataURI).then((result) => {
-      console.log('Image uploaded successfully:', result);
-      return result.url;
-    });
+    const urlVideo = await uploadVideo(value.file);
+    console.log(urlVideo);
     const newLesson = await createLesson(value, urlVideo, currentUser);
     if (newLesson == 0) {
       return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));

@@ -11,7 +11,7 @@ module.exports = {
     allowNull: false,
   },
   videoPath: {
-    type: DataTypes.BLOB,
+    type: DataTypes.STRING,
     allowNull: true,
   },
 };

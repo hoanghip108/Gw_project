@@ -234,8 +234,10 @@ const getAccessToken = async (refreshToken) => {
   try {
     const { userId, username } = await verifyRefreshToken(refreshToken);
     const accessToken = genAccessToken({ userId, username });
-    console.log(accessToken);
-    return accessToken;
+
+    const newRefreshToken = genRefreshToken({ userId, username });
+
+    return { accessToken, newRefreshToken };
   } catch (err) {
     return err;
   }

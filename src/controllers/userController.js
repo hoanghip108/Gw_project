@@ -214,10 +214,10 @@ const getAccessTokenController = async (req, res, next) => {
   debugger;
   try {
     const refreshToken = req.body.refreshToken;
-    const accessToken = await getAccessToken(refreshToken);
+    const { accessToken, newRefreshToken } = await getAccessToken(refreshToken);
     if (!accessToken.hasOwnProperty('message')) {
       console.log(accessToken);
-      return res.status(httpStatus.OK).json(new Success('', accessToken));
+      return res.status(httpStatus.OK).json(new Success('', { accessToken, newRefreshToken }));
     }
     return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(accessToken.name));
   } catch (err) {

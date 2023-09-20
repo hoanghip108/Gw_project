@@ -28,7 +28,7 @@ const createLesson = async (payload, videoPath, currentUser) => {
   } catch (err) {
     t.rollback();
     throw new APIError({
-      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      message: err.message,
       status: httpStatus.NOT_FOUND,
     });
   }
