@@ -4,6 +4,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import {
   createUserController,
+  updateUserController,
   loginController,
   verifyUserController,
   disableUserController,
@@ -26,4 +27,5 @@ userRouter.post('/users/auth/register', createUserController);
 userRouter.put('/users/changepassword', verifyToken, changePasswordController);
 userRouter.delete('/users/disable/:id', verifyToken, authorize, disableUserController);
 userRouter.patch('/users/uploadAvatar', verifyToken, upload.single('file'), uploadFileController);
+userRouter.patch('/users', verifyToken, authorize, updateUserController);
 module.exports = userRouter;

@@ -9,6 +9,7 @@ cloudinary.config({
 });
 import {
   createUser,
+  updateUser,
   login,
   verifyUser,
   disableUser,
@@ -22,6 +23,7 @@ import {
 const config = require('../config');
 import {
   UserSchema,
+  UserUpdateSchema,
   Loginschema,
   changePasswordSchema,
   AvatarUpdateSchema,
@@ -88,6 +90,22 @@ const createUserController = async (req, res, next) => {
     const { ...option } = new verrifyEmailOption(user.email, 'verify link', link);
     transporter.sendMail(option);
     return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
+  } catch (err) {
+    next(err);
+  }
+};
+const updateUserController = async (req, res, next) => {
+  try {
+    const { error, value } = UserUpdateSchema.validate(req.body);
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
+    }
+    const userId = req.user.userId;
+    const user = await updateUser(userId, value);
+    if (user == USER_STATUS.USER_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    }
+    return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_UPDATE, user));
   } catch (err) {
     next(err);
   }
@@ -226,6 +244,7 @@ const getAccessTokenController = async (req, res, next) => {
 };
 export {
   createUserController,
+  updateUserController,
   loginController,
   verifyUserController,
   disableUserController,

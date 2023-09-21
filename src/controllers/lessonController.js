@@ -43,8 +43,7 @@ const createLessonController = async (req, res, next) => {
   const lesson = await getLesson(value.lessonName);
 
   if (!lesson) {
-    const urlVideo = await uploadVideo(value.file);
-    console.log(urlVideo);
+    const urlVideo = await uploadVideo(value.file, folder);
     const newLesson = await createLesson(value, urlVideo, currentUser);
     if (newLesson == 0) {
       return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));

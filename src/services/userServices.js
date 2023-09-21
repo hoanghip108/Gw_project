@@ -99,6 +99,20 @@ const createUser = async (host, payload) => {
     });
   }
 };
+const updateUser = async (currentUserId, payload) => {
+  const user = await User.findOne({
+    where: { [Op.and]: [{ id: currentUserId }, { isActive: true }] },
+  });
+  if (!user) {
+    return USER_STATUS.USER_NOTFOUND;
+  }
+  await user.update(payload, { updatedBy: currentUserId, updatedAt: Date.now() });
+  const updatedUser = await User.findOne({
+    where: { id: currentUserId },
+    attributes: { exclude: dataToExclude.concat(['password']) },
+  });
+  return updatedUser;
+};
 const verifyUser = async (id) => {
   const user = await User.findOne({ where: { id: id } });
   if (user) {
@@ -245,6 +259,7 @@ const getAccessToken = async (refreshToken) => {
 export {
   getCurrentUser,
   createUser,
+  updateUser,
   login,
   verifyUser,
   disableUser,

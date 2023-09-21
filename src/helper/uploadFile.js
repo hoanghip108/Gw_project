@@ -31,13 +31,12 @@ const uploadImage = (file) => {
     streamifier.createReadStream(file.buffer).pipe(img_stream);
   });
 };
-const uploadVideo = (fileBuffer) => {
-  console.log(fileBuffer);
+const uploadVideo = (fileBuffer, folder) => {
   return new Promise((resolve, reject) => {
     const video_stream = cloudinary.v2.uploader.upload_stream(
       {
         resource_type: 'video',
-        folder: 'video',
+        folder: folder,
         public_id: `${Date.now()}`,
       },
       function (err, result) {
@@ -51,20 +50,4 @@ const uploadVideo = (fileBuffer) => {
     streamifier.createReadStream(fileBuffer.buffer).pipe(video_stream);
   });
 };
-// const uploadVideo = async (path, folder) => {
-//   return new Promise((resolve, reject) => {
-//     cloudinary.v2.uploader.upload_large(
-//       path,
-//       //3MB chunk
-//       { resource_type: 'video', chunk_size: 3000000, folder: folder },
-//       (err, result) => {
-//         if (err) {
-//           reject(new APIError({ message: 'Upload video failed', errors: err }));
-//         }
-//         resolve(result);
-//       },
-//     );
-//   });
-// };
-
 export { uploadImage, uploadVideo };

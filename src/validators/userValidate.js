@@ -18,51 +18,92 @@ const Loginschema = Joi.object({
     .messages({
       'string.min': 'username must be at least 8 characters long',
       'string.max': 'username must have maximum 15 characters',
-      'string.required': 'username is required',
+      'any.required': 'username is required',
+      'string.empty': 'username must not be empty',
       'string.pattern.base': 'username must not have special characters',
     }),
-  password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
+  password: Joi.string().required().messages({
+    'string.empty': 'password must not be empty',
+    'any.required': 'password is required',
+  }),
 });
 const changePasswordSchema = Joi.object({
-  oldPassword: Joi.string().required(),
-  newPassword: Joi.string().required(),
+  oldPassword: Joi.string().required().messages({
+    'string.empty': 'Old password must not be empty',
+    'any.required': 'Old password is required',
+  }),
+  newPassword: Joi.string().required().messages({
+    'string.empty': 'New password must not be empty',
+    'any.required': 'New password is required',
+  }),
 });
 const UserSchema = Joi.object({
-  username: Joi.string()
-    //.alphanum()
-    .min(8)
-    .max(15)
-    .required()
-    .regex(USERNAME_REGEX)
-    .messages({
-      'string.min': 'username must be at least 8 characters long',
-      'string.max': 'username must have maximum 15 characters',
-      'string.required': 'username is required',
-      'string.pattern.base': 'username must not have special characters',
-    }),
-  password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')).required(),
-  firstName: Joi.string().min(2).max(30).required(),
-  lastName: Joi.string().min(2).max(30).required(),
+  username: Joi.string().min(8).max(15).required().regex(USERNAME_REGEX).messages({
+    'string.min': 'username must be at least 8 characters long',
+    'string.max': 'username must have maximum 15 characters',
+    'string.empty': 'username must not be empty',
+    'string.pattern.base': 'username must not have special characters',
+    'any.required': 'username is required',
+  }),
+  password: Joi.string().required().messages({
+    'string.empty': 'password must not be empty',
+    'any.required': 'password is required',
+  }),
+  firstName: Joi.string().min(2).max(10).required().messages({
+    'string.min': 'First name must have at least 2 characters',
+    'string.max': 'First name must have maximum 10 characters',
+    'any.required': 'First name is required',
+    'string.empty': 'First name must not be empty',
+  }),
+  lastName: Joi.string().min(2).max(10).required().messages({
+    'string.min': 'Last name must have at least 2 characters',
+    'string.max': 'Last name must have maximum 10 characters',
+    'any.required': 'Last name is required',
+    'string.empty': 'Last name must not be empty',
+  }),
   email: Joi.string().min(10).max(30).regex(EMAIL_REGEX).required().messages({
     'string.min': 'Email must have at least 10 characters',
     'string.max': 'Email must have maximum 30 characters',
     'string.pattern.base': 'Email must have @ characters',
+    'any.required': 'Email is required',
+    'string.empty': 'Email must not be empty',
   }),
-  //managerId: Joi.string().required(),
-  phone: Joi.string().min(10).max(11),
+  phone: Joi.string().min(10).max(11).pattern(PHONE_NUMBER_REGEX).required().messages({
+    'string.min': 'Phone number must have at least 10 characters',
+    'string.max': 'Phone number must have maximum 11 characters',
+    'string.pattern.base': 'Phone number must have number characters',
+    'any.required': 'Phone number is required',
+    'string.empty': 'Phone number must not be empty',
+  }),
   avatar: Joi.string(),
-  address: Joi.string().max(100),
-  // RoleId: Joi.number().required(),
+  address: Joi.string().max(100).messages({
+    'string.max': 'Address must have maximum 100 characters',
+  }),
 });
 const UserUpdateSchema = Joi.object({
-  username: Joi.string().alphanum().min(3).max(30).pattern(USERNAME_REGEX),
-  password: Joi.string().pattern(new RegExp('^[a-zA-Z0-9]{3,30}$')),
-  firstName: Joi.string().min(3).max(30),
-  lastName: Joi.string().min(3).max(30),
-  email: Joi.string().min(10).pattern(EMAIL_REGEX),
-  phone: Joi.string().min(10).max(11),
+  firstName: Joi.string().min(2).max(10).required().messages({
+    'string.min': 'First name must have at least 2 characters',
+    'string.max': 'First name must have maximum 10 characters',
+    'any.required': 'First name is required',
+    'string.empty': 'First name must not be empty',
+  }),
+  lastName: Joi.string().min(2).max(10).required().messages({
+    'string.min': 'Last name must have at least 2 characters',
+    'string.max': 'Last name must have maximum 10 characters',
+    'any.required': 'Last name is required',
+    'string.empty': 'Last name must not be empty',
+  }),
+  phone: Joi.string().min(10).max(11).pattern(PHONE_NUMBER_REGEX).required().messages({
+    'string.min': 'Phone number must have at least 10 characters',
+    'string.max': 'Phone number must have maximum 11 characters',
+    'string.pattern.base': 'Phone number must have number characters',
+    'any.required': 'Phone number is required',
+    'string.empty': 'Phone number must not be empty',
+  }),
   avatar: Joi.string(),
-  address: Joi.string().max(100),
+  address: Joi.string().max(100).messages({
+    'string.max': 'Address must have maximum 100 characters',
+  }),
 });
 const AvatarUpdateSchema = Joi.object({
   file: Joi.object({
@@ -74,7 +115,13 @@ const AvatarUpdateSchema = Joi.object({
     path: Joi.string(),
     buffer: Joi.binary(),
     size: Joi.number(),
-    mimetype: Joi.string().valid('image/jpeg', 'image/png').required(), // Adjust valid mimetypes
-  }).required(),
-});
+    mimetype: Joi.string().valid('image/jpeg', 'image/png').required(),
+  }), // Adjust valid mimetypes
+})
+  .required()
+  .messages({
+    'any.required': 'File is required',
+    'string.empty': 'File must not be empty',
+  });
+
 export { Loginschema, UserSchema, UserUpdateSchema, changePasswordSchema, AvatarUpdateSchema };

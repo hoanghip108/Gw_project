@@ -11,7 +11,7 @@ const lessonSchema = Joi.object({
     filename: Joi.string(),
     path: Joi.string(),
     buffer: Joi.binary(),
-    size: Joi.number(),
+    size: Joi.number().max(99000000),
     mimetype: Joi.string().valid('image/jpeg', 'image/png', 'video/mp4').required(), // Adjust valid mimetypes
   }).required(),
 });

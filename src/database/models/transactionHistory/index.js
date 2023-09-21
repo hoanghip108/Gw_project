@@ -11,9 +11,9 @@ module.exports = class TransactionHistory extends BaseModel {
       as: 'user',
     },
   ];
-  // static associate(models) {
-  //   this.belongsTo(models.user, {
-  //     foreignKey: 'userId',
-  //   });
-  // }
+  static associate(models) {
+    this.belongsTo(models.User, {
+      foreignKey: 'userId',
+    });
+  }
 };

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { USER_STATUS, AUTH_CONSTANT } from '../data/constant';
+import c from 'config';
 const { sequelize } = require('../config/database');
 const Permission = require('../database/models/permission');
 const Role = require('../database/models/role');
@@ -46,10 +47,15 @@ const authorize = async (req, res, next) => {
   }
   const path = req._parsedUrl.path;
   var api;
+  console.log('this is path', path);
   if (path.lastIndexOf('/') != 0) {
+    console.log('1');
     api = path.substring(0, path.lastIndexOf('/'));
-  } else {
+  } else if (path.lastIndexOf('?') != -1) {
     api = path.substring(0, path.lastIndexOf('?'));
+  } else {
+    console.log('3');
+    api = path;
   }
   console.log('this is api', api);
   const permission = await sequelize.query(
