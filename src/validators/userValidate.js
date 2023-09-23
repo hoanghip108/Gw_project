@@ -68,7 +68,7 @@ const UserSchema = Joi.object({
     'any.required': 'Email is required',
     'string.empty': 'Email must not be empty',
   }),
-  phone: Joi.string().min(10).max(11).pattern(PHONE_NUMBER_REGEX).required().messages({
+  phoneNumber: Joi.string().min(10).max(11).pattern(PHONE_NUMBER_REGEX).required().messages({
     'string.min': 'Phone number must have at least 10 characters',
     'string.max': 'Phone number must have maximum 11 characters',
     'string.pattern.base': 'Phone number must have number characters',

@@ -229,7 +229,6 @@ const getCurrentUserController = async (req, res, next) => {
 };
 
 const getAccessTokenController = async (req, res, next) => {
-  debugger;
   try {
     const refreshToken = req.body.refreshToken;
     const { accessToken, newRefreshToken } = await getAccessToken(refreshToken);

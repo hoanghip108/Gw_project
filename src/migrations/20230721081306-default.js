@@ -22,7 +22,7 @@ module.exports = {
           },
           {
             roleId: '2',
-            roleName: 'User',
+            roleName: 'Client',
             createdBy: 'ADMIN',
             updatedBy: 'ADMIN',
             createdAt: new Date(),
@@ -87,6 +87,26 @@ module.exports = {
             createdBy: 'ADMIN',
             createdAt: new Date(),
           },
+          {
+            id: 2,
+            username: 'client001',
+            password: hashPassword('123123'),
+            firstName: 'client',
+            lastName: 'client',
+            isActive: 1,
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
+          },
+          {
+            id: 3,
+            username: 'lecturer001',
+            password: hashPassword('123123'),
+            firstName: 'lecturer',
+            lastName: 'lecturer',
+            isActive: 1,
+            createdBy: 'ADMIN',
+            createdAt: new Date(),
+          },
         ]),
         await queryInterface.bulkInsert('user_role', [
           {
@@ -96,13 +116,22 @@ module.exports = {
             createdAt: new Date(),
           },
         ]),
-        await permission.forEach((route) => {
-          queryInterface.bulkInsert('permission', [
+        permission.forEach(async (route) => {
+          await queryInterface.bulkInsert('permission', [
             {
               permissionId: route,
               api: route,
               createdBy: 'ADMIN',
               createdAt: new Date(),
+            },
+          ]);
+          await queryInterface.bulkInsert('role_permission', [
+            {
+              method: 'GET,POST,PUT,DELETE,PATH',
+              createdBy: 'ADMIN',
+              createdAt: new Date(),
+              permissionId: route,
+              roleId: '1',
             },
           ]);
         }),
@@ -140,6 +169,57 @@ module.exports = {
             subCateId: '1',
           },
         ]),
+        // await queryInterface.bulkInsert('role_permission', [
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/users',
+        //     roleId: '1',
+        //   },
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/categories',
+        //     roleId: '1',
+        //   },
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/conversations',
+        //     roleId: '1',
+        //   },
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/courses',
+        //     roleId: '1',
+        //   },
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/lessons',
+        //     roleId: '1',
+        //   },
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/sections',
+        //     roleId: '1',
+        //   },
+        //   {
+        //     method: 'GET,POST,PUT,DELETE,PATH',
+        //     createdBy: 'ADMIN',
+        //     createdAt: new Date(),
+        //     permissionId: '/sub-categories',
+        //     roleId: '1',
+        //   },
+        // ]),
       ]);
     } catch (err) {
       console.log(err);

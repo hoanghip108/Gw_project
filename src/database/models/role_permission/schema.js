@@ -4,5 +4,4 @@ module.exports = {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  //   primaryKey: ['roleId', 'permissionId'],
 };

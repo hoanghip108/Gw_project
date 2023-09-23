@@ -2,6 +2,8 @@ import { COURSE_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
 const APIError = require('../helper/apiError');
 const Course = require('../database/models/course');
 const SubCategory = require('../database/models/subCategory');
+const Section = require('../database/models/section');
+const Lesson = require('../database/models/lesson');
 const { Op } = require('sequelize');
 const { sequelize } = require('../config/database');
 import httpStatus from 'http-status';
@@ -86,7 +88,10 @@ const updateCourse = async (payload, courseId, currentUser) => {
   }
 };
 const getCourse = async (courseId) => {
-  const course = await Course.findOne({ where: { courseId: courseId } });
+  const course = await Course.findOne({
+    where: { courseId: courseId },
+    include: [{ model: Section, include: [{ model: Lesson }] }],
+  });
   if (course) {
     return course;
   }

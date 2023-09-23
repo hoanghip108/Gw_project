@@ -12,10 +12,23 @@
       const videoPlayer = document.getElementById('videoPlayer');
 
       // Replace 'VIDEO_STREAM_URL' with the actual URL of your video streaming endpoint
-      const videoStreamUrl = 'http://localhost:5000/api/videos/2';
+      const videoStreamUrl =
+        'http://localhost:5000/api/videos/1677dcb0-58ab-11ee-9051-af434daacfe8';
 
       // Set the video source to the streaming endpoint
       videoPlayer.src = videoStreamUrl;
+      const video = document.getElementById('videoPlayer');
+
+      // Check if a playback position is stored in localStorage
+      if (localStorage.getItem('videoPosition')) {
+        // If a position is found, set the video's current time to the stored position
+        video.currentTime = parseFloat(localStorage.getItem('videoPosition'));
+      }
+
+      // Add an event listener to save the playback position when the video is paused
+      video.addEventListener('pause', () => {
+        localStorage.setItem('videoPosition', video.currentTime.toString());
+      });
     </script>
   </body>
 </html>
