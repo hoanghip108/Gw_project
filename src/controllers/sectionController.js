@@ -4,6 +4,7 @@ import {
   createSection,
   updateSection,
 } from '../services/sectionServices';
+import { uploadDocument } from '../helper/uploadFile';
 import { SECTION_CONSTANT, COMMON_CONSTANTS, COURSE_CONSTANTS } from '../data/constant';
 const httpStatus = require('http-status');
 const {
@@ -51,6 +52,14 @@ const createSectionController = async (req, res, next) => {
     return next(err);
   }
 };
+const uploadDocsController = async (req, res, next) => {
+  try {
+    const file = req.file;
+    console.log(file);
+    const documents = await uploadDocument(file);
+    return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.UPLOADED, documents));
+  } catch (err) {}
+};
 const updateSectionController = async (req, res, next) => {
   try {
     const payload = req.body;
@@ -69,4 +78,9 @@ const updateSectionController = async (req, res, next) => {
     return next(err);
   }
 };
-export { getSectionController, createSectionController, updateSectionController };
+export {
+  getSectionController,
+  createSectionController,
+  updateSectionController,
+  uploadDocsController,
+};

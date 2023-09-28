@@ -248,12 +248,18 @@ const getAccessToken = async (refreshToken) => {
   try {
     const { userId, username } = await verifyRefreshToken(refreshToken);
     const accessToken = genAccessToken({ userId, username });
-
     const newRefreshToken = genRefreshToken({ userId, username });
 
     return { accessToken, newRefreshToken };
   } catch (err) {
-    return err;
+    // Handle different types of errors
+    if (err.name === 'TokenExpiredError') {
+      return { error: 'TokenExpiredError' };
+    } else if (err.name === 'JsonWebTokenError') {
+      return { error: 'JsonWebTokenError' };
+    } else {
+      return { error: 'InternalError' }; // Handle other unexpected errors
+    }
   }
 };
 export {

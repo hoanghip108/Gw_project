@@ -4,9 +4,11 @@ const Course = require('../database/models/course');
 const SubCategory = require('../database/models/subCategory');
 const Section = require('../database/models/section');
 const Lesson = require('../database/models/lesson');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const { sequelize } = require('../config/database');
 import httpStatus from 'http-status';
+import ExcludedData from '../helper/excludeData';
+const dataToExclude = [...Object.values(ExcludedData)];
 const createCourse = async (payload, currentUser) => {
   let t;
   try {
@@ -35,6 +37,27 @@ const createCourse = async (payload, currentUser) => {
       // message: COMMON_CONSTANTS.TRANSACTION_ERROR,
       message: err.message,
       status: httpStatus.NOT_FOUND,
+    });
+  }
+};
+const approveCourse = async (courseId, currentUser) => {
+  let t;
+  try {
+    t = await sequelize.transaction();
+    const course = await Course.update(
+      { isApprove: true, updatedBy: currentUser },
+      { where: { courseId: courseId } },
+    );
+    await t.commit();
+    if (course > 0) {
+      return course;
+    }
+    return null;
+  } catch (err) {
+    await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.BAD_REQUEST,
     });
   }
 };
@@ -87,42 +110,82 @@ const updateCourse = async (payload, courseId, currentUser) => {
     });
   }
 };
-const getCourse = async (courseId) => {
+const getApprovedCourse = async (courseId) => {
   const course = await Course.findOne({
-    where: { courseId: courseId },
-    include: [{ model: Section, include: [{ model: Lesson }] }],
+    where: { [Op.and]: [{ courseId: courseId }, { isApprove: true }] },
+    attributes: { exclude: dataToExclude },
+    include: [
+      {
+        model: Section,
+        attributes: { exclude: dataToExclude },
+        include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
+      },
+    ],
   });
   if (course) {
     return course;
   }
   return null;
 };
-const getListCourse = async (pageIndex, pageSize) => {
-  const courses = await Course.findAll();
-  const totalCount = courses.length;
+const getPendingCourse = async (courseId) => {
+  const course = await Course.findOne({
+    where: { [Op.and]: [{ courseId: courseId }, { isApprove: false }] },
+    attributes: { exclude: dataToExclude },
+    include: [
+      {
+        model: Section,
+        attributes: { exclude: dataToExclude },
+        include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
+      },
+    ],
+  });
+  if (course) {
+    return course;
+  }
+  return null;
+};
+const getListApprovedCourse = async (pageIndex, pageSize) => {
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const courses = await Course.findAll({ where: { isApprove: true } }, { offset, limit });
+  const totalCount = await Course.count();
   if (!totalCount) {
-    throw new APIError({ message: COURSE_CONSTANTS.COURSE_NOTFOUND, status: httpStatus.NOT_FOUND });
+    return COURSE_CONSTANTS.COURSE_NOTFOUND;
   }
 
   const totalPages = Math.ceil(totalCount / pageSize);
   if (pageIndex > totalPages) {
-    throw new APIError({
-      message: COMMON_CONSTANTS.INVALID_PAGE,
-      status: httpStatus.BAD_REQUEST,
-    });
+    return COMMON_CONSTANTS.INVALID_PAGE;
   }
-
-  const startIndex = (pageIndex - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
   return {
+    status: httpStatus.OK,
     pageIndex,
     pageSize,
     totalCount,
     totalPages,
     courses,
-    startIndex,
-    endIndex,
+  };
+};
+const getListPendingCourse = async (pageIndex, pageSize) => {
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const courses = await Course.findAll({ where: { isApprove: false } }, { offset, limit });
+  const totalCount = await Course.count();
+  if (!totalCount) {
+    return COURSE_CONSTANTS.COURSE_NOTFOUND;
+  }
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+  if (pageIndex > totalPages) {
+    return COMMON_CONSTANTS.INVALID_PAGE;
+  }
+  return {
+    status: httpStatus.OK,
+    pageIndex,
+    pageSize,
+    totalCount,
+    totalPages,
+    courses,
   };
 };
 const deleteCourse = async (courseId) => {
@@ -144,4 +207,14 @@ const deleteCourse = async (courseId) => {
     });
   }
 };
-export { createCourse, updateCourse, deleteCourse, getCourse, getListCourse, updateImg };
+export {
+  createCourse,
+  updateCourse,
+  deleteCourse,
+  getApprovedCourse,
+  getListApprovedCourse,
+  getPendingCourse,
+  getListPendingCourse,
+  updateImg,
+  approveCourse,
+};

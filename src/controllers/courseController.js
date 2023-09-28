@@ -14,18 +14,19 @@ const {
   WrongUsernameOrpassWord,
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
-const formidable = require('formidable');
-const fs = require('fs');
 import { uploadImage } from '../helper/uploadFile';
 import { courseSchema, courseUpdateSchema, ImageUploadSchema } from '../validators/courseValidate';
-import { COURSE_CONSTANTS, SUBCATEGORY_CONSTANTS } from '../data/constant';
+import { COURSE_CONSTANTS, SUBCATEGORY_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
 import {
   createCourse,
   updateCourse,
   deleteCourse,
-  getCourse,
-  getListCourse,
+  getApprovedCourse,
+  getListApprovedCourse,
+  getPendingCourse,
+  getListPendingCourse,
   updateImg,
+  approveCourse,
 } from '../services/courseServices';
 const createCourseController = async (req, res, next) => {
   try {
@@ -86,10 +87,10 @@ const updateCourseController = async (req, res, next) => {
     next(err);
   }
 };
-const getCourseController = async (req, res, next) => {
+const getapprovedCourseController = async (req, res, next) => {
   try {
     const courseId = req.params.id;
-    const course = await getCourse(courseId);
+    const course = await getApprovedCourse(courseId);
     if (course) {
       return res.status(httpStatus.OK).json(new Success('', course));
     }
@@ -100,7 +101,21 @@ const getCourseController = async (req, res, next) => {
     next(err);
   }
 };
-const getListCourseController = async (req, res, next) => {
+const getPendingCourseController = async (req, res, next) => {
+  try {
+    const courseId = req.params.id;
+    const course = await getPendingCourse(courseId);
+    if (course) {
+      return res.status(httpStatus.OK).json(new Success('', course));
+    }
+    return res
+      .status(httpStatus.BAD_REQUEST)
+      .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+  } catch (err) {
+    next(err);
+  }
+};
+const getListApprovedCourseController = async (req, res, next) => {
   try {
     let pageIndex = parseInt(req.query.pageIndex);
     let pageSize = parseInt(req.query.pageSize);
@@ -108,16 +123,56 @@ const getListCourseController = async (req, res, next) => {
       pageIndex = config.defaultIndexPagination;
       pageSize = config.defaultSizePagination;
     }
-    const result = await getListCourse(pageIndex, pageSize);
+    const result = await getListApprovedCourse(pageIndex, pageSize);
+    if (result == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
     return res
       .status(httpStatus.OK)
       .json(
         new ApiPaginatedResponse(
+          result.status,
           result.pageIndex,
           result.pageSize,
           result.totalCount,
           result.totalPages,
-          result.courses.slice(result.startIndex, result.endIndex),
+          result.courses,
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const getListPendingCourseController = async (req, res, next) => {
+  try {
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
+    const result = await getListPendingCourse(pageIndex, pageSize);
+    if (result == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
+    return res
+      .status(httpStatus.OK)
+      .json(
+        new ApiPaginatedResponse(
+          result.status,
+          result.pageIndex,
+          result.pageSize,
+          result.totalCount,
+          result.totalPages,
+          result.courses,
         ),
       );
   } catch (error) {
@@ -162,11 +217,29 @@ const updateCourseImgController = async (req, res, next) => {
     next(err);
   }
 };
+const approveCourseController = async (req, res, next) => {
+  try {
+    const currentUser = req.user.username;
+    const courseId = req.params.id;
+    const result = await approveCourse(courseId, currentUser);
+    if (result == null) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+    }
+    return res.status(httpStatus.OK).json(new Success(COURSE_CONSTANTS.APPROVED, result));
+  } catch (err) {
+    next(err);
+  }
+};
 export {
   createCourseController,
   updateCourseController,
   deleteCourseController,
-  getCourseController,
-  getListCourseController,
+  getapprovedCourseController,
+  getListApprovedCourseController,
+  getPendingCourseController,
+  getListPendingCourseController,
   updateCourseImgController,
+  approveCourseController,
 };

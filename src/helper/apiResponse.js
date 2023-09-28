@@ -76,7 +76,8 @@ class ValidateFailed extends ExtendableResponse {
   }
 }
 class ApiPaginatedResponse {
-  constructor(pageIndex, pageSize, totalCount, totalPages, data) {
+  constructor(status, pageIndex, pageSize, totalCount, totalPages, data) {
+    this.status = status;
     this.pageIndex = pageIndex;
     this.pageSize = pageSize;
     this.totalCount = totalCount;

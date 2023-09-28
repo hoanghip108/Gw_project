@@ -30,6 +30,11 @@ module.exports = {
     type: DataTypes.INTEGER,
     allowNull: true,
   },
+  isApprove: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
   courseImg: {
     type: DataTypes.STRING,
     allowNull: true,

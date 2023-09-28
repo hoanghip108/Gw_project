@@ -2,9 +2,12 @@ import {
   createCourseController,
   updateCourseController,
   deleteCourseController,
-  getCourseController,
-  getListCourseController,
+  getapprovedCourseController,
+  getListApprovedCourseController,
+  getPendingCourseController,
+  getListPendingCourseController,
   updateCourseImgController,
+  approveCourseController,
 } from '../controllers/courseController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const express = require('express');
@@ -20,8 +23,10 @@ courseRouter.post(
   upload.single('file'),
   createCourseController,
 );
-courseRouter.get('/courses/:id', getCourseController);
-courseRouter.get('/courses', getListCourseController);
+courseRouter.get('/courses/pending/:id', verifyToken, authorize, getPendingCourseController);
+courseRouter.get('/courses/pending', verifyToken, authorize, getListPendingCourseController);
+courseRouter.get('/courses/:id', getapprovedCourseController);
+courseRouter.get('/courses', getListApprovedCourseController);
 courseRouter.patch(
   '/courses/:id',
   verifyToken,
@@ -36,5 +41,6 @@ courseRouter.patch(
   upload.single('file'),
   updateCourseImgController,
 );
+courseRouter.patch('/courses/approve/:id', verifyToken, authorize, approveCourseController);
 courseRouter.delete('/courses/:id', verifyToken, authorize, deleteCourseController);
 module.exports = courseRouter;

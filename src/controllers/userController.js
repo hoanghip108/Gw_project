@@ -27,6 +27,7 @@ import {
   Loginschema,
   changePasswordSchema,
   AvatarUpdateSchema,
+  refreshTokenSchema,
 } from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
@@ -230,17 +231,29 @@ const getCurrentUserController = async (req, res, next) => {
 
 const getAccessTokenController = async (req, res, next) => {
   try {
-    const refreshToken = req.body.refreshToken;
-    const { accessToken, newRefreshToken } = await getAccessToken(refreshToken);
-    if (!accessToken.hasOwnProperty('message')) {
-      console.log(accessToken);
-      return res.status(httpStatus.OK).json(new Success('', { accessToken, newRefreshToken }));
+    const { error, value } = refreshTokenSchema.validate(req.body);
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
-    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(accessToken.name));
+
+    const result = await getAccessToken(value.refreshToken);
+
+    if (result.error === 'TokenExpiredError') {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Token expired'));
+    } else if (result.error === 'JsonWebTokenError') {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Invalid token'));
+    } else if (result.error === 'InternalError') {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Internal server error'));
+    }
+
+    const { accessToken, newRefreshToken } = result;
+    console.log({ accessToken, newRefreshToken });
+    return res.status(httpStatus.OK).json(new Success('', { accessToken, newRefreshToken }));
   } catch (err) {
     next(err);
   }
 };
+
 export {
   createUserController,
   updateUserController,

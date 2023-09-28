@@ -93,11 +93,10 @@ const UserUpdateSchema = Joi.object({
     'any.required': 'Last name is required',
     'string.empty': 'Last name must not be empty',
   }),
-  phone: Joi.string().min(10).max(11).pattern(PHONE_NUMBER_REGEX).required().messages({
+  phoneNumber: Joi.string().min(10).max(11).pattern(PHONE_NUMBER_REGEX).messages({
     'string.min': 'Phone number must have at least 10 characters',
     'string.max': 'Phone number must have maximum 11 characters',
     'string.pattern.base': 'Phone number must have number characters',
-    'any.required': 'Phone number is required',
     'string.empty': 'Phone number must not be empty',
   }),
   avatar: Joi.string(),
@@ -123,5 +122,18 @@ const AvatarUpdateSchema = Joi.object({
     'any.required': 'File is required',
     'string.empty': 'File must not be empty',
   });
+const refreshTokenSchema = Joi.object({
+  refreshToken: Joi.string().required().messages({
+    'string.empty': 'refreshToken must not be empty',
+    'any.required': 'refreshToken is required',
+  }),
+});
 
-export { Loginschema, UserSchema, UserUpdateSchema, changePasswordSchema, AvatarUpdateSchema };
+export {
+  Loginschema,
+  UserSchema,
+  UserUpdateSchema,
+  changePasswordSchema,
+  AvatarUpdateSchema,
+  refreshTokenSchema,
+};

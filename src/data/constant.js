@@ -40,6 +40,7 @@ const COURSE_CONSTANTS = {
   COURSE_UPDATE_FAILED: 'Course update failed',
   COURSE_DELETE_FAILED: 'Course delete failed',
   COURSE_NOTFOUND: 'Course not found',
+  APPROVED: 'Course approved successfully',
 };
 const LESSON_CONSTANT = {
   LESSON_EXIST: 'Lesson already exists',

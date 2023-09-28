@@ -25,7 +25,7 @@ const fs = require('fs');
 const path = require('path');
 
 const routesPath = path.join(__dirname, '..', 'routes');
-const getRoutePaths = async () => {
+const getRoutePatchs = async () => {
   const routePathsSet = new Set();
   debugger;
   try {
@@ -47,4 +47,4 @@ const getRoutePaths = async () => {
     return [];
   }
 };
-export { routers, getRoutePaths };
+export { routers, getRoutePatchs };
