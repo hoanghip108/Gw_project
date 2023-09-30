@@ -38,7 +38,7 @@ const changePasswordSchema = Joi.object({
   }),
 });
 const UserSchema = Joi.object({
-  username: Joi.string().min(8).max(15).required().regex(USERNAME_REGEX).messages({
+  username: Joi.string().min(8).max(15).regex(USERNAME_REGEX).required().messages({
     'string.min': 'username must be at least 8 characters long',
     'string.max': 'username must have maximum 15 characters',
     'string.empty': 'username must not be empty',

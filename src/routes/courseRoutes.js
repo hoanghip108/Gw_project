@@ -8,6 +8,7 @@ import {
   getListPendingCourseController,
   updateCourseImgController,
   approveCourseController,
+  searchCourseController,
 } from '../controllers/courseController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const express = require('express');
@@ -23,6 +24,7 @@ courseRouter.post(
   upload.single('file'),
   createCourseController,
 );
+courseRouter.get('/courses/search', searchCourseController);
 courseRouter.get('/courses/pending/:id', verifyToken, authorize, getPendingCourseController);
 courseRouter.get('/courses/pending', verifyToken, authorize, getListPendingCourseController);
 courseRouter.get('/courses/:id', getapprovedCourseController);

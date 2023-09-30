@@ -193,48 +193,44 @@ const changePassword = async (currentUserId, payload) => {
   return false;
 };
 const getListUser = async (pageIndex, pageSize) => {
-  const users = await User.findAll({
-    attributes: {
-      exclude: [
-        'password',
-        'avatar',
-        'isActive',
-        'bio',
-        'isDelete',
-        'createdBy',
-        'updatedBy',
-        'updatedAt',
-        'RoleId',
-      ],
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const users = await User.findAll(
+    { offset, limit },
+    {
+      attributes: {
+        exclude: [
+          'password',
+          'avatar',
+          'isActive',
+          'bio',
+          'isDelete',
+          'createdBy',
+          'updatedBy',
+          'updatedAt',
+          'RoleId',
+        ],
+      },
+      include: [{ model: Role, attributes: ['Rolename'] }],
     },
-    include: [{ model: Role, attributes: ['Rolename'] }],
-  });
-
-  const totalCount = users.length;
+  );
+  const totalCount = await User.count();
   if (!totalCount) {
-    throw new APIError({ message: USER_STATUS.USER_NOTFOUND, status: httpStatus.NOT_FOUND });
+    return USER_STATUS.USER_NOTFOUND;
   }
 
   const totalPages = Math.ceil(totalCount / pageSize);
   if (pageIndex > totalPages) {
-    throw new APIError({
-      message: COMMON_CONSTANTS.INVALID_PAGE,
-      status: httpStatus.BAD_REQUEST,
-    });
+    return COMMON_CONSTANTS.INVALID_PAGE;
   }
 
-  const startIndex = (pageIndex - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
   return {
+    status: httpStatus.OK,
     pageIndex,
     pageSize,
     totalCount,
     totalPages,
     users,
-    startIndex,
-    endIndex,
-    //users.slice(startIndex, endIndex),
   };
 };
 const uploadAvatar = async (filePath, userId) => {

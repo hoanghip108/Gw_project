@@ -27,6 +27,7 @@ import {
   getListPendingCourse,
   updateImg,
   approveCourse,
+  searchCourse,
 } from '../services/courseServices';
 const createCourseController = async (req, res, next) => {
   try {
@@ -232,6 +233,20 @@ const approveCourseController = async (req, res, next) => {
     next(err);
   }
 };
+const searchCourseController = async (req, res, next) => {
+  try {
+    const search = req.query.search;
+    const result = searchCourse(search);
+    if (result) {
+      return res.status(httpStatus.OK).json(new Success('', result));
+    }
+    return res
+      .status(httpStatus.BAD_REQUEST)
+      .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+  } catch (err) {
+    next(err);
+  }
+};
 export {
   createCourseController,
   updateCourseController,
@@ -242,4 +257,5 @@ export {
   getListPendingCourseController,
   updateCourseImgController,
   approveCourseController,
+  searchCourseController,
 };

@@ -71,7 +71,7 @@ const byCourse = async (userId, payload) => {
         total += isExist.price;
       }
     }
-    console.log(total);
+    console.log('this is total: ', total);
     const user = await User.findOne({ where: { id: userId } });
     if (!user) {
       return USER_STATUS.USER_NOTFOUND;
@@ -79,7 +79,6 @@ const byCourse = async (userId, payload) => {
     if (user.eCoin < total) {
       return USER_STATUS.NSF;
     } else {
-      // console.log(total);
       await user.update({ eCoin: sequelize.literal(`ecoin - ${total}`) });
       payload.forEach(async (course) => {
         await EnrolledCourse.create({

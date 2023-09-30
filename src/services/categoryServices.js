@@ -38,8 +38,11 @@ const getCategory = async (categoryId) => {
   }
 };
 const getListCategory = async (pageIndex, pageSize) => {
-  const categories = await Category.findAll();
-  const totalCount = categories.length;
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const categories = await Category.findAll({ offset, limit });
+  const totalCount = await Category.count();
+
   if (!totalCount) {
     return CATEGORY_CONSTANTS.CATEGORY_NOTFOUND;
   }
@@ -48,17 +51,12 @@ const getListCategory = async (pageIndex, pageSize) => {
   if (pageIndex > totalPages) {
     return COMMON_CONSTANTS.INVALID_PAGE;
   }
-  const startIndex = (pageIndex - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const silced = categories.slice(startIndex, endIndex);
   return {
     pageIndex,
     pageSize,
     totalCount,
     totalPages,
-    startIndex,
-    endIndex,
-    silced,
+    categories,
   };
 };
 const updateCategory = async (cateName, categoryId) => {

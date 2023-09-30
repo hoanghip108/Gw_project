@@ -1,6 +1,5 @@
 // Import necessary modules
 import { createServer } from 'http';
-const sequelizeConfig = require('../.sequelizerc');
 import express from 'express';
 import config from './config/index.js';
 const swaggerUi = require('swagger-ui-express');
@@ -10,6 +9,7 @@ import db from './database/index.js';
 const cors = require('cors');
 const logger = require('./utils/logger');
 const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 import { routers, getRoutePaths } from './routes';
@@ -34,6 +34,16 @@ const initSequelize = () => {
 };
 const startServer = async () => {
   const server = app.listen(config.port, config.host);
+  const io = require('socket.io')(server, {
+    cors: {
+      origin: 'http://localhost:3000',
+      methods: ['GET', 'POST,'],
+      credentials: false,
+    },
+  });
+  const socketController = require('./controllers/socketController');
+  socketController(io);
+
   app.use(cors());
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   initSequelize();
@@ -41,23 +51,7 @@ const startServer = async () => {
   console.log(
     `Listening on host ${config.host} on port ${config.port} http://${config.host}:${config.port}`,
   );
-  const io = require('socket.io')(server, {
-    pingTimeout: 60000,
-    cors: {
-      origin: 'http://localhost:3000',
-      // origin: 'http://www.eschoolhub.click',
-      // credentials: true,
-    },
-  });
-  global._io = io;
-  io.on('connection', (socket) => {
-    console.log('A user connected', socket.id);
-    socket.on('disconnect', () => {
-      console.log('A user disconnected:', socket.id);
-    });
-  });
 };
-
 startServer();
 // export default app;
 module.exports = app;

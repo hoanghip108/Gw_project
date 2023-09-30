@@ -28,7 +28,7 @@ lessonRouter.post(
   upload.single('file'),
   createLessonController,
 );
-lessonRouter.get('/lessons', verifyToken, getListLessonController);
+lessonRouter.get('/lessons', getListLessonController);
 lessonRouter.get('/lessons/:id', verifyToken, getLessonController);
 lessonRouter.delete('/lessons/:id', verifyToken, authorize, deleteLessonController);
 lessonRouter.put(

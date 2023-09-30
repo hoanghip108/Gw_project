@@ -1,4 +1,4 @@
-import { COURSE_CONSTANTS, LESSON_CONSTANT } from '../data/constant';
+import { COURSE_CONSTANTS, LESSON_CONSTANT, COMMON_CONSTANTS } from '../data/constant';
 import {
   createLesson,
   getListLesson,
@@ -63,15 +63,21 @@ const getListLessonController = async (req, res, next) => {
       pageSize = config.defaultSizePagination;
     }
     const result = await getListLesson(pageIndex, pageSize);
+    if (result == LESSON_CONSTANT.LESSON_NOTFOUND) {
+      return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.LESSON_NOTFOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
     return res
       .status(httpStatus.OK)
       .json(
         new ApiPaginatedResponse(
+          result.status,
           result.pageIndex,
           result.pageSize,
           result.totalCount,
           result.totalPages,
-          result.lessons.slice(result.startIndex, result.endIndex),
+          result.lessons,
         ),
       );
   } catch (error) {

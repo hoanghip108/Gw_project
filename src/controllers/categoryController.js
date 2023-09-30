@@ -1,4 +1,5 @@
 import httpStatus from 'http-status';
+const config = require('../config');
 const { CATEGORY_CONSTANTS, COMMON_CONSTANTS } = require('../data/constant');
 const {
   Common,
@@ -50,8 +51,12 @@ const getCategoryController = async (req, res, next) => {
 };
 const getListCategoryController = async (req, res, next) => {
   try {
-    const pageIndex = req.query.pageIndex;
-    const pageSize = req.query.pageSize;
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
     const result = await getListCategory(pageIndex, pageSize);
     if (result === CATEGORY_CONSTANTS.CATEGORY_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Category not found'));

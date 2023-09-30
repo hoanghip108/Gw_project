@@ -1,33 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
-    <title>Video Streaming</title>
+    <meta charset="UTF-8" />
+    <title>Socket.io Chat</title>
   </head>
   <body>
-    <video style="width: 100%; max-width: 800px; height: auto" id="videoPlayer" controls autoplay>
-      Your browser does not support the video tag.
-    </video>
+    <ul id="messages"></ul>
+    <input id="message-input" autocomplete="off" /><button id="send-button">Send</button>
 
+    <script src="/socket.io/socket.io.js"></script>
     <script>
-      const videoPlayer = document.getElementById('videoPlayer');
+      const socket = io();
 
-      // Replace 'VIDEO_STREAM_URL' with the actual URL of your video streaming endpoint
-      const videoStreamUrl =
-        'http://localhost:5000/api/videos/1677dcb0-58ab-11ee-9051-af434daacfe8';
+      document.getElementById('send-button').addEventListener('click', () => {
+        const messageInput = document.getElementById('message-input');
+        const message = messageInput.value;
+        socket.emit('chat message', message);
+        messageInput.value = '';
+      });
 
-      // Set the video source to the streaming endpoint
-      videoPlayer.src = videoStreamUrl;
-      const video = document.getElementById('videoPlayer');
-
-      // Check if a playback position is stored in localStorage
-      if (localStorage.getItem('videoPosition')) {
-        // If a position is found, set the video's current time to the stored position
-        video.currentTime = parseFloat(localStorage.getItem('videoPosition'));
-      }
-
-      // Add an event listener to save the playback position when the video is paused
-      video.addEventListener('pause', () => {
-        localStorage.setItem('videoPosition', video.currentTime.toString());
+      socket.on('chat message', (message) => {
+        const messages = document.getElementById('messages');
+        const li = document.createElement('li');
+        li.textContent = message;
+        messages.appendChild(li);
       });
     </script>
   </body>

@@ -112,7 +112,7 @@ const updateCourse = async (payload, courseId, currentUser) => {
 };
 const getApprovedCourse = async (courseId) => {
   const course = await Course.findOne({
-    where: { [Op.and]: [{ courseId: courseId }, { isApprove: true }] },
+    where: { [Op.and]: [{ courseId: courseId }, { isApprove: true }, { isDeleted: false }] },
     attributes: { exclude: dataToExclude },
     include: [
       {
@@ -147,8 +147,13 @@ const getPendingCourse = async (courseId) => {
 const getListApprovedCourse = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
   const limit = pageSize;
-  const courses = await Course.findAll({ where: { isApprove: true } }, { offset, limit });
-  const totalCount = await Course.count();
+  const courses = await Course.findAll(
+    { where: { [Op.and]: [{ isApprove: true }, { isDeleted: false }] } },
+    { offset, limit },
+  );
+  const totalCount = await Course.count({
+    where: { [Op.and]: [{ isApprove: true }, { isDeleted: false }] },
+  });
   if (!totalCount) {
     return COURSE_CONSTANTS.COURSE_NOTFOUND;
   }
@@ -207,6 +212,12 @@ const deleteCourse = async (courseId) => {
     });
   }
 };
+const searchCourse = async (keyword) => {
+  const result = await Course.findAll({
+    where: { [Op.and]: [{ courseName: { [Op.like]: `%${keyword}%` } }, { isApprove: true }] },
+  });
+  return result;
+};
 export {
   createCourse,
   updateCourse,
@@ -217,4 +228,5 @@ export {
   getListPendingCourse,
   updateImg,
   approveCourse,
+  searchCourse,
 };

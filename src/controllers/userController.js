@@ -1,4 +1,4 @@
-import { USER_STATUS, EMAIL_CONSTANTS } from '../data/constant';
+import { USER_STATUS, EMAIL_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
 import { USER } from '../helper/messageResponse';
 import { uploadImage } from '../helper/uploadFile';
 const cloudinary = require('cloudinary').v2;
@@ -201,15 +201,22 @@ const getListUserController = async (req, res, next) => {
       pageSize = config.defaultSizePagination;
     }
     const result = await getListUser(pageIndex, pageSize);
+    if (result == USER_STATUS.USER_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      console.log('ok');
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
     return res
       .status(httpStatus.OK)
       .json(
         new ApiPaginatedResponse(
+          result.status,
           result.pageIndex,
           result.pageSize,
           result.totalCount,
           result.totalPages,
-          result.users.slice(result.startIndex, result.endIndex),
+          result.users,
         ),
       );
   } catch (error) {

@@ -1,7 +1,7 @@
 const Lesson = require('../database/models/lesson');
 const Course = require('../database/models/course');
 const APIError = require('../helper/apiError');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const { sequelize } = require('../config/database');
 import ExcludedData from '../helper/excludeData';
 const httpStatus = require('http-status');
@@ -77,31 +77,24 @@ const getLesson = async (lessonId) => {
   return null;
 };
 const getListLesson = async (pageIndex, pageSize) => {
+  let offset = (pageIndex - 1) * pageSize;
+  let limit = pageSize;
   const lessons = await Lesson.findAll();
-  const totalCount = lessons.length;
+  const totalCount = Lesson.count({ where: { isDeleted: false } }, { offset, limit });
   if (!totalCount) {
-    throw new APIError({ message: LESSON_CONSTANT.LESSON_NOTFOUND, status: httpStatus.NOT_FOUND });
+    return LESSON_CONSTANT.LESSON_NOTFOUND;
   }
-
   const totalPages = Math.ceil(totalCount / pageSize);
   if (pageIndex > totalPages) {
-    throw new APIError({
-      message: COMMON_CONSTANTS.INVALID_PAGE,
-      status: httpStatus.BAD_REQUEST,
-    });
+    return COMMON_CONSTANTS.INVALID_PAGE;
   }
-
-  const startIndex = (pageIndex - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-
   return {
+    status: httpStatus.OK,
     pageIndex,
     pageSize,
     totalCount,
     totalPages,
     lessons,
-    startIndex,
-    endIndex,
   };
 };
 const deleteLesson = async (lessonId) => {
