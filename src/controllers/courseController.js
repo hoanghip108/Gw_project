@@ -25,8 +25,10 @@ import {
   getListApprovedCourse,
   getPendingCourse,
   getListPendingCourse,
+  getListDeletedCourse,
   updateImg,
   approveCourse,
+  restoreCourse,
   searchCourse,
 } from '../services/courseServices';
 const createCourseController = async (req, res, next) => {
@@ -126,9 +128,7 @@ const getListApprovedCourseController = async (req, res, next) => {
     }
     const result = await getListApprovedCourse(pageIndex, pageSize);
     if (result == COURSE_CONSTANTS.COURSE_NOTFOUND) {
-      return res
-        .status(httpStatus.BAD_REQUEST)
-        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+      return res.status(httpStatus.OK).json(new Success(COURSE_CONSTANTS.COURSE_NOTFOUND, []));
     } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
     }
@@ -161,6 +161,37 @@ const getListPendingCourseController = async (req, res, next) => {
       return res
         .status(httpStatus.BAD_REQUEST)
         .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
+    return res
+      .status(httpStatus.OK)
+      .json(
+        new ApiPaginatedResponse(
+          result.status,
+          result.pageIndex,
+          result.pageSize,
+          result.totalCount,
+          result.totalPages,
+          result.courses,
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
+const getistDeletedCourseController = async (req, res, next) => {
+  try {
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
+    const result = await getListDeletedCourse(pageIndex, pageSize);
+    if (result == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+      console.log('not found');
+      return res.status(httpStatus.OK).json(new Success(COURSE_CONSTANTS.COURSE_NOTFOUND, []));
     } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
     }
@@ -233,6 +264,22 @@ const approveCourseController = async (req, res, next) => {
     next(err);
   }
 };
+const rejectCourseController = async (req, res, next) => {};
+const restoreCourseController = async (req, res, next) => {
+  try {
+    const currentUser = req.user.username;
+    const courseId = req.params.id;
+    const result = await restoreCourse(courseId, currentUser);
+    if (result == null) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+    }
+    return res.status(httpStatus.OK).json(new Success(COURSE_CONSTANTS.RESTORED, result));
+  } catch (err) {
+    next(err);
+  }
+};
 const searchCourseController = async (req, res, next) => {
   try {
     const search = req.query.search;
@@ -255,7 +302,9 @@ export {
   getListApprovedCourseController,
   getPendingCourseController,
   getListPendingCourseController,
+  getistDeletedCourseController,
   updateCourseImgController,
   approveCourseController,
+  restoreCourseController,
   searchCourseController,
 };

@@ -52,6 +52,7 @@ const getListCategory = async (pageIndex, pageSize) => {
     return COMMON_CONSTANTS.INVALID_PAGE;
   }
   return {
+    status: httpStatus.OK,
     pageIndex,
     pageSize,
     totalCount,

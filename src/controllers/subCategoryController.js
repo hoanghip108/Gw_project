@@ -61,7 +61,7 @@ const getListsubCategoryController = async (req, res, next) => {
     const pageSize = req.query.pageSize;
     const result = await getListsubCategory(pageIndex, pageSize);
     if (result === SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND) {
-      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('subCategory not found'));
+      return res.status(httpStatus.OK).json(new BadRequest('subCategory not found'));
     }
     if (result === COMMON_CONSTANTS.INVALID_PAGE) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Invalid page index'));

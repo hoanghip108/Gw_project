@@ -15,17 +15,19 @@ const {
   WrongUsernameOrpassWord,
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
-import { COURSE_CONSTANTS } from '../data/constant';
+import { USER_STATUS } from '../data/constant';
 const conversationController = async (req, res, next) => {
   try {
-    debugger;
     const senderId = req.user.userId;
     const receiverId = req.params.receiverId;
     const conversation = await getConversation(senderId, receiverId);
+    if (conversation === USER_STATUS.USER_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    }
     if (!conversation) {
       return res.status(httpStatus.CONFLICT).json();
     }
-    return res.status(httpStatus.OK).json(conversation);
+    return res.status(httpStatus.OK).json(new Success('', conversation));
   } catch (err) {
     next(err);
   }

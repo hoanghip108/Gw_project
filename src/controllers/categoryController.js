@@ -64,7 +64,18 @@ const getListCategoryController = async (req, res, next) => {
     if (result === COMMON_CONSTANTS.INVALID_PAGE) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Invalid page index'));
     }
-    return res.status(httpStatus.OK).json(new ApiPaginatedResponse(result));
+    return res
+      .status(httpStatus.OK)
+      .json(
+        new ApiPaginatedResponse(
+          result.status,
+          result.pageIndex,
+          result.pageSize,
+          result.totalCount,
+          result.totalPages,
+          result.categories,
+        ),
+      );
   } catch (err) {
     next(err);
   }

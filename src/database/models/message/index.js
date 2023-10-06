@@ -20,6 +20,7 @@ module.exports = class Message extends BaseModel {
   static associate(models) {
     this.belongsTo(models.Conversation, { foreignKey: 'conversationId' });
     this.belongsTo(models.User, { foreignKey: 'senderId' });
+    this.belongsTo(models.User, { foreignKey: 'receiverId' });
     //this.hasMany(models.DMessage, { foreignKey: 'messageId' });
   }
 };

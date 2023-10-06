@@ -193,6 +193,28 @@ const getListPendingCourse = async (pageIndex, pageSize) => {
     courses,
   };
 };
+const getListDeletedCourse = async (pageIndex, pageSize) => {
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const courses = await Course.findAll({ where: { isDeleted: true } }, { offset, limit });
+  const totalCount = await Course.count();
+  if (!totalCount) {
+    return COURSE_CONSTANTS.COURSE_NOTFOUND;
+  }
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+  if (pageIndex > totalPages) {
+    return COMMON_CONSTANTS.INVALID_PAGE;
+  }
+  return {
+    status: httpStatus.OK,
+    pageIndex,
+    pageSize,
+    totalCount,
+    totalPages,
+    courses,
+  };
+};
 const deleteCourse = async (courseId) => {
   let t;
   try {
@@ -200,6 +222,27 @@ const deleteCourse = async (courseId) => {
     const course = await Course.findOne({ where: { courseId: courseId } });
     if (course) {
       course.update({ isDeleted: true });
+      await t.commit();
+      return course;
+    }
+    return null;
+  } catch (err) {
+    await t.rollback();
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.NOT_FOUND,
+    });
+  }
+};
+const restoreCourse = async (courseId, currentUser) => {
+  let t;
+  try {
+    t = await sequelize.transaction();
+    const course = await Course.findOne({
+      where: { [Op.and]: [{ courseId: courseId }, { isDeleted: true }] },
+    });
+    if (course) {
+      course.update({ isDeleted: false }, { updatedBy: currentUser });
       await t.commit();
       return course;
     }
@@ -226,7 +269,9 @@ export {
   getListApprovedCourse,
   getPendingCourse,
   getListPendingCourse,
+  getListDeletedCourse,
   updateImg,
   approveCourse,
+  restoreCourse,
   searchCourse,
 };

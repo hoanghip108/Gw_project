@@ -19,7 +19,7 @@ import { verifyToken, authorize } from '../middleware/auth.js';
 const userRouter = express.Router();
 userRouter.get('/users/auth/register/verify/:id', verifyUserController);
 userRouter.get('/users/profile', verifyToken, authorize, getCurrentUserController);
-userRouter.get('/users', verifyToken, authorize, getListUserController);
+userRouter.get('/users', verifyToken, getListUserController);
 userRouter.post('/users/forgotpassword', resetPasswordController);
 userRouter.post('/users/auth/login', loginController);
 userRouter.post('/users/auth/refreshToken', getAccessTokenController);

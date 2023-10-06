@@ -3,7 +3,7 @@ const category = require('../database/models/category');
 const { SUBCATEGORY_CONSTANTS, COMMON_CONSTANTS, CATEGORY_CONSTANTS } = require('../data/constant');
 const APIError = require('../helper/apiError');
 import httpStatus from 'http-status';
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 const createsubCategory = async (currentUser, subCateName, cateId) => {
   try {
     const cate = await category.findOne({ where: { cateId: cateId } });
@@ -48,7 +48,7 @@ const getsubCategory = async (subCategoryId) => {
 };
 const getListsubCategory = async (pageIndex, pageSize) => {
   const subCategories = await subCategory.findAll();
-  const totalCount = subCategories.length;
+  const totalCount = subCategory.count(where({ isDeleted: false }));
   if (!totalCount) {
     return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
   }

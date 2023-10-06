@@ -1,10 +1,10 @@
 const { sequelize } = require('../config/database');
-import { COURSE_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
-
+import { Op } from 'sequelize';
+import { USER_STATUS } from '../data/constant';
 const Conversation = require('../database/models/conversation');
+const User = require('../database/models/user');
 const Participant = require('../database/models/participant');
-const APIError = require('../helper/apiError');
-import httpStatus from 'http-status';
+const Message = require('../database/models/message');
 const getAllConversations = async (userId) => {
   const conversation = await Participant.findAll({ where: { userId: userId } });
   return conversation;
@@ -24,28 +24,38 @@ const getConversation = async (senderId, receiverId) => {
     });
 
     if (conversation[0] != null) {
-      console.log('One-on-one conversation exists. Conversation ID:', conversation);
-      return conversation;
-    } else {
-      const newConversation = await Conversation.create({
-        title: 'One-on-One Conversation',
-        createdBy: senderId,
-        creatorId: senderId,
+      const messages = await Message.findAll({
+        where: { conversationId: conversation[0].conversationId },
+        order: [['createdAt', 'ASC']],
       });
-      await Participant.bulkCreate([
-        {
-          userId: senderId,
-          conversationId: newConversation.conversationId,
+
+      return [messages, ...conversation];
+    } else {
+      const receiver = await User.findOne({
+        where: { [Op.and]: [{ id: receiverId }, { isDeleted: false }] },
+      });
+      if (receiver) {
+        const newConversation = await Conversation.create({
+          title: 'One-on-One Conversation',
           createdBy: senderId,
-        },
-        {
-          userId: receiverId,
-          conversationId: newConversation.conversationId,
-          createdBy: senderId,
-        },
-      ]);
-      console.log('Generated new conversation. Conversation ID:', newConversation.conversationId);
-      return newConversation;
+          creatorId: senderId,
+        });
+        await Participant.bulkCreate([
+          {
+            userId: senderId,
+            conversationId: newConversation.conversationId,
+            createdBy: senderId,
+          },
+          {
+            userId: receiverId,
+            conversationId: newConversation.conversationId,
+            createdBy: senderId,
+          },
+        ]);
+
+        return newConversation;
+      }
+      return USER_STATUS.USER_NOTFOUND;
     }
   } catch (error) {
     console.error('Error:', error);

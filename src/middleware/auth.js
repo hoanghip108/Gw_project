@@ -2,9 +2,6 @@ import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { USER_STATUS, AUTH_CONSTANT } from '../data/constant';
 const { sequelize } = require('../config/database');
-const Permission = require('../database/models/permission');
-const Role = require('../database/models/role');
-const apiResponse = require('../helper/apiResponse');
 const APIError = require('../helper/apiError');
 const getToken = (req) => {
   if (req.headers.authorization && req.headers.authorization.length > 0) {
