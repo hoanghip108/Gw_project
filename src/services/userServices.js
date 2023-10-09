@@ -78,6 +78,7 @@ const createUser = async (host, payload) => {
           userId: newUser.id,
           roleId: ROLE_DEFINE.USER,
           createdBy: payload.username,
+          isApproved: true,
         },
       ]);
       Cart.bulkCreate([
@@ -233,6 +234,48 @@ const getListUser = async (pageIndex, pageSize) => {
     users,
   };
 };
+const getListDisableUser = async (pageIndex, pageSize) => {
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const users = await User.findAll(
+    { where: { isActive: false } },
+    { offset, limit },
+    {
+      attributes: {
+        exclude: [
+          'password',
+          'avatar',
+          'isActive',
+          'bio',
+          'isDelete',
+          'createdBy',
+          'updatedBy',
+          'updatedAt',
+          'RoleId',
+        ],
+      },
+      include: [{ model: Role, attributes: ['Rolename'] }],
+    },
+  );
+  const totalCount = await User.count();
+  if (!totalCount) {
+    return USER_STATUS.USER_NOTFOUND;
+  }
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+  if (pageIndex > totalPages) {
+    return COMMON_CONSTANTS.INVALID_PAGE;
+  }
+
+  return {
+    status: httpStatus.OK,
+    pageIndex,
+    pageSize,
+    totalCount,
+    totalPages,
+    users,
+  };
+};
 const uploadAvatar = async (filePath, userId) => {
   const user = await User.update({ avatar: filePath }, { where: { id: userId } });
   if (user) {
@@ -258,6 +301,31 @@ const getAccessToken = async (refreshToken) => {
     }
   }
 };
+const changeUserRole = async (userId, roleId, curentUserId) => {
+  const role = await Role.findOne({ where: { roleId: roleId } });
+  if (!role) {
+    return USER_STATUS.ROLE_NOTFOUND;
+  }
+  const user = await User.findOne({ where: { id: userId } });
+  if (!user) {
+    return USER_STATUS.USER_NOTFOUND;
+  }
+  const updateRole = await User_role.update(
+    { roleId: roleId },
+    { updatedBy: curentUserId },
+    { where: { userId: userId } },
+  );
+
+  if (updateRole) {
+    const updatedUser = await User.findOne({
+      where: { id: userId },
+      include: [{ model: Role, attributes: ['Rolename'] }],
+      attributes: { exclude: dataToExclude },
+    });
+    return updatedUser;
+  }
+  return USER_STATUS.UPDATE_ROLE_FAIL;
+};
 export {
   getCurrentUser,
   createUser,
@@ -265,9 +333,11 @@ export {
   login,
   verifyUser,
   disableUser,
+  getListDisableUser,
   resetPassword,
   changePassword,
   getListUser,
   uploadAvatar,
   getAccessToken,
+  changeUserRole,
 };

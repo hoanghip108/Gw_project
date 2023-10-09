@@ -10,6 +10,9 @@ const USER_STATUS = {
   SELF_DELETE: 'You can not delete yourself',
   NSF: 'Not sufficient funds',
   BILL_PAID: 'Bill paid successfully',
+  UPDATE_ROLE_FAIL: 'Update role failed',
+  UPDATE_ROLE_SUCCESS: 'Update role successfully',
+  ROLE_NOTFOUND: 'Role not found',
 };
 const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',

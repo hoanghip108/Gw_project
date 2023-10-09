@@ -128,7 +128,16 @@ const refreshTokenSchema = Joi.object({
     'any.required': 'refreshToken is required',
   }),
 });
-
+const changeUserRoleSchema = Joi.object({
+  roleId: Joi.number().required().messages({
+    'number.base': 'roleId must be a number',
+    'any.required': 'roleId is required',
+  }),
+  userId: Joi.string().required().messages({
+    'string.empty': 'userId must not be empty',
+    'any.required': 'userId is required',
+  }),
+});
 export {
   Loginschema,
   UserSchema,
@@ -136,4 +145,5 @@ export {
   changePasswordSchema,
   AvatarUpdateSchema,
   refreshTokenSchema,
+  changeUserRoleSchema,
 };

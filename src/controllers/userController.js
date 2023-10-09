@@ -13,12 +13,14 @@ import {
   login,
   verifyUser,
   disableUser,
+  getListDisableUser,
   resetPassword,
   changePassword,
   getListUser,
   getCurrentUser,
   uploadAvatar,
   getAccessToken,
+  changeUserRole,
 } from '../services/userServices';
 const config = require('../config');
 import {
@@ -28,6 +30,7 @@ import {
   changePasswordSchema,
   AvatarUpdateSchema,
   refreshTokenSchema,
+  changeUserRoleSchema,
 } from '../validators/userValidate';
 const nodemailer = require('nodemailer');
 const httpStatus = require('http-status');
@@ -223,6 +226,37 @@ const getListUserController = async (req, res, next) => {
     next(error);
   }
 };
+const getListDisableUserController = async (req, res, next) => {
+  try {
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
+    const result = await getListDisableUser(pageIndex, pageSize);
+    if (result == USER_STATUS.USER_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      console.log('ok');
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
+    return res
+      .status(httpStatus.OK)
+      .json(
+        new ApiPaginatedResponse(
+          result.status,
+          result.pageIndex,
+          result.pageSize,
+          result.totalCount,
+          result.totalPages,
+          result.users,
+        ),
+      );
+  } catch (error) {
+    next(error);
+  }
+};
 const getCurrentUserController = async (req, res, next) => {
   try {
     const id = req.user.userId;
@@ -260,6 +294,28 @@ const getAccessTokenController = async (req, res, next) => {
     next(err);
   }
 };
+const changeUserRoleController = async (req, res, next) => {
+  try {
+    const { error, value } = changeUserRoleSchema.validate(req.body);
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
+    }
+    const curentUserId = req.user.userId;
+    const userId = value.userId;
+    const roleId = value.roleId;
+    const result = await changeUserRole(userId, roleId, curentUserId);
+    if (result == USER_STATUS.ROLE_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.ROLE_NOTFOUND));
+    } else if (result == USER_STATUS.USER_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    } else if (result == USER_STATUS.UPDATE_ROLE_FAIL) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.UPDATE_ROLE_FAIL));
+    }
+    return res.status(httpStatus.OK).json(new Success(USER_STATUS.UPDATE_ROLE_SUCCESS, result));
+  } catch (err) {
+    next(err);
+  }
+};
 
 export {
   createUserController,
@@ -267,10 +323,12 @@ export {
   loginController,
   verifyUserController,
   disableUserController,
+  getListDisableUserController,
   resetPasswordController,
   changePasswordController,
   getListUserController,
   getCurrentUserController,
   uploadFileController,
   getAccessTokenController,
+  changeUserRoleController,
 };
