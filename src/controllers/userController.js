@@ -20,7 +20,8 @@ import {
   getCurrentUser,
   uploadAvatar,
   getAccessToken,
-  changeUserRole,
+  requestChangeUserRole,
+  approveChangeRoleRequest,
 } from '../services/userServices';
 const config = require('../config');
 import {
@@ -294,24 +295,51 @@ const getAccessTokenController = async (req, res, next) => {
     next(err);
   }
 };
-const changeUserRoleController = async (req, res, next) => {
+const requestChangeUserRoleController = async (req, res, next) => {
   try {
     const { error, value } = changeUserRoleSchema.validate(req.body);
     if (error) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
+    console.log(req.body.roleId);
     const curentUserId = req.user.userId;
-    const userId = value.userId;
     const roleId = value.roleId;
-    const result = await changeUserRole(userId, roleId, curentUserId);
+    const result = await requestChangeUserRole(curentUserId, roleId);
     if (result == USER_STATUS.ROLE_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.ROLE_NOTFOUND));
     } else if (result == USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    } else if (result == USER_STATUS.USER_ROLE_EXIST) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_ROLE_EXIST));
+    } else if (result == USER_STATUS.REQUEST_CHANGE_ROLE_FAIL) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(USER_STATUS.REQUEST_CHANGE_ROLE_FAIL));
+    }
+    return res.status(httpStatus.OK).json(new Success(USER_STATUS.REQUEST_CHANGE_ROLE, result));
+  } catch (err) {
+    next(err);
+  }
+};
+const approveChangeRoleRequestController = async (req, res, next) => {
+  try {
+    const curentUserId = req.user.userId;
+    const requestId = req.params.id;
+    const result = await approveChangeRoleRequest(curentUserId, requestId);
+    if (result == USER_STATUS.USER_ROLE_REQUEST_NOTFOUND) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(USER_STATUS.USER_ROLE_REQUEST_NOTFOUND));
     } else if (result == USER_STATUS.UPDATE_ROLE_FAIL) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.UPDATE_ROLE_FAIL));
+    } else if (result == USER_STATUS.USER_REQUEST_ROLE_EXIST) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(USER_STATUS.USER_REQUEST_ROLE_EXIST));
+    } else if (result == USER_STATUS.USER_ROLE_EXIST) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_ROLE_EXIST));
     }
-    return res.status(httpStatus.OK).json(new Success(USER_STATUS.UPDATE_ROLE_SUCCESS, result));
+    return res.status(httpStatus.OK).json(new Success(USER_STATUS.UPDATE_ROLE_SUCCESS));
   } catch (err) {
     next(err);
   }
@@ -330,5 +358,6 @@ export {
   getCurrentUserController,
   uploadFileController,
   getAccessTokenController,
-  changeUserRoleController,
+  requestChangeUserRoleController,
+  approveChangeRoleRequestController,
 };

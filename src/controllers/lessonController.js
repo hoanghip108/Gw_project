@@ -25,34 +25,38 @@ const {
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
 import { uploadVideo } from '../helper/uploadFile';
-import APIError from '../helper/apiError';
 const createLessonController = async (req, res, next) => {
-  const { error, value } = lessonSchema.validate({
-    lessonName: req.body.lessonName,
-    grade: req.body.grade,
-    courseId: req.body.courseId,
-    file: req.file,
-  });
+  try {
+    const { error, value } = lessonSchema.validate({
+      lessonName: req.body.lessonName,
+      grade: req.body.grade,
+      sectionId: req.body.sectionId,
+      file: req.file,
+    });
 
-  if (error) {
-    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
-  }
-
-  const currentUser = req.user.username;
-  const folder = value.courseId;
-  const lesson = await getLesson(value.lessonName);
-
-  if (!lesson) {
-    const urlVideo = await uploadVideo(value.file, folder);
-    const newLesson = await createLesson(value, urlVideo, currentUser);
-    if (newLesson == 0) {
-      return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
-    } else if (newLesson == null) {
-      return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.COURSE_NOTFOUND));
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
-    return res.status(httpStatus.OK).json(new Success('', newLesson));
+
+    const currentUser = req.user.username;
+    const section = value.sectionId;
+    const lesson = await getLesson(value.lessonName);
+
+    if (!lesson) {
+      const urlVideo = await uploadVideo(value.file, section);
+      const newLesson = await createLesson(value, urlVideo, currentUser);
+      if (newLesson == 0) {
+        return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
+      } else if (newLesson == null) {
+        return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.COURSE_NOTFOUND));
+      }
+      return res.status(httpStatus.OK).json(new Success('', newLesson));
+    }
+    return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
+  } catch (err) {
+    console.log(err);
+    next(err);
   }
-  return res.status(httpStatus.CONFLICT).json(new Conflict(LESSON_CONSTANT.LESSON_EXIST));
 };
 const getListLessonController = async (req, res, next) => {
   try {

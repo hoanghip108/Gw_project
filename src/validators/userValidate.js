@@ -133,10 +133,6 @@ const changeUserRoleSchema = Joi.object({
     'number.base': 'roleId must be a number',
     'any.required': 'roleId is required',
   }),
-  userId: Joi.string().required().messages({
-    'string.empty': 'userId must not be empty',
-    'any.required': 'userId is required',
-  }),
 });
 export {
   Loginschema,

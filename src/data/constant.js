@@ -11,8 +11,13 @@ const USER_STATUS = {
   NSF: 'Not sufficient funds',
   BILL_PAID: 'Bill paid successfully',
   UPDATE_ROLE_FAIL: 'Update role failed',
-  UPDATE_ROLE_SUCCESS: 'Update role successfully',
+  UPDATE_ROLE_SUCCESS: 'request role has been approved successfully',
   ROLE_NOTFOUND: 'Role not found',
+  REQUEST_CHANGE_ROLE: 'Request change role send successfully',
+  REQUEST_CHANGE_ROLE_FAIL: 'Request change role failed',
+  USER_ROLE_EXIST: 'Account already has this role',
+  USER_REQUEST_ROLE_EXIST: 'Account already has a request to change role',
+  USER_ROLE_REQUEST_NOTFOUND: 'request to change role on this account is not found',
 };
 const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',

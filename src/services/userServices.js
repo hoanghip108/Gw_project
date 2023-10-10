@@ -2,6 +2,7 @@ const User = require('../database/models/user');
 const Role = require('../database/models/role');
 const User_role = require('../database/models/user_role');
 const Cart = require('../database/models/cart');
+const userRolePending = require('../database/models/userRolePending');
 const APIError = require('../helper/apiError');
 import ExcludedData from '../helper/excludeData';
 import bcrypt from 'bcrypt';
@@ -301,7 +302,7 @@ const getAccessToken = async (refreshToken) => {
     }
   }
 };
-const changeUserRole = async (userId, roleId, curentUserId) => {
+const requestChangeUserRole = async (userId, roleId) => {
   const role = await Role.findOne({ where: { roleId: roleId } });
   if (!role) {
     return USER_STATUS.ROLE_NOTFOUND;
@@ -310,21 +311,62 @@ const changeUserRole = async (userId, roleId, curentUserId) => {
   if (!user) {
     return USER_STATUS.USER_NOTFOUND;
   }
-  const updateRole = await User_role.update(
-    { roleId: roleId },
-    { updatedBy: curentUserId },
-    { where: { userId: userId } },
-  );
-
-  if (updateRole) {
-    const updatedUser = await User.findOne({
-      where: { id: userId },
-      include: [{ model: Role, attributes: ['Rolename'] }],
-      attributes: { exclude: dataToExclude },
-    });
-    return updatedUser;
+  const userRole = await User_role.findOne({
+    where: { userId: userId, roleId: roleId },
+  });
+  if (userRole) {
+    return USER_STATUS.USER_ROLE_EXIST;
   }
-  return USER_STATUS.UPDATE_ROLE_FAIL;
+  const requestPending = await userRolePending.findOne({
+    where: { userId: userId, roleId: roleId, isDeleted: false },
+  });
+  if (requestPending) {
+    return USER_STATUS.USER_REQUEST_ROLE_EXIST;
+  }
+  const request = await userRolePending.create({
+    userId: userId,
+    roleId: roleId,
+    createdBy: userId,
+    createdAt: Date.now(),
+  });
+
+  if (request) {
+    return request;
+  }
+  return USER_STATUS.REQUEST_CHANGE_ROLE_FAIL;
+};
+const approveChangeRoleRequest = async (curentUserId, requestId) => {
+  const request = await userRolePending.findOne({
+    where: { id: requestId, isDeleted: false },
+  });
+  if (!request) {
+    return USER_STATUS.USER_ROLE_REQUEST_NOTFOUND;
+  }
+  const user = await User.findOne({ where: { id: request.userId } });
+  if (!user) {
+    return USER_STATUS.USER_NOTFOUND;
+  }
+  const role = await Role.findOne({ where: { roleId: request.roleId } });
+  if (!role) {
+    return USER_STATUS.ROLE_NOTFOUND;
+  }
+  const userRole = await User_role.findOne({
+    where: { userId: user.id, roleId: role.roleId },
+  });
+  if (userRole) {
+    await userRole.update({ isApproved: true });
+    await request.update({ isDeleted: true });
+    return USER_STATUS.UPDATE_ROLE_SUCCESS;
+  }
+  await User_role.create({
+    userId: user.id,
+    roleId: role.roleId,
+    createdBy: curentUserId,
+    createdAt: Date.now(),
+    isApproved: true,
+  });
+  await request.update({ isDeleted: true });
+  return USER_STATUS.UPDATE_ROLE_SUCCESS;
 };
 export {
   getCurrentUser,
@@ -339,5 +381,6 @@ export {
   getListUser,
   uploadAvatar,
   getAccessToken,
-  changeUserRole,
+  requestChangeUserRole,
+  approveChangeRoleRequest,
 };

@@ -15,7 +15,8 @@ import {
   getCurrentUserController,
   uploadFileController,
   getAccessTokenController,
-  changeUserRoleController,
+  requestChangeUserRoleController,
+  approveChangeRoleRequestController,
 } from '../controllers/userController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const userRouter = express.Router();
@@ -31,5 +32,6 @@ userRouter.put('/users/changepassword', verifyToken, changePasswordController);
 userRouter.delete('/users/disable/:id', verifyToken, authorize, disableUserController);
 userRouter.patch('/users/uploadAvatar', verifyToken, upload.single('file'), uploadFileController);
 userRouter.patch('/users', verifyToken, authorize, updateUserController);
-userRouter.patch('/users/changeRole', verifyToken, changeUserRoleController);
+userRouter.patch('/users/request-change-role/:id', verifyToken, approveChangeRoleRequestController);
+userRouter.post('/users/request-change-role', verifyToken, requestChangeUserRoleController);
 module.exports = userRouter;

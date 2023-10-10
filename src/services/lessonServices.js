@@ -1,5 +1,6 @@
 const Lesson = require('../database/models/lesson');
 const Course = require('../database/models/course');
+const Section = require('../database/models/section');
 const APIError = require('../helper/apiError');
 const { Op, where } = require('sequelize');
 const { sequelize } = require('../config/database');
@@ -10,12 +11,12 @@ const createLesson = async (payload, videoPath, currentUser) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const course = await Course.findOne({ where: { courseId: payload.courseId } });
-    if (course) {
+    const section = await Section.findOne({ where: { sectionId: payload.sectionId } });
+    if (section) {
       const newLesson = await Lesson.create(
         { ...payload, videoPath: videoPath, createdBy: currentUser },
         { transaction: t },
-        { include: [{ model: Course }] },
+        { include: [{ model: Section }] },
       );
       await t.commit();
       if (!newLesson) {

@@ -112,7 +112,6 @@ module.exports = {
           {
             userId: '1',
             roleId: '1',
-            isApproved: 1,
             createdBy: 'ADMIN',
             createdAt: new Date(),
           },
