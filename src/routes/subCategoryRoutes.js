@@ -13,10 +13,5 @@ subCategoryRouter.post('/sub-categories', verifyToken, createsubCategoryControll
 subCategoryRouter.get('/sub-categories/:id', verifyToken, getsubCategoryController);
 subCategoryRouter.get('/sub-categories', getListsubCategoryController);
 subCategoryRouter.put('/sub-categories/:id', verifyToken, updatesubCategoryController);
-subCategoryRouter.delete(
-  '/sub-categories/:id',
-  verifyToken,
-  authorize,
-  deletesubCategoryController,
-);
+subCategoryRouter.delete('/sub-categories/:id', verifyToken, deletesubCategoryController);
 module.exports = subCategoryRouter;
