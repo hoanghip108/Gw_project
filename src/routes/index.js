@@ -9,6 +9,7 @@ const { lastIndexOf } = require('lodash');
 const lessonRouter = require('./lessonRoutes');
 const sectionRouter = require('./sectionRoutes');
 const categoryRouter = require('./categoryRoutes');
+const quizRouter = require('./quizRoutes');
 const express = require('express');
 const routers = express.Router();
 routers.use(userRouter);
@@ -21,6 +22,7 @@ routers.use(paymentRouter);
 routers.use(sectionRouter);
 routers.use(categoryRouter);
 routers.use(subCategoryRouter);
+routers.use(quizRouter);
 const fs = require('fs');
 const path = require('path');
 

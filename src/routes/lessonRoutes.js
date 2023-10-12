@@ -18,7 +18,7 @@ const multer = require('multer');
 // });
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-import { verifyToken, authorize } from '../middleware/auth.js';
+import { verifyToken } from '../middleware/auth.js';
 const lessonRouter = express.Router();
 
 lessonRouter.post(
@@ -30,7 +30,7 @@ lessonRouter.post(
 );
 lessonRouter.get('/lessons', getListLessonController);
 lessonRouter.get('/lessons/:id', verifyToken, getLessonController);
-lessonRouter.delete('/lessons/:id', verifyToken, authorize, deleteLessonController);
+lessonRouter.delete('/lessons/:id', verifyToken, deleteLessonController);
 lessonRouter.put(
   '/lessons/:id',
   verifyToken,

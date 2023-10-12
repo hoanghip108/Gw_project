@@ -7,12 +7,12 @@ const {
   getListsubCategoryController,
   deletesubCategoryController,
 } = require('../controllers/subCategoryController');
-import { verifyToken, authorize } from '../middleware/auth';
+import { verifyToken } from '../middleware/auth';
 
-subCategoryRouter.post('/sub-categories', verifyToken, authorize, createsubCategoryController);
-subCategoryRouter.get('/sub-categories/:id', verifyToken, authorize, getsubCategoryController);
+subCategoryRouter.post('/sub-categories', verifyToken, createsubCategoryController);
+subCategoryRouter.get('/sub-categories/:id', verifyToken, getsubCategoryController);
 subCategoryRouter.get('/sub-categories', getListsubCategoryController);
-subCategoryRouter.put('/sub-categories/:id', verifyToken, authorize, updatesubCategoryController);
+subCategoryRouter.put('/sub-categories/:id', verifyToken, updatesubCategoryController);
 subCategoryRouter.delete(
   '/sub-categories/:id',
   verifyToken,

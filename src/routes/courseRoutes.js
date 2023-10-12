@@ -26,10 +26,10 @@ courseRouter.post(
   upload.single('file'),
   createCourseController,
 );
-courseRouter.get('/courses/deleted', verifyToken, authorize, getistDeletedCourseController);
+courseRouter.get('/courses/deleted', verifyToken, getistDeletedCourseController);
 courseRouter.get('/courses/search', searchCourseController);
-courseRouter.get('/courses/pending/:id', verifyToken, authorize, getPendingCourseController);
-courseRouter.get('/courses/pending', verifyToken, authorize, getListPendingCourseController);
+courseRouter.get('/courses/pending/:id', verifyToken, getPendingCourseController);
+courseRouter.get('/courses/pending', verifyToken, getListPendingCourseController);
 courseRouter.get('/courses/:id', getapprovedCourseController);
 courseRouter.get('/courses', getListApprovedCourseController);
 courseRouter.patch(
@@ -46,8 +46,8 @@ courseRouter.patch(
   upload.single('file'),
   updateCourseImgController,
 );
-courseRouter.patch('/courses/approve/:id', verifyToken, authorize, approveCourseController);
+courseRouter.patch('/courses/approve/:id', verifyToken, approveCourseController);
 courseRouter.patch('/courses/restore/:id', verifyToken, restoreCourseController);
-courseRouter.delete('/courses/:id', verifyToken, authorize, deleteCourseController);
-courseRouter.delete('/courses/:id', verifyToken, authorize, deleteCourseController);
+courseRouter.delete('/courses/:id', verifyToken, deleteCourseController);
+courseRouter.delete('/courses/:id', verifyToken, deleteCourseController);
 module.exports = courseRouter;

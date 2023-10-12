@@ -185,11 +185,12 @@ const resetPassword = async (email, username) => {
   }
 };
 const changePassword = async (currentUserId, payload) => {
-  const currentUser = await User.findOne({ currentUserId });
+  const currentUser = await User.findOne({ where: { id: currentUserId } });
   if (bcrypt.compareSync(payload.oldPassword, currentUser.password)) {
     const salt = bcrypt.genSaltSync(Number(process.env.SALTROUNDS));
     const hash = bcrypt.hashSync(payload.newPassword, salt);
     (currentUser.password = hash), await currentUser.save();
+
     return true;
   }
   return false;

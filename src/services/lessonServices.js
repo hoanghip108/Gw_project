@@ -80,8 +80,8 @@ const getLesson = async (lessonId) => {
 const getListLesson = async (pageIndex, pageSize) => {
   let offset = (pageIndex - 1) * pageSize;
   let limit = pageSize;
-  const lessons = await Lesson.findAll();
-  const totalCount = Lesson.count({ where: { isDeleted: false } }, { offset, limit });
+  const lessons = await Lesson.findAll({ where: { isDeleted: false } }, { offset, limit });
+  const totalCount = Lesson.count({ where: { isDeleted: false } });
   if (!totalCount) {
     return LESSON_CONSTANT.LESSON_NOTFOUND;
   }

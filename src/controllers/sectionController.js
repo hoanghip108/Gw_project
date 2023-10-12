@@ -78,6 +78,7 @@ const updateSectionController = async (req, res, next) => {
     return next(err);
   }
 };
+const createQuizzController = async (req, res, next) => {};
 export {
   getSectionController,
   createSectionController,

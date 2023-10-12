@@ -78,6 +78,12 @@ const SUBCATEGORY_CONSTANTS = {
   UPDATED: 'sub-Category updated successfully',
   DELETED: 'sub-Category deleted successfully',
 };
+const QUIZ_CONSTANTS = {
+  CREATED: 'Quiz created successfully',
+  UPDATED: 'Quiz updated successfully',
+  DELETED: 'Quiz deleted successfully',
+  NOT_FOUND: 'Quiz not found',
+};
 export {
   USER_STATUS,
   ROLE_DEFINE,
@@ -89,4 +95,5 @@ export {
   CATEGORY_CONSTANTS,
   SUBCATEGORY_CONSTANTS,
   AUTH_CONSTANT,
+  QUIZ_CONSTANTS,
 };

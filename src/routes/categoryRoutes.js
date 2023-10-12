@@ -7,11 +7,11 @@ const {
   getListCategoryController,
   deleteCategoryController,
 } = require('../controllers/categoryController');
-import { verifyToken, authorize } from '../middleware/auth';
+import { verifyToken } from '../middleware/auth';
 
-categoryRouter.post('/categories', verifyToken, authorize, createCategoryController);
-categoryRouter.get('/categories/:id', verifyToken, authorize, getCategoryController);
+categoryRouter.post('/categories', verifyToken, createCategoryController);
+categoryRouter.get('/categories/:id', verifyToken, getCategoryController);
 categoryRouter.get('/categories', getListCategoryController);
-categoryRouter.put('/categories/:id', verifyToken, authorize, updateCategoryController);
-categoryRouter.delete('/categories/:id', verifyToken, authorize, deleteCategoryController);
+categoryRouter.put('/categories/:id', verifyToken, updateCategoryController);
+categoryRouter.delete('/categories/:id', verifyToken, deleteCategoryController);
 module.exports = categoryRouter;
