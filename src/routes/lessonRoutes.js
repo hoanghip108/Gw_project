@@ -24,7 +24,7 @@ const lessonRouter = express.Router();
 lessonRouter.post(
   '/lessons',
   verifyToken,
-  authorize,
+
   upload.single('file'),
   createLessonController,
 );
@@ -34,7 +34,7 @@ lessonRouter.delete('/lessons/:id', verifyToken, deleteLessonController);
 lessonRouter.put(
   '/lessons/:id',
   verifyToken,
-  authorize,
+
   upload.single('file'),
   updateLessonController,
 );
