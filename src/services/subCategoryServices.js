@@ -46,9 +46,30 @@ const getsubCategory = async (subCategoryId) => {
     });
   }
 };
+const getByCategory = async (cateId) => {
+  try {
+    const result = await subCategory.findAll({
+      where: { cateId: cateId, isDeleted: false },
+      include: [{ model: category, as: 'category' }],
+    });
+    if (!result) {
+      return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
+    }
+    return result;
+  } catch (err) {
+    console.error('Error:', err);
+    throw new APIError({
+      message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+      status: httpStatus.BAD_REQUEST,
+    });
+  }
+};
 const getListsubCategory = async (pageIndex, pageSize) => {
-  const subCategories = await subCategory.findAll();
-  const totalCount = subCategory.count(where({ isDeleted: false }));
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const subCategories = await subCategory.findAll({ where: { isDeleted: false }, offset, limit });
+  const totalCount = await subCategory.count(where({ isDeleted: false }));
+  // console.log('this is total count', totalCount);
   if (!totalCount) {
     return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
   }
@@ -57,17 +78,13 @@ const getListsubCategory = async (pageIndex, pageSize) => {
   if (pageIndex > totalPages) {
     return COMMON_CONSTANTS.INVALID_PAGE;
   }
-  const startIndex = (pageIndex - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
-  const silced = subCategories.slice(startIndex, endIndex);
   return {
+    status: httpStatus.OK,
     pageIndex,
     pageSize,
     totalCount,
     totalPages,
-    startIndex,
-    endIndex,
-    silced,
+    subCategories,
   };
 };
 const updatesubCategory = async (payload, subCategoryId) => {
@@ -118,6 +135,7 @@ export {
   createsubCategory,
   getsubCategory,
   getListsubCategory,
+  getByCategory,
   updatesubCategory,
   deletesubCategory,
 };

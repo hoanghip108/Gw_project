@@ -14,10 +14,12 @@ const {
   WrongUsernameOrpassWord,
   ApiPaginatedResponse,
 } = require('../helper/apiResponse');
+const config = require('../config');
 import {
   createsubCategory,
   getsubCategory,
   getListsubCategory,
+  getByCategory,
   updatesubCategory,
   deletesubCategory,
 } from '../services/subCategoryServices';
@@ -57,8 +59,12 @@ const getsubCategoryController = async (req, res, next) => {
 };
 const getListsubCategoryController = async (req, res, next) => {
   try {
-    const pageIndex = req.query.pageIndex;
-    const pageSize = req.query.pageSize;
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
     const result = await getListsubCategory(pageIndex, pageSize);
     if (result === SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND) {
       return res.status(httpStatus.OK).json(new BadRequest('subCategory not found'));
@@ -66,7 +72,30 @@ const getListsubCategoryController = async (req, res, next) => {
     if (result === COMMON_CONSTANTS.INVALID_PAGE) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest('Invalid page index'));
     }
-    return res.status(httpStatus.OK).json(new ApiPaginatedResponse(result));
+    return res
+      .status(httpStatus.OK)
+      .json(
+        new ApiPaginatedResponse(
+          result.status,
+          result.pageIndex,
+          result.pageSize,
+          result.totalCount,
+          result.totalPages,
+          result.subCategories,
+        ),
+      );
+  } catch (err) {
+    next(err);
+  }
+};
+const getListsubCategoryByCategoryController = async (req, res, next) => {
+  try {
+    const cateId = req.params.id;
+    const result = await getByCategory(cateId);
+    if (result === SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND) {
+      return res.status(httpStatus.OK).json(new BadRequest('subCategory not found'));
+    }
+    return res.status(httpStatus.OK).json(new Success(SUBCATEGORY_CONSTANTS.FOUND, result));
   } catch (err) {
     next(err);
   }
@@ -102,6 +131,7 @@ export {
   createsubCategoryController,
   getsubCategoryController,
   getListsubCategoryController,
+  getListsubCategoryByCategoryController,
   updatesubCategoryController,
   deletesubCategoryController,
 };
