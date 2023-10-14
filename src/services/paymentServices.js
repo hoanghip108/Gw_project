@@ -48,7 +48,7 @@ const updateEcoin = async (userId, orderId) => {
         { eCoin: sequelize.literal(`ecoin + ${bill.amount / 1000}`) },
         { where: { id: userId } },
       );
-      bill.update({ isTranfer: true });
+      bill.update({ isTranfer: true, isDeleted: true });
       await t.commit();
       return user;
     }

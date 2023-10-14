@@ -3,6 +3,8 @@ const { CATEGORY_CONSTANTS, COMMON_CONSTANTS } = require('../data/constant');
 const APIError = require('../helper/apiError');
 import httpStatus from 'http-status';
 const { Op } = require('sequelize');
+import ExcludedData from '../helper/excludeData';
+const dataToExclude = [...Object.values(ExcludedData)];
 const createCategory = async (currentUser, cateName) => {
   try {
     const category = await Category.findOne({ where: { cateName: cateName } });

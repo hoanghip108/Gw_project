@@ -10,6 +10,7 @@ const lessonRouter = require('./lessonRoutes');
 const sectionRouter = require('./sectionRoutes');
 const categoryRouter = require('./categoryRoutes');
 const quizRouter = require('./quizRoutes');
+const questionRouter = require('./questionRoutes');
 const express = require('express');
 const routers = express.Router();
 routers.use(userRouter);
@@ -23,6 +24,7 @@ routers.use(sectionRouter);
 routers.use(categoryRouter);
 routers.use(subCategoryRouter);
 routers.use(quizRouter);
+routers.use(questionRouter);
 const fs = require('fs');
 const path = require('path');
 

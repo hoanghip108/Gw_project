@@ -83,6 +83,14 @@ const QUIZ_CONSTANTS = {
   UPDATED: 'Quiz updated successfully',
   DELETED: 'Quiz deleted successfully',
   NOT_FOUND: 'Quiz not found',
+  INVALID_AUTHOR: "You don't have permission to create or update quiz in this course",
+};
+const QUESTION_CONSTANTS = {
+  CREATED: 'Question created successfully',
+  UPDATED: 'Question updated successfully',
+  DELETED: 'Question deleted successfully',
+  NOT_FOUND: 'Question not found',
+  INVALID_AUTHOR: "You don't have permission to create or update question in this course",
 };
 export {
   USER_STATUS,
@@ -96,4 +104,5 @@ export {
   SUBCATEGORY_CONSTANTS,
   AUTH_CONSTANT,
   QUIZ_CONSTANTS,
+  QUESTION_CONSTANTS,
 };

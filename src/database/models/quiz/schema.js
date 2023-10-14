@@ -1,8 +1,8 @@
 const { Sequelize, DataTypes } = require('sequelize');
 module.exports = {
   quizId: {
-    type: DataTypes.STRING,
-    defaultValue: Sequelize.UUIDV1,
+    type: DataTypes.INTEGER,
+    autoIncrement: true,
     primaryKey: true,
     allowNull: false,
   },

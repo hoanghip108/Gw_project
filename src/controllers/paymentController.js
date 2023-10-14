@@ -115,7 +115,6 @@ const vnpay_return = async (req, res, next) => {
 };
 
 const vnpay_ipn = async (req, res, next) => {
-  console.log('connected to vnpay_IPN');
   let vnp_Params = req.query;
   let secureHash = vnp_Params['vnp_SecureHash'];
 
@@ -149,8 +148,15 @@ const vnpay_ipn = async (req, res, next) => {
             //thanh cong
             //paymentStatus = '1'
             // Ở đây cập nhật trạng thái giao dịch thanh toán thành công vào CSDL của bạn
+            // console.log('updateUserEcoin', updateUserEcoin);
             await order.update({ status: '1' });
             await order.save();
+            if (order.isTranfer == false) {
+              let userId = order.userId;
+              let orderId = order.transactionCode;
+              const updated = await updateEcoin(userId, orderId);
+              console.log('updated', updated);
+            }
             console.log('Order updated to success');
             res.status(200).json({ RspCode: '00', Message: 'Success' });
           } else {
@@ -160,7 +166,7 @@ const vnpay_ipn = async (req, res, next) => {
             await order.save();
             console.log('Order updated to fail');
             // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
-            res.redirect(`/updateEcoin?userId=${order.userId}&orderId=${order.id}`);
+            res.status(200).json({ RspCode: '01', Message: 'Fail' });
           }
         } else {
           res.status(200).json({
@@ -176,17 +182,6 @@ const vnpay_ipn = async (req, res, next) => {
     }
   } else {
     res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
-  }
-};
-const updateEcoinController = async (req, res, next) => {
-  const userId = req.user.userId;
-  const orderId = req.params.orderId;
-
-  const result = await updateEcoin(userId, orderId);
-  if (result) {
-    res.status(200).json({ message: 'Update ecoin successfully' });
-  } else {
-    res.status(400).json({ message: 'Update ecoin failed' });
   }
 };
 const byCourseController = async (req, res, next) => {
@@ -208,6 +203,6 @@ module.exports = {
   create_payment,
   vnpay_return,
   vnpay_ipn,
-  updateEcoinController,
+
   byCourseController,
 };
