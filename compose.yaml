@@ -4,20 +4,21 @@ services:
   mysqldb:
     image: mysql:8.0
     restart: unless-stopped
-    env_file: ./.env
+    env_file: ./.env # Load environment variables from a file if needed
     environment:
-      - MYSQL_ROOT_PASSWORD=Hoanghandsome1
-      - MYSQL_DATABASE=e_learning_dev
+      MYSQL_DATABASE: e_learning_dev
+      MYSQL_ROOT_PASSWORD: Hoanghandsome1
     ports:
-      - 3306:3308
+      - 3306:3306
     volumes:
       - db:/var/lib/mysql
+
   app:
     depends_on:
       - mysqldb
     build: .
     restart: always
-    env_file: ./.env
+    env_file: ./.env # Load environment variables from a file if needed
     ports:
       - 80:5000
 
