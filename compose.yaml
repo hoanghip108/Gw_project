@@ -6,7 +6,7 @@ services:
     restart: always
     env_file: .env # Load environment variables from a file if needed
     ports:
-      - 5000:5000
+      - 80:5000
     depends_on:
       mysqldb:
         condition: service_healthy
