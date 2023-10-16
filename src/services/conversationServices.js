@@ -11,25 +11,17 @@ const getAllConversations = async (userId) => {
 };
 const getConversation = async (senderId, receiverId) => {
   try {
-    const query =
-      'SELECT p1.conversationId' +
-      ' FROM Participant p1' +
-      ' JOIN Participant p2 ON p1.conversationId = p2.conversationId' +
-      ' JOIN conversation ON p1.conversationId = conversation.conversationId' +
-      ' WHERE p1.userId = :senderId AND p2.userId = :receiverId';
-    const replacements = { senderId: senderId, receiverId: receiverId };
-    const conversation = await sequelize.query(query, {
-      replacements,
-      type: sequelize.QueryTypes.SELECT,
-    });
-
-    if (conversation[0] != null) {
+    const query = `SELECT p1.conversationId FROM Participant p1 JOIN Participant p2 ON p1.conversationId = p2.conversationId JOIN conversation ON p1.conversationId = conversation.conversationId WHERE p1.userId = ${senderId} AND p2.userId = ${receiverId}`;
+    const conversation = await sequelize.query(query);
+    console.log('this is conversation', conversation);
+    if (conversation[0].length > 0) {
+      console.log('this is conversation id', conversation[0][0].conversationId);
       const messages = await Message.findAll({
-        where: { conversationId: conversation[0].conversationId },
+        where: { conversationId: conversation[0][0].conversationId },
         order: [['createdAt', 'ASC']],
       });
 
-      return [messages, ...conversation];
+      return messages;
     } else {
       const receiver = await User.findOne({
         where: { [Op.and]: [{ id: receiverId }, { isDeleted: false }] },
