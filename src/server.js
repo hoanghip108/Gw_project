@@ -36,7 +36,7 @@ const startServer = async () => {
   const server = app.listen(config.port, config.host);
   const io = require('socket.io')(server, {
     cors: {
-      origin: ['http://localhost:3000', 'http//eschoolhub.click'],
+      origin: ['http://localhost:3000', 'http://eschoolhub.click'],
       methods: ['GET', 'POST,', 'PUT', 'DELETE', 'PATCH'],
       credentials: false,
     },
