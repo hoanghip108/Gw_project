@@ -1,10 +1,9 @@
 const { Sequelize, DataTypes } = require('sequelize');
 module.exports = {
   permissionId: {
-    type: DataTypes.STRING,
+    type: DataTypes.INTEGER,
     allowNull: false,
     primaryKey: true,
-    defaultValue: Sequelize.UUIDV1,
   },
   api: {
     type: DataTypes.STRING,

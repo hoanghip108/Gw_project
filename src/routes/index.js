@@ -31,7 +31,6 @@ const path = require('path');
 const routesPath = path.join(__dirname, '..', 'routes');
 const getRoutePatchs = async () => {
   const routePathsSet = new Set();
-  debugger;
   try {
     const files = await fs.promises.readdir(routesPath);
     const jsFiles = files.filter((file) => path.extname(file) === '.js' && file !== 'index.js');

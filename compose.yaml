@@ -1,26 +1,32 @@
 version: '3.8'
 
 services:
+  app:
+    build: .
+    restart: always
+    env_file: .env # Load environment variables from a file if needed
+    ports:
+      - 5000:5000
+    depends_on:
+      mysqldb:
+        condition: service_healthy
+
   mysqldb:
     image: mysql:8.0
     restart: unless-stopped
-    env_file: ./.env # Load environment variables from a file if needed
     environment:
       MYSQL_DATABASE: e_learning_dev
       MYSQL_ROOT_PASSWORD: Hoanghandsome1
-    ports:
-      - 3306:3306
+    expose:
+      - 3306
     volumes:
       - db:/var/lib/mysql
-
-  app:
-    depends_on:
-      - mysqldb
-    build: .
-    restart: always
-    env_file: ./.env # Load environment variables from a file if needed
-    ports:
-      - 80:5000
+    healthcheck:
+      test: mysqladmin ping -h localhost
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
 
 volumes:
   db:

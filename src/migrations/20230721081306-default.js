@@ -9,6 +9,7 @@ const routes = require('../routes');
 module.exports = {
   async up(queryInterface, Sequelize) {
     try {
+      let i = 0;
       const permission = await routes.getRoutePatchs();
       await Promise.all([
         await queryInterface.bulkInsert('role', [
@@ -116,10 +117,12 @@ module.exports = {
             createdAt: new Date(),
           },
         ]),
+
         permission.forEach(async (route) => {
+          i++;
           await queryInterface.bulkInsert('permission', [
             {
-              permissionId: route,
+              permissionId: i,
               api: route,
               createdBy: 'ADMIN',
               createdAt: new Date(),
@@ -130,7 +133,7 @@ module.exports = {
               method: 'GET,POST,PUT,DELETE,PATCH',
               createdBy: 'ADMIN',
               createdAt: new Date(),
-              permissionId: route,
+              permissionId: i,
               roleId: '1',
             },
           ]);
@@ -169,57 +172,6 @@ module.exports = {
             subCateId: '1',
           },
         ]),
-        // await queryInterface.bulkInsert('role_permission', [
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/users',
-        //     roleId: '1',
-        //   },
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/categories',
-        //     roleId: '1',
-        //   },
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/conversations',
-        //     roleId: '1',
-        //   },
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/courses',
-        //     roleId: '1',
-        //   },
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/lessons',
-        //     roleId: '1',
-        //   },
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/sections',
-        //     roleId: '1',
-        //   },
-        //   {
-        //     method: 'GET,POST,PUT,DELETE,PATCH',
-        //     createdBy: 'ADMIN',
-        //     createdAt: new Date(),
-        //     permissionId: '/sub-categories',
-        //     roleId: '1',
-        //   },
-        // ]),
       ]);
     } catch (err) {
       console.log(err);

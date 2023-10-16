@@ -18,20 +18,25 @@ import {
   requestChangeUserRoleController,
   approveChangeRoleRequestController,
 } from '../controllers/userController';
-import { verifyToken } from '../middleware/auth.js';
+import { authorize, verifyToken } from '../middleware/auth.js';
 const userRouter = express.Router();
 userRouter.get('/users/auth/register/verify/:id', verifyUserController);
 userRouter.get('/users/profile', verifyToken, getCurrentUserController);
-userRouter.get('/users/disable', verifyToken, getListDisableUserController);
+userRouter.get('/users/disable', verifyToken, authorize, getListDisableUserController);
 userRouter.get('/users', verifyToken, getListUserController);
 userRouter.post('/users/forgotpassword', resetPasswordController);
 userRouter.post('/users/auth/login', loginController);
 userRouter.post('/users/auth/refreshToken', getAccessTokenController);
 userRouter.post('/users/auth/register', createUserController);
 userRouter.put('/users/changepassword', verifyToken, changePasswordController);
-userRouter.delete('/users/disable/:id', verifyToken, disableUserController);
+userRouter.delete('/users/disable/:id', verifyToken, authorize, disableUserController);
 userRouter.patch('/users/uploadAvatar', verifyToken, upload.single('file'), uploadFileController);
 userRouter.patch('/users', verifyToken, updateUserController);
-userRouter.patch('/users/request-change-role/:id', verifyToken, approveChangeRoleRequestController);
+userRouter.patch(
+  '/users/request-change-role/:id',
+  verifyToken,
+  authorize,
+  approveChangeRoleRequestController,
+);
 userRouter.post('/users/request-change-role', verifyToken, requestChangeUserRoleController);
 module.exports = userRouter;

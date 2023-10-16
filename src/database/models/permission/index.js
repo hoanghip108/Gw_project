@@ -10,12 +10,12 @@ module.exports = class Permission extends BaseModel {
       model: Role,
       as: 'role',
     },
+    {
+      model: Role_permission,
+      as: 'role_permission',
+    },
   ];
   static associate(models) {
-    this.belongsToMany(models.Role, {
-      through: 'role_permission',
-      foreignKey: 'permissionId',
-      primaryKey: true,
-    });
+    this.hasMany(models.Role_permission, { foreignKey: 'permissionId' });
   }
 };
