@@ -21,7 +21,7 @@ const conversationController = async (req, res, next) => {
     const senderId = req.user.userId;
     const receiverId = req.params.receiverId;
     const conversation = await getConversation(senderId, receiverId);
-    console.log('this is conversation controller', conversation);
+    // console.log('this is conversation controller', conversation);
     if (conversation === USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
     }

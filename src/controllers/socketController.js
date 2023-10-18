@@ -4,8 +4,9 @@ module.exports = function (io) {
   io.on('connection', function (socket) {
     global.chatSocket = socket;
     socket.on('add-user', (userId) => {
+      console.log('add-user');
       onlineUsers.set(userId, socket.id);
-      console.log(onlineUsers);
+      console.log('this is online ', onlineUsers);
     });
     global.chatSocket = socket;
     console.log('A user connected', socket.id);
@@ -24,5 +25,8 @@ module.exports = function (io) {
     socket.on('chat message', function (msg) {
       io.emit('chat message', msg);
     });
+  });
+  io.on('disconnect', function () {
+    console.log('A user disconnected');
   });
 };
