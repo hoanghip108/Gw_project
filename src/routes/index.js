@@ -39,7 +39,7 @@ const getRoutePatchs = async () => {
     for (let i = 0; i < arr.length; i++) {
       let router = require(`./${arr[i].substring(0, lastIndexOf(arr[i], 'r')) + 's.js'}`);
       router.stack.forEach((route) => {
-        console.log(route.route.path);
+        // console.log(route.route.path);
         routePathsSet.add(route.route.path);
       });
     }

@@ -13,7 +13,7 @@ const getConversation = async (senderId, receiverId) => {
   try {
     const query = `SELECT p1.conversationId FROM participant p1 JOIN participant p2 ON p1.conversationId = p2.conversationId JOIN conversation ON p1.conversationId = conversation.conversationId WHERE p1.userId = ${senderId} AND p2.userId = ${receiverId}`;
     const conversation = await sequelize.query(query);
-    // console.log('this is conversation', conversation);
+    console.log('this is conversation', conversation);
     if (conversation[0].length > 0) {
       // console.log('this is conversation id', conversation[0][0].conversationId);
       const messages = await Message.findAll({
@@ -21,7 +21,7 @@ const getConversation = async (senderId, receiverId) => {
         order: [['createdAt', 'ASC']],
       });
 
-      return messages;
+      return { messages, conversationId: conversation[0][0].conversationId };
     } else {
       const receiver = await User.findOne({
         where: { [Op.and]: [{ id: receiverId }, { isDeleted: false }] },

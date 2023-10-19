@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon",
+    "seed": "babel-node ./src/seeders/seedAdminPermission.js",
+    "seed-user": "babel-node ./src/seeders/seedClientPermission.js",
     "test": "mocha 'src/test/**/*.js' --require @babel/register --timeout 1000000",
     "db:seed": "sequelize db:seed:all",
     "db:create:migration": "sequelize migration:create --name default"

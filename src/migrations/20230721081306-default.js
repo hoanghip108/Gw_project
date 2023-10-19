@@ -5,12 +5,12 @@ import { v1 as uuidv1 } from 'uuid';
 import hashPassword from '../helper/hashPassword';
 const salt = bcrypt.genSaltSync(Number(process.env.SALTROUNDS));
 const hash = bcrypt.hashSync('123123', salt);
-const routes = require('../routes');
+import { getRoutePatchs } from '../routes/index';
 module.exports = {
   async up(queryInterface, Sequelize) {
     try {
       let i = 0;
-      const permission = await routes.getRoutePatchs();
+      const permission = await getRoutePatchs();
       await Promise.all([
         await queryInterface.bulkInsert('role', [
           {
@@ -128,18 +128,9 @@ module.exports = {
               createdAt: new Date(),
             },
           ]);
-          await queryInterface.bulkInsert('role_permission', [
-            {
-              method: 'GET,POST,PUT,DELETE,PATCH',
-              createdBy: 'ADMIN',
-              createdAt: new Date(),
-              permissionId: i,
-              roleId: '1',
-            },
-          ]);
         }),
 
-        await queryInterface.bulkInsert('subCategory', [
+        await queryInterface.bulkInsert('subcategory', [
           {
             subCateId: '1',
             subCateName: 'Guitar',
