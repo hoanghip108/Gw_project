@@ -1,4 +1,4 @@
-const baseRoute = "http://54.206.167.147";
+const baseRoute = "http://13.212.188.50";
 const routes = {
   login: baseRoute + "/api/users/auth/login",
   getContacts: baseRoute + "/api/users",

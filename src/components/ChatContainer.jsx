@@ -10,6 +10,7 @@ import jwt_decode from "jwt-decode";
 export default function ChatContainer({ currentChat, socket }) {
   const [messages, setMessages] = useState([]);
   const [currentUser, setCurrentUser] = useState({});
+  const [conversation, setConversation] = useState({});
   const scrollRef = useRef();
   const [arrivalMessage, setArrivalMessage] = useState(null);
 
@@ -27,7 +28,7 @@ export default function ChatContainer({ currentChat, socket }) {
       })
       .then((res) => {
         console.log("this is res: ", res);
-        const messages = res.data.data;
+        const messages = res.data.data.messages;
 
         setMessages(messages);
       })
@@ -54,7 +55,7 @@ export default function ChatContainer({ currentChat, socket }) {
     await axios.post(
       `${baseRoute}/api/messages/${currentChat.id}`,
       {
-        conversationId: conversation.data.data[0].conversationId,
+        conversationId: conversation.data.data.conversationId,
         content: msg,
       },
       {
