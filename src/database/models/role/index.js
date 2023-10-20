@@ -25,12 +25,14 @@ module.exports = class Role extends BaseModel {
       model: Role_permission,
       as: 'role_permission',
     },
+    {
+      model: User_role,
+      as: 'user_role',
+    },
   ];
   static associate(models) {
-    this.belongsToMany(models.User, {
-      through: 'user_role',
+    this.hasMany(models.User_role, {
       foreignKey: 'roleId',
-      primaryKey: true,
     });
     this.hasMany(models.Role_permission, { foreignKey: 'roleId' });
     this.hasMany(models.UserRolePending, { foreignKey: 'roleId' });

@@ -10,6 +10,7 @@ const Participant = require('../participant');
 const TransactionHistory = require('../transactionHistory');
 const Cart = require('../cart');
 const UserRolePending = require('../userRolePending');
+const User_role = require('../user_role');
 const QuizResult = require('../quizResult');
 module.exports = class User extends BaseModel {
   static tableName = 'user';
@@ -17,6 +18,7 @@ module.exports = class User extends BaseModel {
   static schema = require('./schema');
   static include = [
     { model: Role, as: 'role' },
+    { model: User_role, as: 'user_role' },
     { model: EnrolledCourse, as: 'enrolledCourse' },
     { model: Post, as: 'post' },
     { model: Conversation, as: 'conversation' },
@@ -29,10 +31,8 @@ module.exports = class User extends BaseModel {
     { model: QuizResult, as: 'quizResult' },
   ];
   static associate(models) {
-    this.belongsToMany(models.Role, {
-      through: 'user_role',
+    this.hasMany(models.User_role, {
       foreignKey: 'userId',
-      primaryKey: true,
     });
     this.hasMany(models.BankAccount);
     this.hasMany(models.EnrolledCourse, { foreignKey: 'courseId' });

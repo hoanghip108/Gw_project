@@ -1,4 +1,4 @@
-process.env.NODE_ENV = 'test';
+process.env.NODE_ENV = '';
 let chai = require('chai');
 let chaiHttp = require('chai-http');
 import server from '../server';

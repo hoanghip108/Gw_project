@@ -1,6 +1,7 @@
 import { USER_STATUS, EMAIL_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
 import { USER } from '../helper/messageResponse';
 import { uploadImage } from '../helper/uploadFile';
+const cron = require('node-cron');
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
   cloud_name: 'dj6sdj5yq',
@@ -79,6 +80,7 @@ const uploadFileController = async (req, res, next) => {
     next(err);
   }
 };
+
 const createUserController = async (req, res, next) => {
   try {
     const { error, value } = UserSchema.validate(req.body);
@@ -93,6 +95,7 @@ const createUserController = async (req, res, next) => {
 
     const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
     const { ...option } = new verrifyEmailOption(user.email, 'verify link', link);
+
     transporter.sendMail(option);
     return res.status(httpStatus.OK).json(new Success(EMAIL_CONSTANTS.EMAIL_CONFIRMATION));
   } catch (err) {

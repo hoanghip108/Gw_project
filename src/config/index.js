@@ -14,8 +14,8 @@ const configs = {
     db_port: process.env.DB_PORT || 3306,
     db_dialect: process.env.DB_DIALECT || 'mysql',
     db_username: process.env.DB_USERNAME || 'root',
-    db_password: process.env.DB_PASSWORD || '',
-    db_database: process.env.DB_DATABASE || 'Gw_project',
+    db_password: process.env.DB_PASSWORD || 'Hoanghandsome1',
+    db_database: process.env.DB_DATABASE || 'e_learning_test',
     db_run_migration: process.env.DB_RUN_MIGRATION != 'false', // True as default
     // db_recreate: process.env.DB_RECREATE == 'true',
     db_recreate: true,

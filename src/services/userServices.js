@@ -22,6 +22,7 @@ import {
   USER_STATUS,
 } from '../data/constant';
 import hashPassword from '../helper/hashPassword';
+const cron = require('node-cron');
 const dataToExclude = [...Object.values(ExcludedData)];
 const login = async (payload) => {
   try {
@@ -29,12 +30,6 @@ const login = async (payload) => {
       where: {
         [Op.and]: [{ username: payload.username }, { isActive: true }],
       },
-      include: [
-        {
-          model: Role,
-          attributes: { exclude: dataToExclude },
-        },
-      ],
       attributes: { exclude: dataToExclude },
     });
     if (user) {
@@ -46,7 +41,15 @@ const login = async (payload) => {
         const accessToken = genAccessToken(data);
         const refreshToken = genRefreshToken(data);
         user.password = undefined;
-        return { user, accessToken, refreshToken };
+        const userRole = await User_role.findOne(
+          { Where: { userId: user.id } },
+          { attributes: { exclude: dataToExclude } },
+        );
+        const role = await Role.findOne({
+          Where: { roleId: userRole.roleId },
+          attributes: { exclude: dataToExclude },
+        });
+        return { user, role, accessToken, refreshToken };
       }
     }
     return null;
@@ -54,7 +57,22 @@ const login = async (payload) => {
     throw new Error(err);
   }
 };
-
+cron.schedule('0 0 * * *', async () => {
+  const now = Date.now();
+  const users = await User.findAll({ where: { isActive: false } });
+  console.log('running');
+  for (let i = 0; i < users.length; i++) {
+    const user = users[i];
+    const time = now - user.createdAt;
+    console.log('this is now: ', now);
+    console.log('this is createdAt: ', user.createdAt);
+    console.log('this is time: ', time);
+    if (time >= 24 * 60 * 60 * 1000) {
+      console.log(user.username + ' is deleted');
+      await user.destroy();
+    }
+  }
+});
 const createUser = async (host, payload) => {
   let t;
   try {
