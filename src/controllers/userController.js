@@ -1,7 +1,6 @@
 import { USER_STATUS, EMAIL_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
 import { USER } from '../helper/messageResponse';
 import { uploadImage } from '../helper/uploadFile';
-const cron = require('node-cron');
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
   cloud_name: 'dj6sdj5yq',
@@ -23,6 +22,10 @@ import {
   getAccessToken,
   requestChangeUserRole,
   approveChangeRoleRequest,
+  sendFriendRequest,
+  getFriendRequest,
+  approveFriendRequest,
+  rejectFriendRequest,
 } from '../services/userServices';
 const config = require('../config');
 import {
@@ -273,7 +276,6 @@ const getCurrentUserController = async (req, res, next) => {
     next(err);
   }
 };
-
 const getAccessTokenController = async (req, res, next) => {
   try {
     const { error, value } = refreshTokenSchema.validate(req.body);
@@ -347,7 +349,52 @@ const approveChangeRoleRequestController = async (req, res, next) => {
     next(err);
   }
 };
-
+const sendFriendRequestController = async (req, res, next) => {
+  try {
+    const curentUserId = req.user.userId;
+    const receiverId = req.params.id;
+    if (curentUserId == receiverId) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(COMMON_CONSTANTS.SEND_REQUEST_TO_YOURSELF));
+    }
+    const result = await sendFriendRequest(curentUserId, receiverId);
+    if (result == COMMON_CONSTANTS.EXIST) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.EXIST));
+    } else if (result == USER_STATUS.USER_NOTFOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+    }
+    return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.SUCCESS, result));
+  } catch (err) {
+    next(err);
+  }
+};
+const getFriendRequestController = async (req, res, next) => {
+  const curentUserId = req.user.userId;
+  const result = await getFriendRequest(curentUserId);
+  if (result == USER_STATUS.USER_NOTFOUND) {
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+  }
+  return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.SUCCESS, result));
+};
+const approveFriendRequestController = async (req, res, next) => {
+  const curentUserId = req.user.userId;
+  const requestId = req.params.id;
+  const result = await approveFriendRequest(requestId);
+  if (result == COMMON_CONSTANTS.NOT_FOUND) {
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.NOT_FOUND));
+  }
+  return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.APPROVED, result));
+};
+const rejectFriendRequestController = async (req, res, next) => {
+  const curentUserId = req.user.userId;
+  const requestId = req.params.id;
+  const result = await rejectFriendRequest(curentUserId, requestId);
+  if (result == COMMON_CONSTANTS.NOT_FOUND) {
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.NOT_FOUND));
+  }
+  return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.REJECTED, result));
+};
 export {
   createUserController,
   updateUserController,
@@ -363,4 +410,8 @@ export {
   getAccessTokenController,
   requestChangeUserRoleController,
   approveChangeRoleRequestController,
+  getFriendRequestController,
+  sendFriendRequestController,
+  approveFriendRequestController,
+  rejectFriendRequestController,
 };

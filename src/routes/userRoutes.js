@@ -17,6 +17,10 @@ import {
   getAccessTokenController,
   requestChangeUserRoleController,
   approveChangeRoleRequestController,
+  getFriendRequestController,
+  sendFriendRequestController,
+  approveFriendRequestController,
+  rejectFriendRequestController,
 } from '../controllers/userController';
 import { authorize, verifyToken } from '../middleware/auth.js';
 const userRouter = express.Router();
@@ -39,4 +43,9 @@ userRouter.patch(
   approveChangeRoleRequestController,
 );
 userRouter.post('/users/request-change-role', verifyToken, requestChangeUserRoleController);
+//Social network area ##################
+userRouter.get('/users/friend-request', verifyToken, getFriendRequestController);
+userRouter.post('/users/add-friend/:id', verifyToken, sendFriendRequestController);
+userRouter.patch('/users/approve-friend/:id', verifyToken, approveFriendRequestController);
+userRouter.patch('/users/reject-friend/:id', verifyToken, rejectFriendRequestController);
 module.exports = userRouter;

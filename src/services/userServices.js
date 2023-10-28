@@ -3,11 +3,11 @@ const Role = require('../database/models/role');
 const User_role = require('../database/models/user_role');
 const Cart = require('../database/models/cart');
 const userRolePending = require('../database/models/userRolePending');
+const friendShip = require('../database/models/friendShip');
 const APIError = require('../helper/apiError');
 import ExcludedData from '../helper/excludeData';
 import bcrypt from 'bcrypt';
 import httpStatus from 'http-status';
-import jwt from 'jsonwebtoken';
 import randomString from '../data/randomString';
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
@@ -34,21 +34,22 @@ const login = async (payload) => {
     });
     if (user) {
       if (bcrypt.compareSync(payload.password, user.password)) {
+        console.log('this is userID: ', user.id);
+        const user_role = await User_role.findOne({
+          where: { userId: user.id },
+        });
+        const role = await Role.findOne({
+          where: { roleId: user_role.roleId },
+          attributes: { exclude: dataToExclude },
+        });
         const data = {
           userId: user.id,
           username: user.username,
+          roleId: role.roleId,
         };
         const accessToken = genAccessToken(data);
         const refreshToken = genRefreshToken(data);
         user.password = undefined;
-        const userRole = await User_role.findOne(
-          { Where: { userId: user.id } },
-          { attributes: { exclude: dataToExclude } },
-        );
-        const role = await Role.findOne({
-          Where: { roleId: userRole.roleId },
-          attributes: { exclude: dataToExclude },
-        });
         return { user, role, accessToken, refreshToken };
       }
     }
@@ -387,6 +388,67 @@ const approveChangeRoleRequest = async (curentUserId, requestId) => {
   await request.update({ isDeleted: true });
   return USER_STATUS.UPDATE_ROLE_SUCCESS;
 };
+//Social Area #############################################################
+const getFriendRequest = async (userId) => {
+  const requests = await friendShip.findAll({
+    where: { receiverId: userId, status: COMMON_CONSTANTS.PENDING },
+    attributes: ['id', 'senderId', 'receiverId', 'status', 'createdAt', 'createdBy'],
+  });
+  if (requests.length > 0) {
+    return requests;
+  }
+  return USER_STATUS.USER_NOTFOUND;
+};
+const sendFriendRequest = async (senderId, receiverId) => {
+  const receiver = await User.findOne({ where: { id: receiverId } });
+  if (!receiver) {
+    return USER_STATUS.USER_NOTFOUND;
+  }
+  const friend = await friendShip.findOne({
+    where: { senderId: senderId, receiverId: receiverId, status: COMMON_CONSTANTS.APPROVED },
+  });
+  if (friend) {
+    return USER_STATUS.FRIEND_EXIST;
+  }
+  const [newFriendShip, created] = await friendShip.findOrCreate({
+    where: {
+      senderId: senderId,
+      receiverId: receiverId,
+      [Op.or]: [{ status: COMMON_CONSTANTS.PENDING }, { status: COMMON_CONSTANTS.APPROVED }],
+    },
+    defaults: {
+      senderId: senderId,
+      receiverId: receiverId,
+      status: COMMON_CONSTANTS.PENDING,
+      createdAt: Date.now(),
+      createdBy: senderId,
+    },
+  });
+  if (created > 0) {
+    return newFriendShip;
+  }
+  return COMMON_CONSTANTS.EXIST;
+};
+const approveFriendRequest = async (requestId) => {
+  const result = await friendShip.findOne({
+    where: { id: requestId, status: COMMON_CONSTANTS.PENDING },
+  });
+  if (!result) {
+    return COMMON_CONSTANTS.NOT_FOUND;
+  }
+  await result.update({ status: COMMON_CONSTANTS.APPROVED });
+  return result;
+};
+const rejectFriendRequest = async (senderId, receiverId) => {
+  const result = await friendShip.findOne({
+    where: { senderId: senderId, receiverId: receiverId, status: COMMON_CONSTANTS.PENDING },
+  });
+  if (!friendShresultip) {
+    return COMMON_CONSTANTS.NOT_FOUND;
+  }
+  await result.update({ status: COMMON_CONSTANTS.REJECTED });
+  return result;
+};
 export {
   getCurrentUser,
   createUser,
@@ -402,4 +464,8 @@ export {
   getAccessToken,
   requestChangeUserRole,
   approveChangeRoleRequest,
+  getFriendRequest,
+  sendFriendRequest,
+  approveFriendRequest,
+  rejectFriendRequest,
 };

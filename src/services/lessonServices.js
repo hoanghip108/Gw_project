@@ -1,6 +1,7 @@
 const Lesson = require('../database/models/lesson');
 const Course = require('../database/models/course');
 const Section = require('../database/models/section');
+const EnrolledCourse = require('../database/models/enrolledCourse');
 const APIError = require('../helper/apiError');
 const { Op, where } = require('sequelize');
 const { sequelize } = require('../config/database');
@@ -60,19 +61,64 @@ const updateLesson = async (payload, currentUser, lessonId, path) => {
   }
 };
 const dataToExclude = [...Object.values(ExcludedData)];
-const getLesson = async (lessonId) => {
-  const lesson = await Lesson.findOne({
-    where: {
-      [Op.or]: [
+const getLesson = async (lessonId, userId, roleId) => {
+  if (roleId != 2) {
+    const lesson = await Lesson.findOne({
+      where: {
+        [Op.or]: [
+          {
+            [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }],
+          },
+          { lessonName: lessonId },
+        ],
+      },
+      include: [
         {
-          [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }],
+          model: Section,
+          attributes: ['sectionId'],
+          include: [{ model: Course, attributes: { exclude: dataToExclude } }],
         },
-        { lessonName: lessonId },
       ],
-    },
-    attributes: { exclude: dataToExclude },
-  });
-  if (lesson) {
+      attributes: { exclude: dataToExclude },
+    });
+    if (lesson) {
+      return lesson;
+    }
+  } else if (roleId == 2) {
+    const lesson = await Lesson.findOne({
+      where: {
+        [Op.or]: [
+          {
+            [Op.and]: [{ lessonId: lessonId }, { isDeleted: false }],
+          },
+          { lessonName: lessonId },
+        ],
+      },
+      include: [
+        {
+          model: Section,
+          attributes: ['sectionId'],
+          include: [{ model: Course, attributes: { exclude: dataToExclude } }],
+        },
+      ],
+      attributes: { exclude: dataToExclude },
+    });
+    if (!lesson) {
+      return null;
+    }
+    if (lesson.Section.Course.isDeleted == true || lesson.Section.Course.isApprove == false) {
+      return null;
+    }
+    const enrolledCourse = await EnrolledCourse.findOne({
+      where: {
+        [Op.and]: [{ userId: userId }, { courseId: lesson.Section.Course.courseId }],
+      },
+    });
+    console.log(enrolledCourse);
+    if (!enrolledCourse) {
+      lesson.videoPath = null;
+      return lesson;
+    }
     return lesson;
   }
   return null;

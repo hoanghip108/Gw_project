@@ -18,6 +18,7 @@ const USER_STATUS = {
   USER_ROLE_EXIST: 'Account already has this role',
   USER_REQUEST_ROLE_EXIST: 'Account already has a request to change role',
   USER_ROLE_REQUEST_NOTFOUND: 'request to change role on this account is not found',
+  FRIEND_EXIST: 'Already friend ',
 };
 const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',
@@ -37,7 +38,15 @@ const COMMON_CONSTANTS = {
   EMP_ID_NUM_LONG: 6,
   START_EMP_ID: 'ID000000',
   URL_NOT_FOUND: 'URL not found !',
+  EXIST: 'data exists',
+  PENDING: 'pending',
+  APPROVED: 'accepted',
+  REJECTED: 'rejected',
+  SUCCESS: 'success',
+  SEND_REQUEST_TO_YOURSELF: 'You can not send request to yourself',
+  NOT_FOUND: 'data not found',
 };
+
 const EMAIL_CONSTANTS = {
   EMAIL_CONFIRMATION:
     'A verification email has been sent to your registered email address. It will be expire after one day. If you not get verification Email click on resend token.',

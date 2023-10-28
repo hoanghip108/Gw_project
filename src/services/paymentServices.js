@@ -71,7 +71,6 @@ const byCourse = async (userId, payload) => {
         total += isExist.price;
       }
     }
-    console.log('this is total: ', total);
     const user = await User.findOne({ where: { id: userId } });
     if (!user) {
       return USER_STATUS.USER_NOTFOUND;
@@ -81,6 +80,14 @@ const byCourse = async (userId, payload) => {
     } else {
       await user.update({ eCoin: sequelize.literal(`ecoin - ${total}`) });
       payload.forEach(async (course) => {
+        const isExist = await Course.findOne({ where: { courseId: course.courseId } });
+        let income = (80 * 100) / isExist.price;
+        const author = await User.findOne({ where: { id: isExist.createdBy } });
+        await author.update({ eCoin: sequelize.literal(`ecoin + ${income}`) });
+        await User.update(
+          { eCoin: sequelize.literal(`ecoin + ${isExist.price - income}`) },
+          { where: { id: userId } },
+        );
         await EnrolledCourse.create({
           userId: userId,
           courseId: course.courseId,

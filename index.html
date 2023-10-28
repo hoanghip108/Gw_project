@@ -7,9 +7,37 @@
   <body>
     <ul id="messages"></ul>
     <input id="message-input" autocomplete="off" /><button id="send-button">Send</button>
+    <button id="friendButton" onclick="toggleFriendRequest()">Add Friend</button>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      function toggleFriendRequest() {
+        var button = document.getElementById('friendButton');
+
+        if (button.innerHTML === 'Add Friend') {
+          // Send a friend request and change the button text to "Cancel Request"
+          sendFriendRequest(); // You can implement your friend request logic here
+          button.innerHTML = 'Cancel Request';
+          button.style.backgroundColor = 'red'; // Change button styling, if desired
+        } else if (button.innerHTML === 'Cancel Request') {
+          // Cancel the friend request and change the button text back to "Add Friend"
+          cancelFriendRequest(); // You can implement your cancel request logic here
+          button.innerHTML = 'Add Friend';
+          button.style.backgroundColor = 'blue'; // Change button styling, if desired
+        }
+      }
+
+      // Simulated functions for sending and canceling friend requests
+      function sendFriendRequest() {
+        // Implement your logic to send a friend request
+        // This is where you would typically make an API call or update the database
+      }
+
+      function cancelFriendRequest() {
+        // Implement your logic to cancel a friend request
+        // This is where you would typically make an API call or update the database
+      }
+
       const socket = io();
 
       document.getElementById('send-button').addEventListener('click', () => {

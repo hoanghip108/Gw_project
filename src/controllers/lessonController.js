@@ -90,10 +90,14 @@ const getListLessonController = async (req, res, next) => {
 };
 const getLessonController = async (req, res, next) => {
   try {
+    const roleId = req.user.roleId;
+    const userId = req.user.userId;
     const lessonId = req.params.id;
-    const lesson = await getLesson(lessonId);
+    const lesson = await getLesson(lessonId, userId, roleId);
     if (lesson == null) {
-      return res.status(httpStatus.NOT_FOUND).json(new NotFound(LESSON_CONSTANT.LESSON_NOTFOUND));
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(LESSON_CONSTANT.LESSON_NOTFOUND));
     }
     return res.status(httpStatus.OK).json(new Success('', lesson));
   } catch (err) {

@@ -7,7 +7,6 @@
     "dev": " nodemon ",
     "test-run": "SET NODE_ENV=development & babel-node  ./src/server.js",
     "seed": "babel-node ./src/seeders/seedAdminPermission.js",
-    "seed-user": "babel-node ./src/seeders/seedClientPermission.js",
     "test": "mocha 'src/test/**/*.js' --require @babel/register --timeout 1000000",
     "db:seed": "sequelize db:seed:all",
     "db:create:migration": "sequelize migration:create --name default"

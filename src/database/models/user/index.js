@@ -12,6 +12,7 @@ const Cart = require('../cart');
 const UserRolePending = require('../userRolePending');
 const User_role = require('../user_role');
 const QuizResult = require('../quizResult');
+const FriendShip = require('../friendShip');
 module.exports = class User extends BaseModel {
   static tableName = 'user';
   static modelName = 'user';
@@ -29,6 +30,7 @@ module.exports = class User extends BaseModel {
     { model: UserRolePending, as: 'userRolePending' },
     { model: Participant, as: 'participant' },
     { model: QuizResult, as: 'quizResult' },
+    { model: FriendShip, as: 'friendShip' },
   ];
   static associate(models) {
     this.hasMany(models.User_role, {
@@ -46,5 +48,7 @@ module.exports = class User extends BaseModel {
     this.hasOne(models.Cart, { foreignKey: 'userId' });
     this.hasMany(models.UserRolePending, { foreignKey: 'userId' });
     this.hasMany(models.QuizResult, { foreignKey: 'userId' });
+    this.hasMany(models.FriendShip, { foreignKey: 'senderId' });
+    this.hasMany(models.FriendShip, { foreignKey: 'receiverId' });
   }
 };

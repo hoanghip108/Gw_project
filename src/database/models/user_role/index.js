@@ -16,7 +16,7 @@ module.exports = class RolePermission extends BaseModel {
     },
   ];
   static associate(models) {
-    this.belongsTo(models.Role, { foreignKey: 'roleId' });
-    this.belongsTo(models.User, { foreignKey: 'userId' });
+    this.belongsTo(models.Role, { foreignKey: 'roleId', primaryKey: true });
+    this.belongsTo(models.User, { foreignKey: 'userId', primaryKey: true });
   }
 };
