@@ -44,11 +44,14 @@ const getConversation = async (senderId, receiverId) => {
             createdBy: senderId,
           },
         ]);
-
-        return newConversation;
+        const messages = await Message.findAll({
+          where: { conversationId: newConversation.conversationId },
+          order: [['createdAt', 'ASC']],
+        });
+        return { messages, conversationId: newConversation.conversationId };
       }
-      return USER_STATUS.USER_NOTFOUND;
     }
+    return USER_STATUS.USER_NOTFOUND;
   } catch (error) {
     console.error('Error:', error);
   }
