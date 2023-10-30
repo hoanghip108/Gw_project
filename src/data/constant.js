@@ -1,5 +1,5 @@
 const USER_STATUS = {
-  USER_EXIST: 'username or email is already exists',
+  USER_EXIST: 'username is already exists',
   USER_FOUND: 'User found',
   USER_NOTFOUND: 'User not found',
   USER_UPDATE: 'User updated successfully',
@@ -19,6 +19,7 @@ const USER_STATUS = {
   USER_REQUEST_ROLE_EXIST: 'Account already has a request to change role',
   USER_ROLE_REQUEST_NOTFOUND: 'request to change role on this account is not found',
   FRIEND_EXIST: 'Already friend ',
+  EMAIL_EXIST: 'Email already exists',
 };
 const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',

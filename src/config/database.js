@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const config = require('./');
-
 const options = {
   logging: false,
   username: config.db_username,

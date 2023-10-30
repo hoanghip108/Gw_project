@@ -43,7 +43,6 @@ const authorize = async (req, res, next) => {
   }
   const path = req._parsedUrl.path;
   var api;
-  console.log('this is path', path);
   if (path.lastIndexOf('/') != 0) {
     api = path.substring(0, path.lastIndexOf('/'));
   } else if (path.lastIndexOf('?') != -1) {

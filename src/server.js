@@ -1,5 +1,3 @@
-// Import necessary modules
-import { createServer } from 'http';
 import express from 'express';
 import config from './config/index.js';
 const swaggerUi = require('swagger-ui-express');

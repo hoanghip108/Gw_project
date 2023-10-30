@@ -79,20 +79,27 @@ const createUser = async (host, payload) => {
   try {
     t = await sequelize.transaction();
     const hash = hashPassword(payload.password);
-    const [newUser, created] = await User.findOrCreate({
-      where: { [Op.or]: [{ username: payload.username }, { email: payload.email }] },
-      defaults: {
-        ...payload,
-        password: hash,
-        createdBy: payload.username,
-        isActive: false,
-      },
-      transaction: t,
+    let existUser = await User.findOne({
+      where: { username: payload.username },
+      attributes: ['username'],
     });
-    await t.commit();
+    if (existUser) {
+      return USER_STATUS.USER_EXIST;
+    }
+    existUser = await User.findOne({ where: { email: payload.email }, attributes: ['email'] });
+    if (existUser) {
+      return USER_STATUS.EMAIL_EXIST;
+    }
+    const newUser = await User.create({
+      ...payload,
+      password: hash,
+      createdBy: payload.username,
+      isActive: false,
+    });
+
     newUser.setDataValue('password', undefined);
     newUser.setDataValue('RoleId', undefined);
-    if (created) {
+    if (newUser) {
       User_role.bulkCreate([
         {
           userId: newUser.id,
@@ -113,7 +120,6 @@ const createUser = async (host, payload) => {
     return null;
   } catch (err) {
     console.log(err);
-    await t.rollback();
     throw new APIError({
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
       status: httpStatus.NOT_FOUND,
@@ -147,11 +153,18 @@ const verifyUser = async (id) => {
 const getCurrentUser = async (id) => {
   const user = await User.findOne({
     where: { [Op.or]: [{ id: id }, { username: id }] },
-    include: [{ model: Role, attributes: { exclude: dataToExclude } }],
+
     attributes: { exclude: dataToExclude },
   });
   if (user) {
-    return user;
+    const user_role = await User_role.findOne({
+      where: { userId: user.id },
+    });
+    const role = await Role.findOne({
+      where: { roleId: user_role.roleId },
+      attributes: { exclude: dataToExclude },
+    });
+    return { user, role };
   }
   return null;
 };

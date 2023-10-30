@@ -92,8 +92,10 @@ const createUserController = async (req, res, next) => {
     }
     const host = req.headers.host;
     const user = await createUser(host, value);
-    if (!user) {
-      return res.status(httpStatus.CONFLICT).json(new Conflict());
+    if (user == USER_STATUS.USER_EXIST) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_EXIST));
+    } else if (user == USER_STATUS.EMAIL_EXIST) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.EMAIL_EXIST));
     }
 
     const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
