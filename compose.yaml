@@ -4,7 +4,7 @@ services:
   app:
     build: .
     restart: always
-    env_file: .env # Load environment variables from a file if needed
+    env_file: ./config/development.env # Load environment variables from a file if needed
     ports:
       - 80:5000
     depends_on:
