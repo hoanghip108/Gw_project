@@ -50,7 +50,7 @@ const authorize = async (req, res, next) => {
   } else {
     api = path;
   }
-  console.log('this is api', api);
+
   const permission = await sequelize.query(
     `
     SELECT rp.method 
@@ -79,7 +79,6 @@ const authorize = async (req, res, next) => {
     errors: AUTH_CONSTANT.PERMISSION,
     status: httpStatus.FORBIDDEN,
   });
-  console.log('this is api error', apiError);
   return res.status(httpStatus.FORBIDDEN).json(apiError);
 };
 export { verifyToken, authorize };

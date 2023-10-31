@@ -410,7 +410,7 @@ const getFriendRequest = async (userId) => {
   if (requests.length > 0) {
     return requests;
   }
-  return USER_STATUS.USER_NOTFOUND;
+  return USER_STATUS.FRIEND_REQUEST_DOES_NOT_EXIST;
 };
 const sendFriendRequest = async (senderId, receiverId) => {
   const receiver = await User.findOne({ where: { id: receiverId } });
@@ -440,7 +440,7 @@ const sendFriendRequest = async (senderId, receiverId) => {
   if (created > 0) {
     return newFriendShip;
   }
-  return COMMON_CONSTANTS.EXIST;
+  return USER_STATUS.FRIEND_REQUEST_EXIST;
 };
 const approveFriendRequest = async (requestId) => {
   const result = await friendShip.findOne({

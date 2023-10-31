@@ -25,6 +25,7 @@ const conversationController = async (req, res, next) => {
     if (conversation === USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
     }
+    console.log('this is conversation controller', conversation);
     if (!conversation) {
       return res.status(httpStatus.CONFLICT).json();
     }

@@ -6,7 +6,10 @@ const expect = chai.expect;
 chai.use(chaiHttp);
 import hashPassword from '../helper/hashPassword';
 const User = require('../database/models/user');
+const FriendShip = require('../database/models/friendShip');
+const logger = require('../utils/logger');
 let jwtToken;
+import { USER_STATUS } from '../data/constant';
 //Our parent block
 const emptyDatabase = async () => {
   console.log('empty database');
@@ -177,7 +180,9 @@ describe('Authentication test', () => {
 describe('User test', () => {
   beforeEach((done) => {
     User.update({ isActive: 1 }, { where: { username: 'client001' } }).then(() => {
-      done();
+      FriendShip.destroy({ where: {} }).then(() => {
+        done();
+      });
     });
   });
   it('it should get current user', (done) => {
@@ -244,6 +249,77 @@ describe('User test', () => {
         expect(res).to.have.status(200);
         expect(res.body).to.have.property('message', 'User disable successfully');
         expect(res.body).to.have.property('status', 200);
+        done();
+      });
+  });
+  it('it should fail to disable specific user because of user does not exist', (done) => {
+    chai
+      .request(server)
+      .delete('/api/users/disable/100')
+      .set('Authorization', 'Bearer ' + jwtToken)
+      .end((err, res) => {
+        expect(res).to.be.an('object');
+        expect(res).to.have.status(400);
+        expect(res.body).to.have.property('message', 'User disable failed');
+        expect(res.body).to.have.property('status', 400);
+        done();
+      });
+  });
+  it('it should update profile success', (done) => {
+    const data = {
+      firstName: 'Hoang',
+      lastName: 'Do',
+      phoneNumber: '0333804202',
+    };
+    chai
+      .request(server)
+      .patch('/api/users')
+      .set('Authorization', 'Bearer ' + jwtToken)
+      .send(data)
+      .end((err, res) => {
+        expect(res).to.be.an('object');
+        expect(res).to.have.status(200);
+        expect(res.body).to.have.property('message', 'User updated successfully');
+        expect(res.body).to.have.property('status', 200);
+        done();
+      });
+  });
+  it('it should success to add new user as friend', (done) => {
+    chai
+      .request(server)
+      .post('/api/users/add-friend/2')
+      .set('Authorization', 'Bearer ' + jwtToken)
+      // .send({ friendId: 2 })
+      .end((err, res) => {
+        expect(res).to.be.an('object');
+        expect(res.body).to.have.property('message', 'success');
+        expect(res).to.have.status(200);
+        done();
+      });
+  });
+  // it('it should fail to add new user as friend because request already been sent', (done) => {
+  //   chai
+  //     .request(server)
+  //     .post('/api/users/add-friend/2')
+  //     .set('Authorization', 'Bearer ' + jwtToken)
+  //     // .send({ friendId: 2 })
+  //     .end((err, res) => {
+  //       expect(res).to.be.an('object');
+  //       expect(res.body).to.have.property('message', 'User updated successfully');
+  //       expect(res).to.have.status(400);
+  //       done();
+  //     });
+  // });
+  it('it should get list of friend requests', (done) => {
+    chai
+      .request(server)
+      .get('/api/users/friend-request')
+      .set('Authorization', 'Bearer ' + jwtToken)
+      .end((err, res) => {
+        // logger.info(res.body);
+        expect(res).to.be.an('object');
+        expect(res.body).to.have.property('message', 'Friend request does not exist');
+        expect(res).to.have.status(200);
         done();
       });
   });

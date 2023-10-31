@@ -1,10 +1,10 @@
 const { Sequelize, DataTypes } = require('sequelize');
 module.exports = {
   id: {
-    type: Sequelize.STRING(255),
+    type: Sequelize.INTEGER,
     allowNull: false,
     primaryKey: true,
-    defaultValue: Sequelize.UUIDV1,
+    autoIncrement: true,
   },
   username: {
     type: Sequelize.STRING(32),

@@ -7,6 +7,7 @@ cloudinary.config({
   api_key: '371489392313257',
   api_secret: 'fQRiqtcdpqtpED26cMR3eOdxi8c',
 });
+const logger = require('../utils/logger');
 import {
   createUser,
   updateUser,
@@ -71,7 +72,7 @@ const uploadFileController = async (req, res, next) => {
     const userId = req.user.userId;
     uploadImage(file)
       .then((imageUrl) => {
-        console.log('Image uploaded successfully:', imageUrl);
+        logger.info('Image uploaded successfully:', imageUrl);
         uploadAvatar(imageUrl, userId);
         return res.status(httpStatus.OK).json(new Success());
       })
@@ -133,6 +134,7 @@ const loginController = async (req, res, next) => {
     if (token == null) {
       return res.status(httpStatus.UNAUTHORIZED).json(new WrongUsernameOrpassWord());
     }
+
     return res.status(httpStatus.OK).json(new Success('', token));
   } catch (err) {
     next(err);
@@ -156,7 +158,6 @@ const disableUserController = async (req, res, next) => {
     const currentUser = req.user.userId;
     const user = await disableUser(uId, currentUser);
     if (user == USER.Delete_yourself) {
-      console.log(user);
       return res.status(400).json(new BadRequest(USER.Delete_yourself));
     } else if (user == null) {
       return res.status(400).json(new BadRequest(USER_STATUS.USER_DELETE_FAILED));
@@ -216,7 +217,6 @@ const getListUserController = async (req, res, next) => {
     if (result == USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
     } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
-      console.log('ok');
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
     }
     return res
@@ -247,7 +247,6 @@ const getListDisableUserController = async (req, res, next) => {
     if (result == USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
     } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
-      console.log('ok');
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
     }
     return res
@@ -296,7 +295,6 @@ const getAccessTokenController = async (req, res, next) => {
     }
 
     const { accessToken, newRefreshToken } = result;
-    console.log({ accessToken, newRefreshToken });
     return res.status(httpStatus.OK).json(new Success('', { accessToken, newRefreshToken }));
   } catch (err) {
     next(err);
@@ -308,7 +306,6 @@ const requestChangeUserRoleController = async (req, res, next) => {
     if (error) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
     }
-    console.log(req.body.roleId);
     const curentUserId = req.user.userId;
     const roleId = value.roleId;
     const result = await requestChangeUserRole(curentUserId, roleId);
@@ -361,8 +358,10 @@ const sendFriendRequestController = async (req, res, next) => {
         .json(new BadRequest(COMMON_CONSTANTS.SEND_REQUEST_TO_YOURSELF));
     }
     const result = await sendFriendRequest(curentUserId, receiverId);
-    if (result == COMMON_CONSTANTS.EXIST) {
-      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.EXIST));
+    if (result == USER_STATUS.FRIEND_REQUEST_EXIST) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(USER_STATUS.FRIEND_REQUEST_EXIST));
     } else if (result == USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
     }
@@ -374,8 +373,8 @@ const sendFriendRequestController = async (req, res, next) => {
 const getFriendRequestController = async (req, res, next) => {
   const curentUserId = req.user.userId;
   const result = await getFriendRequest(curentUserId);
-  if (result == USER_STATUS.USER_NOTFOUND) {
-    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+  if (result == USER_STATUS.FRIEND_REQUEST_DOES_NOT_EXIST) {
+    return res.status(httpStatus.OK).json(new Success(USER_STATUS.FRIEND_REQUEST_DOES_NOT_EXIST));
   }
   return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.SUCCESS, result));
 };

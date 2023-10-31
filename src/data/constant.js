@@ -20,6 +20,8 @@ const USER_STATUS = {
   USER_ROLE_REQUEST_NOTFOUND: 'request to change role on this account is not found',
   FRIEND_EXIST: 'Already friend ',
   EMAIL_EXIST: 'Email already exists',
+  FRIEND_REQUEST_DOES_NOT_EXIST: 'Friend request does not exist',
+  FRIEND_REQUEST_EXIST: 'Friend request already exists',
 };
 const AUTH_CONSTANT = {
   PERMISSION: 'You do not have permission to access this!',

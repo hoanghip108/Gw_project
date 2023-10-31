@@ -4,7 +4,6 @@ const cleanedEnv = process.env.NODE_ENV.replace(/\s/g, '');
 dotenv.config({
   path: path.resolve(__dirname, `${cleanedEnv}.env`),
 });
-console.log('this is path: ', path.resolve(__dirname, `${cleanedEnv}.env`));
 const configs = {
   base: {
     NODE_ENV: process.env.NODE_ENV,

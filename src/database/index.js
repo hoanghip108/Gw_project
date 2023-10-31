@@ -4,6 +4,7 @@ const _ = require('lodash');
 const config = require('../config');
 const { sequelize } = require('../config/database');
 const { migrate } = require('../utils/migration');
+const logger = require('../utils/logger');
 class Db {
   constructor() {
     const models = {};
@@ -29,7 +30,7 @@ class Db {
     let connectPromise = sequelize
       .authenticate()
       .then(() => {
-        console.log(`Connected to database: ${sequelize.config.database}`);
+        logger.info(`Connected to database: ${sequelize.config.database}`);
         return sequelize.sync().then(() => {
           if (config.db_run_migration) {
             migrate();
