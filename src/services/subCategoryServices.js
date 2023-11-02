@@ -33,9 +33,9 @@ const createsubCategory = async (currentUser, subCateName, cateId) => {
 };
 const getsubCategory = async (subCategoryId) => {
   try {
-    const result = await subCategory.findOne({ where: { cateId: subCategoryId } });
+    const result = await subCategory.findOne({ where: { subCateId: subCategoryId } });
     if (!result) {
-      return SUBCATEGORY_CONSTANTS.SUBCATEGORY_CONSTANTS.CATEGORY_NOTFOUND;
+      return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
     }
     return result;
   } catch (err) {
@@ -94,13 +94,13 @@ const updatesubCategory = async (payload, subCategoryId) => {
       return CATEGORY_CONSTANTS.CATEGORY_NOTFOUND;
     }
     const result = await subCategory.findOne({
-      where: { cateId: subCategoryId },
+      where: { subCateId: subCategoryId },
       include: [{ model: category, as: 'category' }],
     });
     if (!result) {
       return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
     }
-    result.update({ cateName: payload.cateName });
+    await result.update({ subCateName: payload.subCateName });
     await result.save();
     return result;
   } catch (err) {

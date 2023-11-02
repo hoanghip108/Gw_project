@@ -58,7 +58,7 @@ const login = async (payload) => {
     throw new Error(err);
   }
 };
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('* * * * *', async () => {
   const now = Date.now();
   const users = await User.findAll({ where: { isActive: false } });
   console.log('running');
@@ -68,12 +68,14 @@ cron.schedule('0 0 * * *', async () => {
     console.log('this is now: ', now);
     console.log('this is createdAt: ', user.createdAt);
     console.log('this is time: ', time);
-    if (time >= 24 * 60 * 60 * 1000) {
+    if (time >= 60 * 1000) {
+      // 1 minute (60 seconds * 1000 milliseconds)
       console.log(user.username + ' is deleted');
       await user.destroy();
     }
   }
 });
+
 const createUser = async (host, payload) => {
   let t;
   try {
@@ -231,21 +233,12 @@ const getListUser = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
   const limit = pageSize;
   const users = await User.findAll(
+    {
+      where: { isActive: true },
+      attributes: ['id', 'username', 'email', 'bio', 'ecoin', 'avatar', 'createdAt', 'updatedAt'],
+    },
     { offset, limit },
     {
-      attributes: {
-        exclude: [
-          'password',
-          'avatar',
-          'isActive',
-          'bio',
-          'isDelete',
-          'createdBy',
-          'updatedBy',
-          'updatedAt',
-          'RoleId',
-        ],
-      },
       include: [{ model: Role, attributes: ['Rolename'] }],
     },
   );
@@ -462,6 +455,16 @@ const rejectFriendRequest = async (senderId, receiverId) => {
   await result.update({ status: COMMON_CONSTANTS.REJECTED });
   return result;
 };
+const getUserById = async (userId) => {
+  const user = await User.findOne({
+    where: { id: userId },
+    attributes: { exclude: dataToExclude },
+  });
+  if (user) {
+    return user;
+  }
+  return null;
+};
 export {
   getCurrentUser,
   createUser,
@@ -481,4 +484,5 @@ export {
   sendFriendRequest,
   approveFriendRequest,
   rejectFriendRequest,
+  getUserById,
 };

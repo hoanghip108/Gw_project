@@ -39,6 +39,15 @@ const courseSchema = Joi.object({
   dislike: Joi.number().messages({
     'number.base': 'Dislike must be a number',
   }),
+  brief: Joi.string().messages({
+    'string.empty': 'Brief must not be empty',
+  }),
+  knowledge: Joi.string().messages({
+    'array.base': 'Knowledge must be an array',
+  }),
+  requirement: Joi.string().messages({
+    'array.base': 'Requirement must be an array',
+  }),
   // file: Joi.binary().required(),
   file: Joi.object({
     fieldname: Joi.string().required(),

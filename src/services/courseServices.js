@@ -113,14 +113,15 @@ const updateCourse = async (payload, courseId, currentUser) => {
 const getApprovedCourse = async (courseId) => {
   const course = await Course.findOne({
     where: { [Op.and]: [{ courseId: courseId }, { isApprove: true }, { isDeleted: false }] },
-    attributes: { exclude: dataToExclude },
-    include: [
-      {
-        model: Section,
-        attributes: { exclude: dataToExclude },
-        include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
-      },
-    ],
+    // attributes: ['courseId', 'courseName', 'description', 'price', 'createdAt', 'updatedAt'],
+
+    // include: [
+    //   {
+    //     model: Section,
+    //     attributes: ['courseId', 'courseName', 'description', 'price', 'createdAt', 'updatedAt'],
+    //     include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
+    //   },
+    // ],
   });
   if (course) {
     return course;
@@ -148,7 +149,19 @@ const getListApprovedCourse = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
   const limit = pageSize;
   const courses = await Course.findAll(
-    { where: { [Op.and]: [{ isApprove: true }, { isDeleted: false }] } },
+    {
+      where: { [Op.and]: [{ isApprove: true }, { isDeleted: false }] },
+      attributes: [
+        'courseId',
+        'courseName',
+        'description',
+        'price',
+        'createdBy',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
+    // { attributes: ['courseId', 'courseName', 'description', 'price', 'createdAt', 'updatedAt'] },
     { offset, limit },
   );
   const totalCount = await Course.count({
@@ -192,6 +205,15 @@ const getListPendingCourse = async (pageIndex, pageSize) => {
     totalPages,
     courses,
   };
+};
+const getDeletedCourse = async (courseId) => {
+  const course = await Course.findOne({
+    where: { [Op.and]: [{ courseId: courseId }, { isDeleted: true }] },
+  });
+  if (course) {
+    return course;
+  }
+  return null;
 };
 const getListDeletedCourse = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
@@ -261,6 +283,12 @@ const searchCourse = async (keyword) => {
   });
   return result;
 };
+const getListCourseByAuthor = async (authorId) => {
+  const result = await Course.findAll({
+    where: { [Op.and]: [{ createdBy: authorId }, { isApprove: true }] },
+  });
+  return result;
+};
 export {
   createCourse,
   updateCourse,
@@ -270,8 +298,10 @@ export {
   getPendingCourse,
   getListPendingCourse,
   getListDeletedCourse,
+  getDeletedCourse,
   updateImg,
   approveCourse,
   restoreCourse,
   searchCourse,
+  getListCourseByAuthor,
 };

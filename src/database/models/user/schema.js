@@ -50,4 +50,28 @@ module.exports = {
     allowNull: false,
     defaultValue: 0,
   },
+  address: {
+    type: Sequelize.STRING(500),
+    allowNull: true,
+  },
+  nation: {
+    type: Sequelize.STRING(500),
+    allowNull: true,
+  },
+  gender: {
+    type: Sequelize.BOOLEAN,
+    allowNull: true,
+  },
+  dateOfBirth: {
+    type: Sequelize.DATE,
+    allowNull: true,
+  },
+  facebook: {
+    type: Sequelize.STRING(500),
+    allowNull: true,
+  },
+  instagram: {
+    type: Sequelize.STRING(500),
+    allowNull: true,
+  },
 };

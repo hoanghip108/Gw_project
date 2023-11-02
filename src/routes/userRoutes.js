@@ -21,12 +21,14 @@ import {
   sendFriendRequestController,
   approveFriendRequestController,
   rejectFriendRequestController,
+  getUserByIdController,
 } from '../controllers/userController';
 import { authorize, verifyToken } from '../middleware/auth.js';
 const userRouter = express.Router();
 userRouter.get('/users/auth/register/verify/:id', verifyUserController);
 userRouter.get('/users/profile', verifyToken, getCurrentUserController);
 userRouter.get('/users/disable', verifyToken, authorize, getListDisableUserController);
+userRouter.get('/users/:id', verifyToken, getUserByIdController);
 userRouter.get('/users', verifyToken, getListUserController);
 userRouter.post('/users/forgotpassword', resetPasswordController);
 userRouter.post('/users/auth/login', loginController);

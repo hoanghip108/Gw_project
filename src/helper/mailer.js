@@ -47,7 +47,8 @@ class verrifyEmailOption extends BaseOptions {
                     </div>
                     <p>We're happy you're here. Let's get your email address verified:</p>
                     <div class="mt-4">
-                        <button class="px-2 py-2 text-blue-200 bg-blue-600 rounded">Click to Verify Email</button>
+                    
+                        <a href=${link}class="px-2 py-2 text-blue-200 bg-blue-600 rounded" >Click to Verify Email</a>
                         <p class="mt-4 text-sm">If you’re having trouble clicking the "Verify Email Address" button, copy
                             and
                             paste

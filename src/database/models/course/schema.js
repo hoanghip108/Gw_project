@@ -39,4 +39,16 @@ module.exports = {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  brief: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  knowledge: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  requirement: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 };

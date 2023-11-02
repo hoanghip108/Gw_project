@@ -26,10 +26,12 @@ import {
   getPendingCourse,
   getListPendingCourse,
   getListDeletedCourse,
+  getDeletedCourse,
   updateImg,
   approveCourse,
   restoreCourse,
   searchCourse,
+  getListCourseByAuthor,
 } from '../services/courseServices';
 const createCourseController = async (req, res, next) => {
   try {
@@ -39,6 +41,9 @@ const createCourseController = async (req, res, next) => {
       price: req.body.price,
       isFree: req.body.isFree,
       subCateId: req.body.subCateId,
+      brief: req.body.brief,
+      knowledge: req.body.knowledge,
+      requirement: req.body.requirement,
       like: req.body.like,
       dislike: req.body.dislike,
       file: req.file,
@@ -294,6 +299,32 @@ const searchCourseController = async (req, res, next) => {
     next(err);
   }
 };
+const getDeletedCourseController = async (req, res, next) => {
+  try {
+    const courseId = req.params.id;
+    const course = await getDeletedCourse(courseId);
+    if (course) {
+      return res.status(httpStatus.OK).json(new Success('', course));
+    }
+    return res
+      .status(httpStatus.BAD_REQUEST)
+      .json(new BadRequest(COURSE_CONSTANTS.COURSE_NOTFOUND));
+  } catch (err) {
+    next(err);
+  }
+};
+const getListCourseByAuthorController = async (req, res, next) => {
+  try {
+    const authorId = req.params.id;
+    const result = await getListCourseByAuthor(authorId);
+    if (result == COURSE_CONSTANTS.COURSE_NOTFOUND) {
+      return res.status(httpStatus.OK).json(new Success(COURSE_CONSTANTS.COURSE_NOTFOUND, []));
+    }
+    return res.status(httpStatus.OK).json(new Success('', result));
+  } catch (err) {
+    next(err);
+  }
+};
 export {
   createCourseController,
   updateCourseController,
@@ -307,4 +338,6 @@ export {
   approveCourseController,
   restoreCourseController,
   searchCourseController,
+  getDeletedCourseController,
+  getListCourseByAuthorController,
 };

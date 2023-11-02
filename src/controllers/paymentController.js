@@ -83,34 +83,73 @@ const create_payment = async (req, res, next) => {
 };
 const vnpay_return = async (req, res, next) => {
   let vnp_Params = req.query;
-
   let secureHash = vnp_Params['vnp_SecureHash'];
+
+  let orderId = vnp_Params['vnp_TxnRef'];
+  let rspCode = vnp_Params['vnp_ResponseCode'];
 
   delete vnp_Params['vnp_SecureHash'];
   delete vnp_Params['vnp_SecureHashType'];
 
   vnp_Params = sortObject(vnp_Params);
-  console.log(vnp_Params);
-  let tmnCode = process.env.VNP_TMNCODE;
   let secretKey = process.env.VNP_HASHSECRET;
-
   let querystring = require('qs');
   let signData = querystring.stringify(vnp_Params, { encode: false });
   let crypto = require('crypto');
   let hmac = crypto.createHmac('sha512', secretKey);
   let signed = hmac.update(new Buffer(signData, 'utf-8')).digest('hex');
+  // let userId = req.user.userId;
+  let paymentStatus = '0'; // Giả sử '0' là trạng thái khởi tạo giao dịch, chưa có IPN. Trạng thái này được lưu khi yêu cầu thanh toán chuyển hướng sang Cổng thanh toán VNPAY tại đầu khởi tạo đơn hàng.
+  //let paymentStatus = '1'; // Giả sử '1' là trạng thái thành công bạn cập nhật sau IPN được gọi và trả kết quả về nó
+  //let paymentStatus = '2'; // Giả sử '2' là trạng thái thất bại bạn cập nhật sau IPN được gọi và trả kết quả về nó
 
+  const order = await getOderService(orderId); // Mã đơn hàng "giá trị của vnp_TxnRef" VNPAY phản hồi tồn tại trong CSDL của bạn
+  let checkAmount = order.amount == vnp_Params['vnp_Amount'] / 100; // Kiểm tra số tiền "giá trị của vnp_Amout/100" trùng khớp với số tiền của đơn hàng trong CSDL của bạn
   if (secureHash === signed) {
-    const result = vnpay_return_service(vnp_Params['vnp_TxnRef']);
-    if (result != null) {
-      // return res.render('success', { code: '00' });
-      return res.status(200).json({ RspCode: '00', Message: 'Success' });
+    //kiểm tra checksum
+    if (order) {
+      if (checkAmount) {
+        if (paymentStatus == '0') {
+          //kiểm tra tình trạng giao dịch trước khi cập nhật tình trạng thanh toán
+          if (rspCode == '00') {
+            //thanh cong
+            //paymentStatus = '1'
+            // Ở đây cập nhật trạng thái giao dịch thanh toán thành công vào CSDL của bạn
+            // console.log('updateUserEcoin', updateUserEcoin);
+            await order.update({ status: '1' });
+            await order.save();
+            if (order.isTranfer == false) {
+              let userId = order.userId;
+              let orderId = order.transactionCode;
+              const updated = await updateEcoin(userId, orderId);
+              console.log('updated', updated);
+            }
+            console.log('Order updated to success');
+            return res.redirect('http://localhost:3000/user/profile');
+            res.status(200).json({ RspCode: '00', Message: 'Success' });
+          } else {
+            //that bai
+            //paymentStatus = '2'
+            await order.update({ status: '2' });
+            await order.save();
+            console.log('Order updated to fail');
+            // Ở đây cập nhật trạng thái giao dịch thanh toán thất bại vào CSDL của bạn
+            res.status(200).json({ RspCode: '01', Message: 'Fail' });
+          }
+        } else {
+          res.status(200).json({
+            RspCode: '02',
+            Message: 'This order has been updated to the payment status',
+          });
+        }
+      } else {
+        res.status(200).json({ RspCode: '04', Message: 'Amount invalid' });
+      }
+    } else {
+      res.status(200).json({ RspCode: '01', Message: 'Order not found' });
     }
-    // else return res.render('success', { code: '97' });
-    else return res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
   } else {
-    res.render('success', { code: '97' });
-    return res.status(200).json({ RspCode: '97', Message: 'Invalid sign' });
+    res.status(200).json({ RspCode: '97', Message: 'Checksum failed' });
   }
 };
 

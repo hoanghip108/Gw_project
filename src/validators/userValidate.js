@@ -22,9 +22,10 @@ const Loginschema = Joi.object({
       'string.empty': 'username must not be empty',
       'string.pattern.base': 'username must not have special characters',
     }),
-  password: Joi.string().required().messages({
+  password: Joi.string().min(6).required().messages({
     'string.empty': 'password must not be empty',
     'any.required': 'password is required',
+    'string.min': 'password must be at least 6 characters long',
   }),
 });
 const changePasswordSchema = Joi.object({
@@ -45,9 +46,10 @@ const UserSchema = Joi.object({
     'string.pattern.base': 'username must not have special characters',
     'any.required': 'username is required',
   }),
-  password: Joi.string().required().messages({
+  password: Joi.string().min(6).required().messages({
     'string.empty': 'password must not be empty',
     'any.required': 'password is required',
+    'string.min': 'password must be at least 6 characters long',
   }),
   firstName: Joi.string().min(2).max(10).required().messages({
     'string.min': 'First name must have at least 2 characters',
@@ -64,7 +66,7 @@ const UserSchema = Joi.object({
   email: Joi.string().min(10).max(30).regex(EMAIL_REGEX).required().messages({
     'string.min': 'Email must have at least 10 characters',
     'string.max': 'Email must have maximum 30 characters',
-    'string.pattern.base': 'Email must have @ characters',
+    'string.pattern.base': 'Invalid email format',
     'any.required': 'Email is required',
     'string.empty': 'Email must not be empty',
   }),

@@ -27,6 +27,7 @@ import {
   getFriendRequest,
   approveFriendRequest,
   rejectFriendRequest,
+  getUserById,
 } from '../services/userServices';
 const config = require('../config');
 import {
@@ -100,6 +101,7 @@ const createUserController = async (req, res, next) => {
     }
 
     const link = 'http://' + host + '/api/users/auth/register/verify/' + user.id;
+    console.log('this is link', link);
     const { ...option } = new verrifyEmailOption(user.email, 'verify link', link);
 
     transporter.sendMail(option);
@@ -145,8 +147,10 @@ const verifyUserController = async (req, res, next) => {
     const id = req.params.id;
     const verify = await verifyUser(id);
     if (verify) {
+      return res.redirect('http://localhost:3000/verify-success');
       return res.status(httpStatus.OK).json(new Success('your account has been verified'));
     }
+    return res.redirect('http://localhost:3000/verify-fail');
     return res.status(httpStatus.BadRequest).json(new BadRequest('email is not verified'));
   } catch (err) {
     next(err);
@@ -194,6 +198,10 @@ const changePasswordController = async (req, res, next) => {
     const { error, value } = changePasswordSchema.validate(req.body);
     if (error) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.details[0].message));
+    } else if (value.newPassword == value.confirmPassword) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest('New password and confirm password must be different'));
     }
     const currentUserId = req.user.userId;
     const password = await changePassword(currentUserId, value);
@@ -396,6 +404,18 @@ const rejectFriendRequestController = async (req, res, next) => {
   }
   return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.REJECTED, result));
 };
+const getUserByIdController = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const user = await getUserById(id);
+    if (user) {
+      return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_FOUND, user));
+    }
+    return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
+  } catch (err) {
+    next(err);
+  }
+};
 export {
   createUserController,
   updateUserController,
@@ -415,4 +435,5 @@ export {
   sendFriendRequestController,
   approveFriendRequestController,
   rejectFriendRequestController,
+  getUserByIdController,
 };

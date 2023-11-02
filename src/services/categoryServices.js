@@ -42,7 +42,10 @@ const getCategory = async (categoryId) => {
 const getListCategory = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
   const limit = pageSize;
-  const categories = await Category.findAll({ offset, limit });
+  const categories = await Category.findAll(
+    { attributes: { exclude: ['isDeleted', 'createdBy', 'updatedBy'] } },
+    { offset, limit },
+  );
   const totalCount = await Category.count();
 
   if (!totalCount) {

@@ -11,6 +11,8 @@ import {
   approveCourseController,
   restoreCourseController,
   searchCourseController,
+  getDeletedCourseController,
+  getListCourseByAuthorController,
 } from '../controllers/courseController';
 import { verifyToken, authorize } from '../middleware/auth.js';
 const express = require('express');
@@ -32,6 +34,8 @@ courseRouter.get('/courses/pending/:id', verifyToken, getPendingCourseController
 courseRouter.get('/courses/pending', verifyToken, getListPendingCourseController);
 courseRouter.get('/courses/:id', getapprovedCourseController);
 courseRouter.get('/courses', getListApprovedCourseController);
+courseRouter.get('/courses/deleted/:id', verifyToken, getDeletedCourseController);
+courseRouter.get('/courses/author/:id', getListCourseByAuthorController);
 courseRouter.patch(
   '/courses/:id',
   verifyToken,
