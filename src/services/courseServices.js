@@ -8,6 +8,7 @@ const { Op, where } = require('sequelize');
 const { sequelize } = require('../config/database');
 import httpStatus from 'http-status';
 import ExcludedData from '../helper/excludeData';
+import { include } from '../database/models/base';
 const dataToExclude = [...Object.values(ExcludedData)];
 const createCourse = async (payload, currentUser) => {
   let t;
@@ -113,18 +114,15 @@ const updateCourse = async (payload, courseId, currentUser) => {
 const getApprovedCourse = async (courseId) => {
   const course = await Course.findOne({
     where: { [Op.and]: [{ courseId: courseId }, { isApprove: true }, { isDeleted: false }] },
-    // attributes: ['courseId', 'courseName', 'description', 'price', 'createdAt', 'updatedAt'],
-
-    // include: [
-    //   {
-    //     model: Section,
-    //     attributes: ['courseId', 'courseName', 'description', 'price', 'createdAt', 'updatedAt'],
-    //     include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
-    //   },
-    // ],
+    include: [{ model: Section, include: [{ model: Lesson }] }],
   });
   if (course) {
-    return course;
+    const sectionCount = course.Sections.length;
+    const lessonCount = course.Sections.reduce(
+      (totalLessons, section) => totalLessons + section.Lessons.length,
+      0,
+    );
+    return { course, sectionCount, lessonCount };
   }
   return null;
 };
@@ -187,7 +185,22 @@ const getListApprovedCourse = async (pageIndex, pageSize) => {
 const getListPendingCourse = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
   const limit = pageSize;
-  const courses = await Course.findAll({ where: { isApprove: false } }, { offset, limit });
+  const courses = await Course.findAll(
+    {
+      where: { [Op.and]: [{ isApprove: false }, { isDeleted: false }] },
+      attributes: [
+        'courseId',
+        'courseName',
+        'description',
+        'price',
+        'createdBy',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
+    // { attributes: ['courseId', 'courseName', 'description', 'price', 'createdAt', 'updatedAt'] },
+    { offset, limit },
+  );
   const totalCount = await Course.count();
   if (!totalCount) {
     return COURSE_CONSTANTS.COURSE_NOTFOUND;

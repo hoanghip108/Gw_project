@@ -1,5 +1,4 @@
 import { USER_STATUS, EMAIL_CONSTANTS, COMMON_CONSTANTS } from '../data/constant';
-import { USER } from '../helper/messageResponse';
 import { uploadImage } from '../helper/uploadFile';
 const cloudinary = require('cloudinary').v2;
 cloudinary.config({
@@ -161,9 +160,7 @@ const disableUserController = async (req, res, next) => {
     const uId = req.params.id;
     const currentUser = req.user.userId;
     const user = await disableUser(uId, currentUser);
-    if (user == USER.Delete_yourself) {
-      return res.status(400).json(new BadRequest(USER.Delete_yourself));
-    } else if (user == null) {
+    if (user == null || user == USER_STATUS.USER_DELETE_FAILED) {
       return res.status(400).json(new BadRequest(USER_STATUS.USER_DELETE_FAILED));
     }
     return res.status(httpStatus.OK).json(new Success(USER_STATUS.USER_DELETE));

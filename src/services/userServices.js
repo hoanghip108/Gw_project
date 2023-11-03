@@ -12,7 +12,6 @@ import randomString from '../data/randomString';
 const { sequelize } = require('../config/database');
 const { Op } = require('sequelize');
 import { ROLE_DEFINE, COMMON_CONSTANTS } from '../data/constant';
-import { USER } from '../helper/messageResponse';
 import { genAccessToken, genRefreshToken, verifyRefreshToken } from '../helper/Auth';
 import {
   FORM_CATEGORY,
@@ -176,17 +175,16 @@ const disableUser = async (uId, currentUserId) => {
     const user = await User.findOne({
       where: { [Op.and]: [{ id: uId }, { isActive: true }] },
     });
-    console.log();
+
     if (!user) {
       return null;
     }
     if (user.id != currentUserId) {
-      console.log(user.id != uId);
       await user.update({ isActive: false }, { transaction: t });
+      await t.commit();
       return user;
     }
-    await t.commit();
-    return USER.Delete_yourself;
+    return USER_STATUS.USER_DELETE_FAILED;
   } catch (err) {
     throw new APIError({
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,

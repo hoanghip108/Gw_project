@@ -89,6 +89,7 @@ const getListsubCategory = async (pageIndex, pageSize) => {
 };
 const updatesubCategory = async (payload, subCategoryId) => {
   try {
+    console.log('this is payload', payload);
     const cate = await category.findOne({ where: { cateId: payload.cateId } });
     if (!cate) {
       return CATEGORY_CONSTANTS.CATEGORY_NOTFOUND;
@@ -100,7 +101,7 @@ const updatesubCategory = async (payload, subCategoryId) => {
     if (!result) {
       return SUBCATEGORY_CONSTANTS.SUBCATEGORY_NOTFOUND;
     }
-    await result.update({ subCateName: payload.subCateName });
+    await result.update({ subCateName: payload.subCateName, cateId: payload.cateId });
     await result.save();
     return result;
   } catch (err) {
