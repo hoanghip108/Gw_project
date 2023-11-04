@@ -16,6 +16,7 @@ import {
   uploadFileController,
   getAccessTokenController,
   requestChangeUserRoleController,
+  getListRequestChangeRoleController,
   approveChangeRoleRequestController,
   getFriendRequestController,
   sendFriendRequestController,
@@ -28,6 +29,7 @@ const userRouter = express.Router();
 userRouter.get('/users/auth/register/verify/:id', verifyUserController);
 userRouter.get('/users/profile', verifyToken, getCurrentUserController);
 userRouter.get('/users/disable', verifyToken, authorize, getListDisableUserController);
+userRouter.get('/users/request-change-role', verifyToken, getListRequestChangeRoleController);
 userRouter.get('/users/:id', getUserByIdController);
 userRouter.get('/users', verifyToken, getListUserController);
 userRouter.post('/users/forgotpassword', resetPasswordController);

@@ -21,6 +21,7 @@ import {
   uploadAvatar,
   getAccessToken,
   requestChangeUserRole,
+  getListChangeRoleRequest,
   approveChangeRoleRequest,
   sendFriendRequest,
   getFriendRequest,
@@ -335,6 +336,25 @@ const requestChangeUserRoleController = async (req, res, next) => {
     next(err);
   }
 };
+const getListRequestChangeRoleController = async (req, res, next) => {
+  try {
+    let pageIndex = parseInt(req.query.pageIndex);
+    let pageSize = parseInt(req.query.pageSize);
+    if (isNaN(pageIndex) || isNaN(pageSize) || pageIndex <= 0 || pageSize <= 0) {
+      pageIndex = config.defaultIndexPagination;
+      pageSize = config.defaultSizePagination;
+    }
+    const result = await getListChangeRoleRequest(pageIndex, pageSize);
+    if (result == COMMON_CONSTANTS.NOT_FOUND) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.NOT_FOUND));
+    } else if (result == COMMON_CONSTANTS.INVALID_PAGE) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(COMMON_CONSTANTS.INVALID_PAGE));
+    }
+    return res.status(httpStatus.OK).json(new Success(COMMON_CONSTANTS.SUCCESS, result));
+  } catch (err) {
+    next(err);
+  }
+};
 const approveChangeRoleRequestController = async (req, res, next) => {
   try {
     const curentUserId = req.user.userId;
@@ -432,6 +452,7 @@ export {
   uploadFileController,
   getAccessTokenController,
   requestChangeUserRoleController,
+  getListRequestChangeRoleController,
   approveChangeRoleRequestController,
   getFriendRequestController,
   sendFriendRequestController,

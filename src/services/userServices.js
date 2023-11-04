@@ -25,7 +25,6 @@ const cron = require('node-cron');
 const dataToExclude = [...Object.values(ExcludedData)];
 
 import { getOne } from '../coreFunctions/getOne';
-import { at } from 'lodash';
 const login = async (payload) => {
   try {
     const user = await User.findOne({
@@ -33,26 +32,20 @@ const login = async (payload) => {
         [Op.and]: [{ username: payload.username }, { isActive: true }],
       },
       attributes: { exclude: dataToExclude },
+      include: [{ model: User_role, attributes: ['roleId'], include: [{ model: Role }] }],
     });
+
     if (user) {
       if (bcrypt.compareSync(payload.password, user.password)) {
-        console.log('this is userID: ', user.id);
-        const user_role = await User_role.findOne({
-          where: { userId: user.id },
-        });
-        const role = await Role.findOne({
-          where: { roleId: user_role.roleId },
-          attributes: { exclude: dataToExclude },
-        });
         const data = {
           userId: user.id,
           username: user.username,
-          roleId: role.roleId,
+          roleId: user.user_roles.roleId,
         };
         const accessToken = genAccessToken(data);
         const refreshToken = genRefreshToken(data);
         user.password = undefined;
-        return { user, role, accessToken, refreshToken };
+        return { user, accessToken, refreshToken };
       }
     }
     return null;
@@ -352,6 +345,41 @@ const requestChangeUserRole = async (userId, roleId, introduction) => {
   }
   return USER_STATUS.REQUEST_CHANGE_ROLE_FAIL;
 };
+const getListChangeRoleRequest = async (pageIndex, pageSize) => {
+  const offset = (pageIndex - 1) * pageSize;
+  const limit = pageSize;
+  const requests = await userRolePending.findAll(
+    {
+      where: { isDeleted: false, isApproved: false },
+    },
+    { offset, limit },
+    {
+      include: [
+        { model: User, attributes: ['username'] },
+        { model: Role, attributes: ['Rolename'] },
+      ],
+    },
+  );
+
+  const totalCount = await userRolePending.count();
+  if (!totalCount) {
+    return COMMON_CONSTANTS.NOT_FOUND;
+  }
+
+  const totalPages = Math.ceil(totalCount / pageSize);
+  if (pageIndex > totalPages) {
+    return COMMON_CONSTANTS.INVALID_PAGE;
+  }
+
+  return {
+    status: httpStatus.OK,
+    pageIndex,
+    pageSize,
+    totalCount,
+    totalPages,
+    requests,
+  };
+};
 const approveChangeRoleRequest = async (curentUserId, requestId) => {
   const request = await userRolePending.findOne({
     where: { id: requestId, isDeleted: false },
@@ -470,6 +498,7 @@ export {
   uploadAvatar,
   getAccessToken,
   requestChangeUserRole,
+  getListChangeRoleRequest,
   approveChangeRoleRequest,
   getFriendRequest,
   sendFriendRequest,
