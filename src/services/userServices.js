@@ -153,16 +153,7 @@ const updateUser = async (currentUserId, payload) => {
 };
 
 const getCurrentUser = async (Uid) => {
-  const attributes = [
-    'id',
-    'username',
-    'email',
-    'bio',
-    'ecoin',
-    'avatar',
-    'createdAt',
-    'updatedAt',
-  ];
+  const attributes = {};
   const include = [{ model: User_role, attributes: ['roleId'], include: [{ model: Role }] }];
   const user = await getOne(User)({ id: Uid }, attributes, include);
   if (user) {
