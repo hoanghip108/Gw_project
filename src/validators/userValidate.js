@@ -135,6 +135,12 @@ const changeUserRoleSchema = Joi.object({
     'number.base': 'roleId must be a number',
     'any.required': 'roleId is required',
   }),
+  introduction: Joi.string().min(50).max(100).required().messages({
+    'string.empty': 'introduction must not be empty',
+    'any.required': 'introduction is required',
+    'string.min': 'introduction must be at least 50 characters long',
+    'string.max': 'introduction must have maximum 100 characters',
+  }),
 });
 export {
   Loginschema,

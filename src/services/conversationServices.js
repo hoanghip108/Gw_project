@@ -5,6 +5,7 @@ const Conversation = require('../database/models/conversation');
 const User = require('../database/models/user');
 const Participant = require('../database/models/participant');
 const Message = require('../database/models/message');
+import { getOne } from '../coreFunctions/getOne';
 const getAllConversations = async (userId) => {
   const conversation = await Participant.findAll({ where: { userId: userId } });
   return conversation;
@@ -23,9 +24,7 @@ const getConversation = async (senderId, receiverId) => {
 
       return { messages, conversationId: conversation[0][0].conversationId };
     } else {
-      const receiver = await User.findOne({
-        where: { [Op.and]: [{ id: receiverId }, { isDeleted: false }] },
-      });
+      const receiver = await getOne(User)({ id: receiverId });
       if (receiver) {
         const newConversation = await Conversation.create({
           title: 'One-on-One Conversation',

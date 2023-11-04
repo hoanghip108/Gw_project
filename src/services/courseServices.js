@@ -8,7 +8,7 @@ const { Op, where } = require('sequelize');
 const { sequelize } = require('../config/database');
 import httpStatus from 'http-status';
 import ExcludedData from '../helper/excludeData';
-import { include } from '../database/models/base';
+import { getOne } from '../coreFunctions/getOne';
 const dataToExclude = [...Object.values(ExcludedData)];
 const createCourse = async (payload, currentUser) => {
   let t;
@@ -114,6 +114,7 @@ const updateCourse = async (payload, courseId, currentUser) => {
 const getApprovedCourse = async (courseId) => {
   const course = await Course.findOne({
     where: { [Op.and]: [{ courseId: courseId }, { isApprove: true }, { isDeleted: false }] },
+
     include: [{ model: Section, include: [{ model: Lesson }] }],
   });
   if (course) {
@@ -127,17 +128,25 @@ const getApprovedCourse = async (courseId) => {
   return null;
 };
 const getPendingCourse = async (courseId) => {
-  const course = await Course.findOne({
-    where: { [Op.and]: [{ courseId: courseId }, { isApprove: false }] },
-    attributes: { exclude: dataToExclude },
-    include: [
-      {
-        model: Section,
-        attributes: { exclude: dataToExclude },
-        include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
-      },
-    ],
-  });
+  const include = [
+    {
+      model: Section,
+      attributes: { exclude: dataToExclude },
+      include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
+    },
+  ];
+  const course = getOne(Course)([{ courseId: courseId }, { isApprove: false }], {}, include);
+  // const course = await Course.findOne({
+  //   where: { [Op.and]: [{ courseId: courseId }, { isApprove: false }] },
+  //   attributes: { exclude: dataToExclude },
+  //   include: [
+  //     {
+  //       model: Section,
+  //       attributes: { exclude: dataToExclude },
+  //       include: [{ model: Lesson, attributes: { exclude: dataToExclude + ['videoPath'] } }],
+  //     },
+  //   ],
+  // });
   if (course) {
     return course;
   }
@@ -231,7 +240,21 @@ const getDeletedCourse = async (courseId) => {
 const getListDeletedCourse = async (pageIndex, pageSize) => {
   const offset = (pageIndex - 1) * pageSize;
   const limit = pageSize;
-  const courses = await Course.findAll({ where: { isDeleted: true } }, { offset, limit });
+  const courses = await Course.findAll(
+    { where: { isDeleted: true } },
+    {
+      attributes: [
+        'courseId',
+        'courseName',
+        'description',
+        'price',
+        'createdBy',
+        'createdAt',
+        'updatedAt',
+      ],
+    },
+    { offset, limit },
+  );
   const totalCount = await Course.count();
   if (!totalCount) {
     return COURSE_CONSTANTS.COURSE_NOTFOUND;
@@ -298,7 +321,23 @@ const searchCourse = async (keyword) => {
 };
 const getListCourseByAuthor = async (authorId) => {
   const result = await Course.findAll({
-    where: { [Op.and]: [{ createdBy: authorId }, { isApprove: true }] },
+    where: {
+      [Op.and]: [
+        { createdBy: authorId },
+        {
+          attributes: [
+            'courseId',
+            'courseName',
+            'description',
+            'price',
+            'createdBy',
+            'createdAt',
+            'updatedAt',
+          ],
+        },
+        { isApprove: true },
+      ],
+    },
   });
   return result;
 };

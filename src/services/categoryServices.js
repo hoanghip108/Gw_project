@@ -5,14 +5,15 @@ import httpStatus from 'http-status';
 const { Op } = require('sequelize');
 import ExcludedData from '../helper/excludeData';
 const dataToExclude = [...Object.values(ExcludedData)];
-const createCategory = async (currentUser, cateName) => {
+import { getOne } from '../coreFunctions/getOne';
+const createCategory = async (currentUser, payload) => {
   try {
-    const category = await Category.findOne({ where: { cateName: cateName } });
+    const category = await Category.findOne({ where: { cateName: payload.cateName } });
     if (category) {
       return CATEGORY_CONSTANTS.CATEGORY_EXIST;
     }
     const newCategory = await Category.create({
-      cateName: cateName,
+      cateName: payload.cateName,
       createdBy: currentUser,
     });
     return newCategory;
@@ -26,7 +27,8 @@ const createCategory = async (currentUser, cateName) => {
 };
 const getCategory = async (categoryId) => {
   try {
-    const category = await Category.findOne({ where: { cateId: categoryId } });
+    // const category = await Category.findOne({ where: { cateId: categoryId } });
+    const category = await getOne(Category)({ cateId: categoryId });
     if (!category) {
       return CATEGORY_CONSTANTS.CATEGORY_NOTFOUND;
     }

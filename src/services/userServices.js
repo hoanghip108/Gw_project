@@ -23,6 +23,9 @@ import {
 import hashPassword from '../helper/hashPassword';
 const cron = require('node-cron');
 const dataToExclude = [...Object.values(ExcludedData)];
+
+import { getOne } from '../coreFunctions/getOne';
+import { at } from 'lodash';
 const login = async (payload) => {
   try {
     const user = await User.findOne({
@@ -80,10 +83,7 @@ const createUser = async (host, payload) => {
   try {
     t = await sequelize.transaction();
     const hash = hashPassword(payload.password);
-    let existUser = await User.findOne({
-      where: { username: payload.username },
-      attributes: ['username'],
-    });
+    let existUser = getOne(User)({ username: payload.username });
     if (existUser) {
       return USER_STATUS.USER_EXIST;
     }
@@ -127,6 +127,16 @@ const createUser = async (host, payload) => {
     });
   }
 };
+const verifyUser = async (id) => {
+  const user = await User.findOne({ where: { id: id } });
+  if (user) {
+    user.isActive = true;
+    await user.save();
+    return user;
+  } else {
+    return null;
+  }
+};
 const updateUser = async (currentUserId, payload) => {
   const user = await User.findOne({
     where: { [Op.and]: [{ id: currentUserId }, { isActive: true }] },
@@ -141,31 +151,22 @@ const updateUser = async (currentUserId, payload) => {
   });
   return updatedUser;
 };
-const verifyUser = async (id) => {
-  const user = await User.findOne({ where: { id: id } });
-  if (user) {
-    user.isActive = true;
-    await user.save();
-    return user;
-  } else {
-    return null;
-  }
-};
-const getCurrentUser = async (id) => {
-  const user = await User.findOne({
-    where: { [Op.or]: [{ id: id }, { username: id }] },
 
-    attributes: { exclude: dataToExclude },
-  });
+const getCurrentUser = async (Uid) => {
+  const attributes = [
+    'id',
+    'username',
+    'email',
+    'bio',
+    'ecoin',
+    'avatar',
+    'createdAt',
+    'updatedAt',
+  ];
+  const include = [{ model: User_role, attributes: ['roleId'], include: [{ model: Role }] }];
+  const user = await getOne(User)({ id: Uid }, attributes, include);
   if (user) {
-    const user_role = await User_role.findOne({
-      where: { userId: user.id },
-    });
-    const role = await Role.findOne({
-      where: { roleId: user_role.roleId },
-      attributes: { exclude: dataToExclude },
-    });
-    return { user, role };
+    return user;
   }
   return null;
 };
@@ -326,7 +327,7 @@ const getAccessToken = async (refreshToken) => {
     }
   }
 };
-const requestChangeUserRole = async (userId, roleId) => {
+const requestChangeUserRole = async (userId, roleId, introduction) => {
   const role = await Role.findOne({ where: { roleId: roleId } });
   if (!role) {
     return USER_STATUS.ROLE_NOTFOUND;
@@ -350,6 +351,7 @@ const requestChangeUserRole = async (userId, roleId) => {
   const request = await userRolePending.create({
     userId: userId,
     roleId: roleId,
+    introduction: introduction,
     createdBy: userId,
     createdAt: Date.now(),
   });

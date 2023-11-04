@@ -10,7 +10,7 @@ const {
 import { verifyToken } from '../middleware/auth';
 
 categoryRouter.post('/categories', verifyToken, createCategoryController);
-categoryRouter.get('/categories/:id', verifyToken, getCategoryController);
+categoryRouter.get('/categories/:id', getCategoryController);
 categoryRouter.get('/categories', getListCategoryController);
 categoryRouter.put('/categories/:id', verifyToken, updateCategoryController);
 categoryRouter.delete('/categories/:id', verifyToken, deleteCategoryController);

@@ -23,6 +23,7 @@ import {
   updatesubCategory,
   deletesubCategory,
 } from '../services/subCategoryServices';
+import { categorySchema } from '../validators/categoryValidate';
 const createsubCategoryController = async (req, res, next) => {
   try {
     const currentUser = req.user.username;

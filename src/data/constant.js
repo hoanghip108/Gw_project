@@ -16,7 +16,7 @@ const USER_STATUS = {
   REQUEST_CHANGE_ROLE: 'Request change role send successfully',
   REQUEST_CHANGE_ROLE_FAIL: 'Request change role failed',
   USER_ROLE_EXIST: 'Account already has this role',
-  USER_REQUEST_ROLE_EXIST: 'Account already has a request to change role',
+  USER_REQUEST_ROLE_EXIST: 'Account already has a pending request to change role',
   USER_ROLE_REQUEST_NOTFOUND: 'request to change role on this account is not found',
   FRIEND_EXIST: 'Already friend ',
   EMAIL_EXIST: 'Email already exists',

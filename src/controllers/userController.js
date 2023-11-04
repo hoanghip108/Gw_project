@@ -313,13 +313,18 @@ const requestChangeUserRoleController = async (req, res, next) => {
     }
     const curentUserId = req.user.userId;
     const roleId = value.roleId;
-    const result = await requestChangeUserRole(curentUserId, roleId);
+    const introduction = value.introduction;
+    const result = await requestChangeUserRole(curentUserId, roleId, introduction);
     if (result == USER_STATUS.ROLE_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.ROLE_NOTFOUND));
     } else if (result == USER_STATUS.USER_NOTFOUND) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_NOTFOUND));
     } else if (result == USER_STATUS.USER_ROLE_EXIST) {
       return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(USER_STATUS.USER_ROLE_EXIST));
+    } else if (result == USER_STATUS.USER_REQUEST_ROLE_EXIST) {
+      return res
+        .status(httpStatus.BAD_REQUEST)
+        .json(new BadRequest(USER_STATUS.USER_REQUEST_ROLE_EXIST));
     } else if (result == USER_STATUS.REQUEST_CHANGE_ROLE_FAIL) {
       return res
         .status(httpStatus.BAD_REQUEST)

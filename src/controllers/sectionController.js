@@ -6,6 +6,7 @@ import {
 } from '../services/sectionServices';
 import { uploadDocument } from '../helper/uploadFile';
 import { SECTION_CONSTANT, COMMON_CONSTANTS, COURSE_CONSTANTS } from '../data/constant';
+import { sectionSchema } from '../validators/sectionValidate';
 const httpStatus = require('http-status');
 const {
   Common,
@@ -36,10 +37,15 @@ const getSectionController = async (req, res, next) => {
 const getListSectionController = async (req, res, next) => {};
 const createSectionController = async (req, res, next) => {
   try {
-    const payload = req.body;
-    const courseId = req.body.courseId;
-    const currentUser = req.user.username;
-    const result = await createSection(payload, courseId, currentUser);
+    const sections = req.body;
+    for (let i = 0; i < sections.length; i++) {
+      const { error, value } = sectionSchema.validate(sections[i]);
+      if (error) {
+        return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.message));
+      }
+    }
+    const currentUser = req.user.userId;
+    const result = await createSection(sections, currentUser);
     if (result === COURSE_CONSTANTS.COURSE_NOTFOUND) {
       return res
         .status(httpStatus.BAD_REQUEST)

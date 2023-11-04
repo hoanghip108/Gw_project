@@ -5,4 +5,8 @@ module.exports = {
     allowNull: false,
     defaultValue: false,
   },
+  introduction: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 };

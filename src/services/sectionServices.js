@@ -43,24 +43,44 @@ const getListSection = async (pageIndex, pageSize) => {
     endIndex,
   };
 };
-const createSection = async (payload, sectionId, currentUser) => {
+const createSection = async (sections, currentUser) => {
   let t;
   try {
     t = await sequelize.transaction();
-    const courseId = payload.courseId;
-    const course = await Course.findOne({ where: { courseId: courseId } });
-    if (!course) {
-      return COURSE_CONSTANTS.COURSE_NOTFOUND;
+    for (let i = 0; i < sections.length; i++) {
+      const courseId = sections[i].courseId;
+      const course = await Course.findOne({ where: { courseId: courseId } });
+      if (!course) {
+        return COURSE_CONSTANTS.COURSE_NOTFOUND;
+      }
+      let section;
+      let created;
+      try {
+        [section, created] = await Section.findOrCreate({
+          where: { sectionName: sections[i].sectionName },
+          defaults: {
+            createdBy: currentUser,
+            sectionName: sections[i].sectionName,
+            courseId: courseId,
+          },
+          transaction: t,
+        });
+        if (!created) {
+          await t.rollback();
+          return SECTION_CONSTANT.EXIST;
+        }
+        return sections;
+      } catch (err) {
+        console.log(err.message);
+        await t.rollback();
+        throw new APIError({
+          message: COMMON_CONSTANTS.TRANSACTION_ERROR,
+          status: httpStatus.BAD_REQUEST,
+        });
+      }
     }
-    const [section, created] = await Section.findOrCreate({
-      where: { sectionName: payload.sectionName },
-      defaults: { createdBy: currentUser, sectionName: payload.sectionName, courseId: courseId },
-    });
     await t.commit();
-    if (!created) {
-      return SECTION_CONSTANT.EXIST;
-    }
-    return section;
+    return sections;
   } catch (err) {
     console.log(err.message);
     await t.rollback();
@@ -86,6 +106,7 @@ const updateSection = async (payload, sectionId, currentUser) => {
     const result = await Section.update(
       { ...payload, updatedBy: currentUser },
       { where: { sectionId: sectionId } },
+      { transaction: t },
     );
     await t.commit();
     if (result > 0) {
@@ -94,7 +115,7 @@ const updateSection = async (payload, sectionId, currentUser) => {
     return null;
   } catch (err) {
     console.log(err.message);
-    t.rollback();
+    await t.rollback();
     throw new APIError({
       message: COMMON_CONSTANTS.TRANSACTION_ERROR,
       status: httpStatus.NOT_FOUND,

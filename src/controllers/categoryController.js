@@ -22,11 +22,16 @@ import {
   updateCategory,
   deleteCategory,
 } from '../services/categoryServices';
+import { categorySchema } from '../validators/categoryValidate';
 const createCategoryController = async (req, res, next) => {
   try {
-    const currentUser = req.user.username;
+    const currentUser = req.user.userId;
     const cateName = req.body.cateName;
-    const result = await createCategory(currentUser, cateName);
+    const { error, value } = categorySchema.validate({ cateName });
+    if (error) {
+      return res.status(httpStatus.BAD_REQUEST).json(new BadRequest(error.message));
+    }
+    const result = await createCategory(currentUser, value);
     if (result === CATEGORY_CONSTANTS.CATEGORY_EXIST) {
       return res.status(httpStatus.CONFLICT).json(new Conflict('Category already exists'));
     }
