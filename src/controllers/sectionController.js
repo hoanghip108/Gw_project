@@ -37,6 +37,7 @@ const getSectionController = async (req, res, next) => {
 const getListSectionController = async (req, res, next) => {};
 const createSectionController = async (req, res, next) => {
   try {
+    const courseId = req.params.courseId;
     const sections = req.body;
     for (let i = 0; i < sections.length; i++) {
       const { error, value } = sectionSchema.validate(sections[i]);
@@ -45,7 +46,7 @@ const createSectionController = async (req, res, next) => {
       }
     }
     const currentUser = req.user.userId;
-    const result = await createSection(sections, currentUser);
+    const result = await createSection(sections, currentUser, courseId);
     if (result === COURSE_CONSTANTS.COURSE_NOTFOUND) {
       return res
         .status(httpStatus.BAD_REQUEST)

@@ -18,9 +18,5 @@ const sectionSchema = Joi.object({
     'string.empty': 'Section name must not be empty',
     'string.pattern.base': 'Section name must not have special characters',
   }),
-  courseId: Joi.string().required().messages({
-    'string.empty': 'Course id must not be empty',
-    'any.required': 'Course id is required',
-  }),
 });
 export { sectionSchema };

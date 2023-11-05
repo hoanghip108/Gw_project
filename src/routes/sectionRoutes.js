@@ -14,7 +14,7 @@ const upload = multer({ storage: storage });
 
 sectionRouter.get('/sections/:id', getSectionController);
 sectionRouter.put('/sections/:id', verifyToken, updateSectionController);
-sectionRouter.post('/sections/', verifyToken, createSectionController);
+sectionRouter.post('/sections/:courseId', verifyToken, createSectionController);
 sectionRouter.patch('/sections/:id', upload.single('file'), uploadDocsController);
 
 module.exports = sectionRouter;

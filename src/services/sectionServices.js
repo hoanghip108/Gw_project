@@ -43,12 +43,11 @@ const getListSection = async (pageIndex, pageSize) => {
     endIndex,
   };
 };
-const createSection = async (sections, currentUser) => {
+const createSection = async (sections, currentUser, courseId) => {
   let t;
   try {
     t = await sequelize.transaction();
     for (let i = 0; i < sections.length; i++) {
-      const courseId = sections[i].courseId;
       const course = await Course.findOne({ where: { courseId: courseId } });
       if (!course) {
         return COURSE_CONSTANTS.COURSE_NOTFOUND;
