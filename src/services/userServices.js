@@ -76,7 +76,8 @@ const createUser = async (host, payload) => {
   try {
     t = await sequelize.transaction();
     const hash = hashPassword(payload.password);
-    let existUser = getOne(User)({ username: payload.username });
+    let existUser = await getOne(User)({ username: payload.username });
+    console.log('this is existUser', existUser);
     if (existUser) {
       return USER_STATUS.USER_EXIST;
     }
