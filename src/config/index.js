@@ -1,35 +1,36 @@
-const dotenv = require("dotenv");
-
-dotenv.config();
-const env = process.env.NODE_ENV;
-
+const dotenv = require('dotenv');
+const path = require('path');
+const cleanedEnv = process.env.NODE_ENV.replace(/\s/g, '');
+dotenv.config({
+  path: path.resolve(__dirname, `${cleanedEnv}.env`),
+});
 const configs = {
   base: {
-    env,
+    NODE_ENV: process.env.NODE_ENV,
     // Application
-    name: process.env.APP_NAME || "SIMPLE_APP_NAME",
-    host: process.env.HTTP_HOST || "localhost",
-    port: process.env.HTTP_PORT || 3000,
+    name: process.env.APP_NAME,
+    host: process.env.HTTP_HOST,
+    port: process.env.HTTP_PORT,
     // Database
-    db_host: process.env.DB_HOST || "localhost",
-    db_port: process.env.DB_PORT || 3306,
-    db_dialect: process.env.DB_DIALECT || "mysql",
-    db_username: process.env.DB_USERNAME || "root",
-    db_password: process.env.DB_PASSWORD || "",
-    db_database: process.env.DB_DATABASE || "Gw_project",
+    db_host: process.env.DB_HOST,
+    db_port: process.env.DB_PORT,
+    db_dialect: process.env.DB_DIALECT,
+    db_username: process.env.DB_USERNAME,
+    db_password: process.env.DB_PASSWORD,
+    db_database: process.env.DB_DATABASE,
+    db_run_migration: process.env.DB_RUN_MIGRATION != 'false', // True as default
     // db_recreate: process.env.DB_RECREATE == 'true',
     db_recreate: true,
-    db_run_migration: process.env.DB_RUN_MIGRATION != "false",
-    db_run_migration: "",
+
     //paginate
-    DEFAULT_LIMIT: 10,
-    DEFAULT_OFFSET: 0,
+    defaultIndexPagination: process.env.DEFAULT_INDEX_PAGINATION || 1,
+    defaultSizePagination: process.env.DEFAULT_SIZE_PAGINATION || 10,
     //seed data
     // seeders: {
     //     path: '../seeders'
     //   }
   },
 };
-const config = Object.assign(configs.base, configs[env]);
+const config = Object.assign(configs.base);
 
 module.exports = config;

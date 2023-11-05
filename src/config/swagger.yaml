@@ -1,0 +1,101 @@
+swagger: '2.0'
+info:
+  description: 'APIs'
+  version: '1.0.0'
+  title: 'APIs'
+securityDefinitions:
+  jwt:
+    type: apiKey
+    name: Authorization
+    in: header
+host: 'localhost:3000'
+basePath: '/api'
+schemes:
+  - 'http'
+consumes:
+  - 'application/json'
+produces:
+  - 'application/json'
+
+paths:
+  /users/auth/login:
+    post:
+      summary: Login to the system
+      description: Log in and get an access token.
+      parameters:
+        - name: 'body'
+          in: 'body'
+          required: true
+          schema: {}
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+
+  /users:
+    get:
+      summary: 'Get list of users'
+      parameters:
+        - name: 'pageIndex'
+          in: 'query'
+          type: 'integer'
+          required: false
+          description: 'Limit number of results'
+        - name: 'pageSize'
+          in: 'query'
+          type: 'integer'
+          required: false
+          description: 'Offset for pagination'
+      responses:
+        '200':
+          description: 'List of users retrieved successfully'
+  /users/{id}:
+    get:
+      summary: 'Get user by ID'
+      parameters:
+        - name: 'id'
+          in: 'path'
+          type: 'string'
+          required: true
+          description: 'ID of user to retrieve'
+      responses:
+        '200':
+          description: 'User retrieved successfully'
+    put:
+      summary: 'Update user by ID'
+      parameters:
+        - name: 'id'
+          in: 'path'
+          type: 'string'
+          required: true
+          description: 'ID of user'
+        - name: 'body'
+          in: 'body'
+          required: true
+          schema: {}
+      responses:
+        '200':
+          description: 'User updated successfully'
+        '404':
+          description: 'User not found'
+    delete:
+      summary: 'Delete user by ID'
+      parameters:
+        - name: 'id'
+          in: 'path'
+          type: 'integer'
+          required: true
+          description: 'ID of user to delete'
+      responses:
+        '204':
+          description: 'User deleted successfully'
+        '404':
+          description: 'User not found'
+security:
+  - jwt: []

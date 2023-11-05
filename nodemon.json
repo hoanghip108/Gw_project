@@ -1,0 +1,6 @@
+{
+  "watch": ["src"],
+  "ext": ".ts,.js",
+  "ignore": ["node_modules", "dist"],
+  "exec": "set NODE_ENV=development && babel-node  ./src/server.js"
+}
