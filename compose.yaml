@@ -4,7 +4,6 @@ services:
   app:
     build: .
     restart: always
-    env_file: ./config/development.env # Load environment variables from a file if needed
     ports:
       - 80:5000
     depends_on:
@@ -16,23 +15,6 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_DATABASE: e_learning_dev
-      MYSQL_ROOT_PASSWORD: Hoanghandsome1
-    expose:
-      - 3306
-    volumes:
-      - db:/var/lib/mysql
-    healthcheck:
-      test: mysqladmin ping -h localhost
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 5s
-
-  mysqltest:
-    image: mysql:8.0
-    restart: unless-stopped
-    environment:
-      MYSQL_DATABASE: e_learning_test
       MYSQL_ROOT_PASSWORD: Hoanghandsome1
     expose:
       - 3306
